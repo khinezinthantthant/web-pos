@@ -20,16 +20,19 @@ class ProductFactory extends Factory
             'single',
             'dozen'
         ];
+        $actual_price = rand(50,1000);
+        $sale_price = $actual_price + 50;
         $unit = ["single","dozen"];
+
         return [
             "name" => fake()->name(),
             "brand_id"=>rand(1,10),
-            "actual_price"=>rand(50,1000),
-            "sale_price"=>rand(50,1000),
-            // "total_sotck"=>rand(1,10),
+            "actual_price"=> $actual_price,
+            "sale_price"=>$sale_price,
+            "total_stock"=>0,
             "unit"=>array_rand($unit),
             "more_information"=>fake()->text(),
-            "user_id"=>rand(1,10),
+            "user_id"=> 1,
         ];
     }
 }

@@ -16,13 +16,13 @@ class BrandFactory extends Factory
      */
     public function definition(): array
     {
-        
+
 
         return [
             "name" => fake()->name(),
             "company" => fake()->company(),
             "information" =>fake()->text(),
-            "user_id" => rand(1,10),
+            "user_id" => 1,
         ];
     }
 }

@@ -20,11 +20,6 @@ class UserSeeder extends Seeder
             'password' => Hash::make("asdffdsa"),
             "role" => "admin"
         ]);
-        User::factory()->create([
-            'name' => "moe moe aung",
-            'email' => 'mma@gmail.com',
-            'password' => Hash::make("asdffdsa"),
-            "role" => "staff"
-        ]);
+        
     }
 }
