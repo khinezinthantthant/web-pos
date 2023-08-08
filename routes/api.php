@@ -32,10 +32,13 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("stock",StockController::class);
 
         Route::post("logout", [AuthController::class, 'logout']);
+        Route::post("register", [AuthController::class, 'register']);
+
         // Route::post("logout-all", [ApiAuthController::class, 'logoutAll']);
         // Route::get("devices", [ApiAuthController::class, 'devices']);
 
     });
+
 
     Route::post("login", [AuthController::class, 'login']);
 });
