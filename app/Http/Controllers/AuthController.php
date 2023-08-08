@@ -13,22 +13,25 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        if (!Gate::allows('admin')) {
+            return response()->json([
+                'message' => "You are not allow"
+            ]);
+        }
         $request->validate([
-            "name" => "required|min:3|max:20",
-            "email" => "email|required|unique:users",
-            "password" => "required|confirmed|min:6",
+            "name" => "nullable|min:3",
+            "email" => "required|email|unique:users",
+            "password" => "required|min:8"
         ]);
 
-        
-
-        // $user = User::create([
-        //     "name" => $request->name,
-        //     "email" => $request->email,
-        //     "password" => Hash::make($request->password),
-        // ]);
+        $user = User::create([
+            "name" => $request->name,
+            "email" => $request->email,
+            "password" => Hash::make($request->password)
+        ]);
 
         return response()->json([
-            "message" => "user register successfully",
+            "message" => "User register successful",
         ]);
     }
 
