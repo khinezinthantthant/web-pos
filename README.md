@@ -1,66 +1,361 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Web POS API Documentation
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+This document provides details about the Web POS API endpoints along with their request methods and descriptions.
 
-## About Laravel
+## Authentication
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+All endpoints require authentication using a bearer token. The token must be included in the request headers with the key `Authorization`.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Token
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   Key: `Authorization`
+-   Value: `Bearer {{token}}`
 
-## Learning Laravel
+## Endpoints
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 1. Login `POST`
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```
+ http://127.0.0.1:8000/api/v1/login
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
 
-## Laravel Sponsors
+**Description**: This endpoint is used for user login. It requires an email and password as form data and returns a bearer token upon successful authentication.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+#### Request
 
-### Premium Partners
+-   Method: `POST`
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+-   form data
 
-## Contributing
+| Arguments  | Type     | Description                  |
+| :--------- | :------- | :--------------------------- |
+| `email`     | `string` | **Required** admin@gmail.com |
+| `password` | `string` | **Required** asdffdsa        |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+#### Response
 
-## Code of Conduct
+The response will contain the bearer token used for subsequent authenticated requests.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### 2. Profile
 
-## Security Vulnerabilities
+#### 2.1 Logout
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+http://127.0.0.1:8000/api/v1/logout
 
-## License
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Description**: This endpoint is used to log out the currently authenticated user.
+
+#### Request
+
+-   Method: `GET`
+
+#### 2.2 Register for staff
+
+```
+http://127.0.0.1:8000/api/v1/register
+
+```
+
+**Description**: This endpoint is used for user registration. Only admin user can register new users.
+
+#### Request
+
+-   Method: `POST`
+
+### form data
+
+| Arguments               | Type     | Description                  |
+| :---------------------- | :------- | :--------------------------- |
+| `name`                  | `string` | **Required** staff@gmail.com |
+| `email`                 | `string` | **Required** asdffdsa        |
+| `password`              | `string` | **Required** asdffdsa        |
+| `password_confirmation` | `string` | **Required** asdffdsa        |
+
+
+### 4. Inventory Management
+
+#### 4.1 Product
+
+##### 4.1.1 Store
+
+```
+http://127.0.0.1:8000/api/v1/product
+
+```
+
+**Description**: This endpoint is used to add a new product to the inventory.
+
+#### Request
+
+-   Method: `POST`
+
+### form data
+
+| Arguments          | Type     | Description             |
+| :----------------- | :------- | :---------------------- |
+| `name`             | `string` | **Required** toothbrush |
+| `brand_id`         | `number` | **Required** 3          |
+| `actual_price`     | `number` | **Required** 100        |
+| `sale_price`       | `number` | **Required** 1200       |
+| `unit`             | `string` | **Required** dozen      |
+| `more_information` | `string` | it's a toothbrush       |
+
+##### 4.1.2 Index
+
+```
+http://127.0.0.1:8000/api/v1/product
+
+```
+
+**Description**: This endpoint is used to retrieve a list of all products in the inventory.
+
+#### Request
+
+-   Method: `GET`
+
+#### Response
+
+The response will contain a list of products.
+
+##### 4.1.3 Update
+
+```
+http://127.0.0.1:8000/api/v1/product/10
+
+```
+
+**Description**: This endpoint is used to update information about a specific product.
+
+#### Request
+
+-   Method: `PUT`
+
+### form data
+
+| Arguments          | Type     | Description             |
+| :----------------- | :------- | :---------------------- |
+| `name`             | `string` | **Required** toothpaste |
+| `brand_id`         | `number` | **Required** 3          |
+| `actual_price`     | `number` | **Required** 100        |
+| `sale_price`       | `number` | **Required** 1200       |
+| `unit`             | `string` | **Required** dozen      |
+| `more_information` | `string` | it's a toothpaste       |
+
+##### 4.1.4 Delete
+
+```
+http://127.0.0.1:8000/api/v1/product/1
+```
+
+**Description**: This endpoint is used to delete a specific product from the inventory.
+
+#### Request
+
+-   Method: `DELETE`
+
+##### 4.1.5 Show
+
+```
+
+ http://127.0.0.1:8000/api/v1/product/32
+
+```
+
+**Description**: This endpoint is used to retrieve information about a specific product.
+
+#### Request
+
+-   Method: `GET`
+
+#### Response
+
+The response will contain information about the specified product.
+
+#### 4.2 Brand
+
+##### 4.2.1 Store
+
+```
+ http://127.0.0.1:8000/api/v1/brand
+
+```
+
+**Description**: This endpoint is used to add a new brand to the inventory.
+
+#### Request
+
+-   Method: `POST`
+
+### form data
+
+| Arguments     | Type     | Description              |
+| :------------ | :------- | :----------------------- |
+| `name`        | `string` | **Required** cocala      |
+| `company`     | `string` | **Required** max         |
+| `information` | `text`   | **Required** lorem ispum |
+
+##### 4.2.2 Index
+
+```
+http://127.0.0.1:8000/api/v1/brand
+
+```
+
+**Description**: This endpoint is used to retrieve a list of all brands in the inventory.
+
+#### Request
+
+-   Method: `GET`
+
+#### Response
+
+The response will contain a list of brands.
+
+##### 4.2.3 Show
+
+```
+ http://127.0.0.1:8000/api/v1/brand/16
+
+```
+
+**Description**: This endpoint is used to retrieve information about a specific brand.
+
+#### Request
+
+-   Method: `GET`
+
+#### Response
+
+The response will contain information about the specified brand.
+
+##### 4.2.4 Update
+
+```
+http://127.0.0.1:8000/api/v1/brand/16
+```
+
+**Description**: This endpoint is used to update information about a specific brand.
+
+#### Request
+
+-   Method: `PUT`
+
+### form data
+
+| Arguments     | Type     | Description              |
+| :------------ | :------- | :----------------------- |
+| `name`        | `string` | **Required** cocala      |
+| `company`     | `string` | **Required** max         |
+| `information` | `text`   | **Required** lorem ispum |
+
+##### 4.2.5 Delete
+
+```
+http://127.0.0.1:8000/api/v1/brand/1
+
+```
+
+**Description**: This endpoint is used to delete a specific brand from the inventory.
+
+#### Request
+
+-   Method: `DELETE`
+
+#### 4.3 Stock
+
+##### 4.3.1 Store
+
+```
+http://127.0.0.1:8000/api/v1/stock
+```
+
+**Description**: This endpoint is used to store stock information.
+
+#### Request
+
+-   Method: `POST`
+
+### form data
+
+| Arguments          | Type     | Description              |
+| :----------------- | :------- | :----------------------- |
+| `product_id`       | `number` | **Required** 2           |
+| `quantity`         | `number` | **Required** 50          |
+| `more` | `text`   | **Required** lorem ispum |
+
+##### 4.3.2 Index
+
+```
+http://127.0.0.1:8000/api/v1/stock
+
+```
+
+**Description**: This endpoint is used to retrieve a list of all stock items.
+
+#### Request
+
+-   Method: `GET`
+
+#### Response
+
+The response will contain a list of stock items.
+
+##### 4.3.3 Show
+
+```
+http://127.0.0.1:8000/api/v1/stock/10
+
+```
+
+**Description**: This endpoint is used to retrieve information about a specific stock item.
+
+#### Request
+
+-   Method: `GET`
+
+#### Response
+
+The response will contain information about the specified stock item.
+
+##### 4.3.4 Update
+
+```
+http://127.0.0.1:8000/api/v1/stock/68
+
+```
+
+**Description**: This endpoint is used to update information about a specific stock item.
+
+#### Request
+
+-   Method: `PUT`
+
+### form data
+
+| Arguments          | Type     | Description              |
+| :----------------- | :------- | :----------------------- |
+| `product_id`       | `number` | **Required** 2           |
+| `quantity`         | `number` | **Required** 500         |
+| `more` | `text`   | **Required** lorem ispum |
+
+##### 4.3.5 Delete
+
+**Endpoint**: `DELETE http://127.0.0.1:8000/api/v1/stock/1`
+
+**Description**: This endpoint is used to delete a specific stock item.
+
+#### Request
+
+-   Method: `DELETE`
+
+---
+
+## Database Design
+
+```
+https://drawsql.app/teams/test-1662/diagrams/web-pos?fbclid=IwAR2_b_BwuLQl5e92ZGUBi6VXYya1nIbBARzfUQorgYB69pkPXUOx-RCCp_w
+
+```
