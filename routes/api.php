@@ -31,8 +31,6 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("product",ProductController::class);
         Route::apiResource("stock",StockController::class);
 
-        Route::post("register", [AuthController::class, 'register']);
-
         Route::post("logout", [AuthController::class, 'logout']);
         // Route::post("logout-all", [ApiAuthController::class, 'logoutAll']);
         // Route::get("devices", [ApiAuthController::class, 'devices']);
