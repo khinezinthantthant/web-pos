@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BrandController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StockController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +31,9 @@ Route::prefix("v1")->group(function () {
         // Route::post("logout-all", [ApiAuthController::class, 'logoutAll']);
         // Route::get("devices", [ApiAuthController::class, 'devices']);
 
+        Route::resource("brand",BrandController::class);
+        Route::resource('product', ProductController::class);
+        Route::resource('stock',StockController::class);
     });
 
 
