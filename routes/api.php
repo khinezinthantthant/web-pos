@@ -27,7 +27,13 @@ Route::prefix("v1")->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
 
+        Route::apiResource("brand",BrandController::class);
+        Route::apiResource("product",ProductController::class);
+        Route::apiResource("stock",StockController::class);
+
         Route::post("logout", [AuthController::class, 'logout']);
+        Route::post("register", [AuthController::class, 'register']);
+
         // Route::post("logout-all", [ApiAuthController::class, 'logoutAll']);
         // Route::get("devices", [ApiAuthController::class, 'devices']);
 
@@ -37,6 +43,5 @@ Route::prefix("v1")->group(function () {
     });
 
 
-    Route::post("register", [AuthController::class, 'register']);
     Route::post("login", [AuthController::class, 'login']);
 });

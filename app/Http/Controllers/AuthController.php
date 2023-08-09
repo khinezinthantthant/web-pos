@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
@@ -11,6 +12,30 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
 
+
+    public function register(Request $request)
+    {
+        if (!Gate::allows('admin')) {
+            return response()->json([
+                'message' => "You are not allow"
+            ]);
+        }
+        $request->validate([
+            "name" => "nullable|min:3",
+            "email" => "required|email|unique:users",
+            "password" => "required|min:8"
+        ]);
+
+        $user = User::create([
+            "name" => $request->name,
+            "email" => $request->email,
+            "password" => Hash::make($request->password)
+        ]);
+
+        return response()->json([
+            "message" => "User register successful",
+        ]);
+    }
 
     public function login(Request $request)
     {

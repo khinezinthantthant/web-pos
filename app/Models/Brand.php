@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Brand extends Model
 {
     use HasFactory;
+    protected $fillable = ["name","company","information","user_id"];
 
     public function user(){
         return $this->belongsTo(User::class);
