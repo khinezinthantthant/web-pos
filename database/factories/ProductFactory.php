@@ -16,10 +16,7 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        $unit =[
-            'single',
-            'dozen'
-        ];
+       
         $actual_price = rand(50,1000);
         $sale_price = $actual_price + 50;
         $unit = ["single","dozen"];

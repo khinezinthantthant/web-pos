@@ -11,6 +11,7 @@ use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class StockController extends Controller
 {
@@ -29,6 +30,7 @@ class StockController extends Controller
      */
     public function store(StoreStockRequest $request)
     {
+        Gate::authorize("admin");
         $stock = Stock::create([
             "user_id" => Auth::id(),
             "product_id" => $request->product_id,
@@ -63,6 +65,7 @@ class StockController extends Controller
      */
     public function update(UpdateStockRequest $request, string $id)
     {
+        Gate::authorize("admin");
         $stock = Stock::find($id);
         if (is_null($stock)) {
             return response()->json([
@@ -89,6 +92,7 @@ class StockController extends Controller
      */
     public function destroy(string $id)
     {
+        Gate::authorize("admin");
         $stock = Stock::find($id);
         if (is_null($stock)) {
             return response()->json([

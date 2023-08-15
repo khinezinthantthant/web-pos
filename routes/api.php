@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\VoucherController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,18 +31,17 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("brand",BrandController::class);
         Route::apiResource("product",ProductController::class);
         Route::apiResource("stock",StockController::class);
+        Route::apiResource("voucher",VoucherController::class);
+
 
         Route::post("logout", [AuthController::class, 'logout']);
         Route::post("register", [AuthController::class, 'register']);
 
+
         // Route::post("logout-all", [ApiAuthController::class, 'logoutAll']);
         // Route::get("devices", [ApiAuthController::class, 'devices']);
 
-        Route::resource("brand",BrandController::class);
-        Route::resource('product', ProductController::class);
-        Route::resource('stock',StockController::class);
     });
-
 
     Route::post("login", [AuthController::class, 'login']);
 });

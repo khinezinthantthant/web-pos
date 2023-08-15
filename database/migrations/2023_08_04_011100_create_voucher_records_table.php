@@ -16,7 +16,8 @@ return new class extends Migration
             $table->foreignId("voucher_id");
             $table->foreignId("product_id");
             $table->integer("quantity");
-            $table->integer("cost");
+            $table->double("price");
+            $table->double("cost");
             $table->timestamps();
         });
     }

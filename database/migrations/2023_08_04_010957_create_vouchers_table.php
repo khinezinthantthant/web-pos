@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string("customer")->default("unknown");
             $table->string("phone")->default("unknown");
-            $table->bigInteger("voucher_number");
+            $table->string("voucher_number");
             $table->double("total");
-            $table->integer("tax");
-            $table->bigInteger("net_total");
+            $table->float("tax");
+            $table->double("net_total");
             $table->foreignId("user_id");
             $table->timestamps();
         });
