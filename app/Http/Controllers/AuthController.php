@@ -69,7 +69,6 @@ class AuthController extends Controller
             "password" =>"required|confirmed",
         ]);
 
-        // checking current_password with auth_user_password
         if(!Hash::check($request->current_password,Auth::user()->password)){
             return response()->json(["current_password"=>"Password does not match"]);
         }
@@ -83,10 +82,11 @@ class AuthController extends Controller
         // return $user;
         // return $user->password;
 
+        // clear token
         Auth::user()->currentAccessToken()->delete();
 
         return response()->json([
-            "message" => "password change successful.",
+            "message" => "password change successful."
         ]);
 
         // update new password

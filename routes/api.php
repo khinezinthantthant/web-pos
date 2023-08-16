@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\PController;
+use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\VoucherController;
@@ -32,6 +34,9 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("product",ProductController::class);
         Route::apiResource("stock",StockController::class);
         Route::apiResource("voucher",VoucherController::class);
+        Route::apiResource("photo",PhotoController::class);
+        
+        Route::post("p", [PController::class, 'store']);
 
 
         Route::post("logout", [AuthController::class, 'logout']);
