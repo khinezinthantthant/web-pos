@@ -61,4 +61,20 @@ class AuthController extends Controller
             "message" => "logout successful"
         ]);
     }
+
+
+    public function passwordChanging(Request $request)
+    {
+        $user = Auth::user();
+        // dd($request->old_password,$user->password);
+
+        if (!Hash::check($request->old_password, $user->password)) {
+            return response()->json([
+                "old_password" => "does not match"
+            ]);
+        }
+        $user->update([
+            "password" => Hash::make("new_password")
+        ]);
+    }
 }
