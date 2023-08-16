@@ -36,6 +36,7 @@ Route::prefix("v1")->group(function () {
 
         Route::post("logout", [AuthController::class, 'logout']);
         Route::post("register", [AuthController::class, 'register']);
+        Route::post("password-change", [AuthController::class, 'passwordChanging']);
 
 
         // Route::post("logout-all", [ApiAuthController::class, 'logoutAll']);

@@ -61,4 +61,45 @@ class AuthController extends Controller
             "message" => "logout successful"
         ]);
     }
+    public function passwordChanging(Request $request)
+    {
+    //    return Auth::user();  
+        $request->validate([
+            "current_password" => "required|min:8",
+            "password" =>"required|confirmed",
+        ]);
+
+        // checking current_password with auth_user_password
+        if(!Hash::check($request->current_password,Auth::user()->password)){
+            return response()->json(["current_password"=>"Password does not match"]);
+        }
+        // return response()->json([
+        //     "message" => "password is correct." 
+        // ]);
+        $id = Auth::id();
+        $user = User::find($id);
+        $user->password = Hash::make($request->password);
+        $user->update();
+        // return $user;
+        // return $user->password;
+
+        Auth::user()->currentAccessToken()->delete();
+
+        return response()->json([
+            "message" => "password change successful.",
+        ]);
+
+        // update new password
+        // $user = User::find(Auth::user()->id);
+        // $user->password = Hash::make($request->password);
+        // $user->update();
+
+        // return $user->password;
+
+        // clear auth session
+        // session()->forget("auth");
+
+        // return redirect()->route("auth.login");
+
+    }
 }
