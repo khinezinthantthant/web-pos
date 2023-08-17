@@ -19,10 +19,14 @@ return new class extends Migration
             $table->string("password");
 
             $table->enum("role",["admin","staff"])->default("staff");
+            $table->string("photo")->default(config('info.default_contact_photo'));
+            $table->string("phone_number");
+            $table->string("date_of_birth");
+            $table->enum("gender",["male","female"]);
+            $table->string("address");
 
             $table->rememberToken();
             $table->timestamps();
-            $table->string("user_photo")->nullable();
         });
     }
 
