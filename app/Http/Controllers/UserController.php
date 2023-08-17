@@ -39,7 +39,7 @@ class UserController extends Controller
             "phone_number" => "required|min:9|max:15",
             "address" => "required|min:5",
             "gender" => "required|in:male,female",
-            "dob" => "required",
+            "date_of_birth" => "required",
             // "role" => "required|in:admin,staff"
         ]);
 
@@ -131,7 +131,59 @@ class UserController extends Controller
         $user = User::find($id);
         $user->delete();
         return response()->json([
-            "message" => "User Deleted Successfully"
+            "message" => "User Successfully deleted"
+        ]);
+    }
+
+    public function passwordChanging(Request $request)
+    {
+        // return Auth::user();
+        // $request->validate([
+        //     "current_password" => "required|min:8",
+        //     "password" => "required|confirmed",
+        // ]);
+
+        if (!Hash::check($request->current_password, Auth::user()->password)) {
+            return response()->json(["current_password" => "Password does not match"]);
+        }
+
+        $id = Auth::id();
+        $user = User::find($id);
+        $user->password = Hash::make($request->password);
+        $user->update();
+
+        //clear token
+        Auth::user()->currentAccessToken()->delete();
+
+        return response()->json([
+            "message" => "password change successful.",
+        ]);
+
+    }
+
+
+    public function modifyPassword(Request $request)
+    {
+        if (!Gate::allows('admin')) {
+            return response()->json([
+                'message' => "You are not allow"
+            ]);
+        }
+        $request->validate([
+            "new_password" => "required|min:8|max:15",
+            "user_id" => "required|exists:users,id"
+        ]);
+        $user = User::find($request->user_id);
+        if (is_null($user)) {
+            return response()->json([
+                'message' => 'User not found'
+            ]);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+        return response()->json([
+            'message' => 'Staff password changed successfully'
         ]);
     }
 }

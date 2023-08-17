@@ -30,18 +30,19 @@ Route::prefix("v1")->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
 
-        Route::apiResource("brand",BrandController::class);
-        Route::apiResource("product",ProductController::class);
-        Route::apiResource("stock",StockController::class);
-        Route::apiResource("voucher",VoucherController::class);
+        Route::apiResource("brand", BrandController::class);
+        Route::apiResource("product", ProductController::class);
+        Route::apiResource("stock", StockController::class);
+        Route::apiResource("voucher", VoucherController::class);
 
-        Route::apiResource("photo",PhotoController::class);
-        Route::apiResource("user",UserController::class);
+        Route::apiResource("photo", PhotoController::class);
+        Route::apiResource("user", UserController::class);
 
         Route::post("logout", [AuthController::class, 'logout']);
         Route::post("register", [AuthController::class, 'register']);
-        Route::post("password-change", [AuthController::class, 'passwordChanging']);
 
+        Route::post('/change-password', [UserController::class, 'passwordChanging']);
+        Route::post('/change-staff-password', [UserController::class, 'modifyPassword']);
 
         // Route::post("logout-all", [ApiAuthController::class, 'logoutAll']);
         // Route::get("devices", [ApiAuthController::class, 'devices']);
