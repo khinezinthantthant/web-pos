@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PhotoResource;
 use App\Models\Photo;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -14,7 +15,14 @@ class PhotoController extends Controller
      */
     public function index()
     {
-        //
+        if(Auth::user()->role === "admin") {
+            $photos = Photo::all();
+            return $photos;
+        } else {
+            $photos = Auth::user()->photos;
+        }
+
+        return PhotoResource::collection($photos);
     }
 
     /**
