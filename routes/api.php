@@ -5,6 +5,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -35,6 +36,7 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("voucher",VoucherController::class);
 
         Route::apiResource("photo",PhotoController::class);
+        Route::apiResource("user",UserController::class);
 
         Route::post("logout", [AuthController::class, 'logout']);
         Route::post("register", [AuthController::class, 'register']);

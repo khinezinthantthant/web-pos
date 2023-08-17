@@ -11,7 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
-    
+
     public function products(){
         return $this->hasMany(Product::class);
     }
@@ -30,9 +30,15 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        "name",
+        "email",
+        "password",
+        "phone_number",
+        "address",
+        "gender",
+        "date_of_birth",
+        "role"
+
     ];
 
     /**
