@@ -63,15 +63,15 @@ class AuthController extends Controller
     }
     public function passwordChanging(Request $request)
     {
-    //    return Auth::user();  
+        //    return Auth::user();  
         $request->validate([
             "current_password" => "required|min:8",
-            "password" =>"required|confirmed",
+            "password" => "required|confirmed",
         ]);
 
-        // checking current_password with auth_user_password
-        if(!Hash::check($request->current_password,Auth::user()->password)){
-            return response()->json(["current_password"=>"Password does not match"]);
+
+        if (!Hash::check($request->current_password, Auth::user()->password)) {
+            return response()->json(["current_password" => "Password does not match"]);
         }
         // return response()->json([
         //     "message" => "password is correct." 
@@ -83,6 +83,7 @@ class AuthController extends Controller
         // return $user;
         // return $user->password;
 
+        //clear token
         Auth::user()->currentAccessToken()->delete();
 
         return response()->json([
