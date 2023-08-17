@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\Photo;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PhotoController extends Controller
 {
@@ -20,30 +23,36 @@ class PhotoController extends Controller
      */
     public function store(Request $request)
     {
-        return "hello";
         if ($request->hasFile('photos')) {
             $photos = $request->file('photos');
+            // return $photos->extension();
+            // return $photos->getClientOriginalName();
+            // return $photos->hashName();
             $savedPhotos = [];
             foreach ($photos as $photo) {
-                $savedPhoto = $photo->store("public/photo");
+                
+                $name = $photo->getClientOriginalName();
+                $ext = $photo->extension();
+                $savedPhoto = $photo->store("public/media");
+
+                $storeUrl = asset(Storage::url($savedPhoto));
+dd($storeUrl);
                 $savedPhotos[] = [
-                    "article_id" => $request->article_id,
-                    "address" => $savedPhoto,
+                    "url" => $savedPhoto,
+                    "name" => $name,
+                    "ext" => $ext,
+                    "user_id" => Auth::id(),
                     "created_at" => now(),
                     "updated_at" => now()
 
                 ];
             }
             Photo::insert($savedPhotos);
-
-
-            //  foreach($photos as $photo){
-            //     $savedPhoto = $photo->store("public/photo");
-            //     $savedPhotos [] = [ "address" => $savedPhoto];
-            //  }
-            //  $article->photos()->createMany($savedPhotos);
         }
-        return redirect()->back();
+
+        return response()->json([
+            "message" => "photo upload successfully"
+        ]);
     }
 
     /**
@@ -67,6 +76,16 @@ class PhotoController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $photo = Photo::find($id);
+        if(is_null($photo)){
+            return response()->json([
+                "message" => "there is no photo"
+            ]);
+        }
+        $photo->delete();
+
+        return response()->json([
+            "message" => "photo delete successfully"
+        ]);
     }
 }

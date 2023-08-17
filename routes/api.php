@@ -36,7 +36,6 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("voucher",VoucherController::class);
         Route::apiResource("photo",PhotoController::class);
         
-        Route::post("p", [PController::class, 'store']);
 
 
         Route::post("logout", [AuthController::class, 'logout']);
