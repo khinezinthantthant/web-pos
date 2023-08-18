@@ -14,7 +14,6 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        // return Auth::user()->password;
         $request->validate([
             "email" => "required|email|exists:users,email",
             "password" => "required|min:8"

@@ -184,7 +184,7 @@ class UserController extends Controller
 
     public function ban(string $id)
     {
-        Gate::authorize('isAdmin');
+        Gate::authorize('admin');
 
         $user = User::find($id);
         if (is_null($user)) {
