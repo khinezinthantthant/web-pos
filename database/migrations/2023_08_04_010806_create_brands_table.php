@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string("name");
             $table->string("company");
-            $table->text("information");
-            $table->foreignId("user_id");
-            $table->string("photo")->nullable();
+            $table->string('agent');
+            $table->text('description')->nullable();
+            $table->string('phone_no')->nullable();
             $table->timestamps();
         });
     }

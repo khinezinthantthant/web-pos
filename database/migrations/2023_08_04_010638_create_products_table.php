@@ -20,8 +20,7 @@ return new class extends Migration
             $table->integer("total_stock")->default(0);
             $table->string("unit");
             $table->longText("more_information");
-            $table->foreignId("user_id");
-            $table->string("photo")->nullable();
+            $table->string("photo")->default(config('info.default_user_photo'));
             $table->timestamps();
         });
     }

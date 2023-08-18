@@ -7,6 +7,7 @@ use App\Models\Photo;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PhotoController extends Controller
 {
@@ -17,7 +18,6 @@ class PhotoController extends Controller
     {
         if(Auth::user()->role === "admin") {
             $photos = Photo::all();
-            return $photos;
         } else {
             $photos = Auth::user()->photos;
         }
@@ -30,7 +30,11 @@ class PhotoController extends Controller
      */
     public function store(Request $request)
     {
-        return "hello";
+        $request->validate([
+            'files.*' => 'required|mimes:jpeg,png,jpg,gif'
+        ]);
+
+
         if($request->hasFile("photos")){
             $photos = [];
             foreach($request->file("photos") as $photo){
@@ -38,11 +42,13 @@ class PhotoController extends Controller
                 $url = $photo->store("public/photos");
                 $fileName = $photo->getClientOriginalName();
                 $extension = $photo->getClientOriginalExtension();
+                $fileSize = $photo->getSize();
 
                 $photoModel = new Photo([
                     "url" => $url,
                     "fileName" => $fileName,
                     "extension" => $extension,
+                    "fileSize" => $fileSize,
                     "user_id" => Auth::id(),
                     "created_at" => now(),
                     "updated_at" => now()
@@ -83,6 +89,20 @@ class PhotoController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $photo = Photo::find($id);
+
+        if (is_null($photo)) {
+            return response()->json([
+                'message' => 'photo not found'
+            ]);
+        }
+
+        Storage::delete($photo->url);
+        $photo->delete();
+
+        return response()->json([
+            "message" => "photo deleted"
+        ]);
+
     }
 }

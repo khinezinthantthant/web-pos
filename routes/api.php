@@ -39,13 +39,15 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("user", UserController::class);
 
         Route::post("logout", [AuthController::class, 'logout']);
+        Route::post("logout-all", [AuthController::class, 'logoutAll']);
+        Route::post('/ban-user/{id}', [UserController::class, 'ban']);
+
         Route::post("register", [AuthController::class, 'register']);
-        Route::post("password-change", [AuthController::class, 'passwordChanging']);
+
 
         Route::post('/change-password', [UserController::class, 'passwordChanging']);
         Route::post('/change-staff-password', [UserController::class, 'modifyPassword']);
 
-        // Route::post("logout-all", [ApiAuthController::class, 'logoutAll']);
         // Route::get("devices", [ApiAuthController::class, 'devices']);
 
     });

@@ -8,12 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Product extends Model
 {
     use HasFactory;
-    protected $fillable = ["name","actual_price","sale_price","total_stock","unit","more_information","brand_id","user_id"];
+    protected $fillable = ["name","actual_price","sale_price","total_stock","unit","more_information","brand_id"];
 
-    public function user(){
-        return $this->belongsTo(User::class);
-    }
-    public function voucherRecord(){
-        return $this->belongsTo(VoucherRecord::class);
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
     }
 }

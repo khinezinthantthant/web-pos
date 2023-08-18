@@ -37,7 +37,8 @@ class User extends Authenticatable
         "address",
         "gender",
         "date_of_birth",
-        "role"
+        "role",
+        "photo"
 
     ];
 
@@ -60,4 +61,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function photos()
+    {
+        return $this->hasMany(Photo::class);
+    }
 }

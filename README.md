@@ -39,7 +39,25 @@ The response will contain the bearer token used for subsequent authenticated req
 
 ### 2. Profile
 
-#### 2.1 Logout
+### 2.1 Change Password
+```
+http://127.0.0.1:8000/api/v1/password-change
+
+```
+
+**Description**: This endpoint is used for password change.Admin and user can change password.
+#### Request
+
+-   Method: `POST`
+
+| Arguments               | Type     | Description                  |
+| :---------------------- | :------- | :--------------------------- |
+| `current_password`                  | `string` | **Required** asdffdsa |
+| `password`                 | `string` | **Required** 12345678        |
+| `password_confirmation`              | `string` | **Required** 12345678        |
+
+
+#### 2.2 Logout
 
 ```
 http://127.0.0.1:8000/api/v1/logout
@@ -352,6 +370,26 @@ http://127.0.0.1:8000/api/v1/stock/68
 -   Method: `DELETE`
 
 ---
+### Media
+
+### form data
+-   Method: `POST`
+
+| Arguments          | Type     | Description              |
+| :----------------- | :------- | :----------------------- |
+| `photos[]`       | `file` | **Required**            |
+
+<!-- -   Method: `POST`
+```
+http://127.0.0.1:8000/api/v1/photo
+``` -->
+#####  Index
+
+-   Method: `GET`
+```
+http://127.0.0.1:8000/api/v1/photo
+```
+
 
 ## Database Design
 

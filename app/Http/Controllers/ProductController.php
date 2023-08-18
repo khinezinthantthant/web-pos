@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
@@ -28,6 +29,8 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
+        Gate::authorize("admin");
+
         $product = Product::create([
             "name" => $request->name,
             "actual_price" => $request->actual_price,
@@ -36,7 +39,7 @@ class ProductController extends Controller
             "unit" => $request->unit,
             "more_information" => $request->more_information,
             "brand_id" => $request->brand_id,
-            "user_id" => Auth::id()
+            "photo" => $request->photo ?? config("info.default_user_photo"),
         ]);
 
         return new ProductDetailResource($product);
@@ -64,6 +67,8 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, string $id)
     {
+        Gate::authorize("admin");
+        
         $product = Product::find($id);
         if (is_null($product)) {
             return response()->json([

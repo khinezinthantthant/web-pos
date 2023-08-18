@@ -18,7 +18,8 @@ class BrandResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'company' => $this->company,
-            'information' => $this->information
+            'agent' => $this->agent,
+            "phone_no" => $this->phone_no,
         ];
         return parent::toArray($request);
 

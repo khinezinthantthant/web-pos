@@ -18,7 +18,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::latest("id")->paginate(5)->withQueryString();
-        return UserResource::collection($users);
+        return $users;
     }
 
     /**
@@ -26,11 +26,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Gate::allows('admin')) {
-            return response()->json([
-                'message' => "You are not allow"
-            ]);
-        }
+        Gate::authorize("admin");
 
         $request->validate([
             "name" => "nullable|min:3",
@@ -40,7 +36,7 @@ class UserController extends Controller
             "address" => "required|min:5",
             "gender" => "required|in:male,female",
             "date_of_birth" => "required",
-            // "role" => "required|in:admin,staff"
+            "role" => "required|in:admin,staff"
         ]);
 
         $user = User::create([
@@ -51,7 +47,8 @@ class UserController extends Controller
             "address" => $request->address,
             "gender" => $request->gender,
             "date_of_birth" => $request->date_of_birth,
-            "role" => 'staff'
+            "role" => 'staff',
+            "photo" => $request->photo ?? config("info.default_user_photo")
         ]);
 
         // return $user;
@@ -108,7 +105,8 @@ class UserController extends Controller
             "address" => $request->address,
             "gender" => $request->gender,
             "date_of_birth" => $request->date_of_birth,
-            "role" => 'staff'
+            "role" => 'staff',
+            "photo" => $request->photo ?? config("info.default_user_photo")
         ]);
 
         // return $user;
@@ -137,11 +135,10 @@ class UserController extends Controller
 
     public function passwordChanging(Request $request)
     {
-        // return Auth::user();
-        // $request->validate([
-        //     "current_password" => "required|min:8",
-        //     "password" => "required|confirmed",
-        // ]);
+        $request->validate([
+            "current_password" => "required|min:8",
+            "password" => "required|confirmed",
+        ]);
 
         if (!Hash::check($request->current_password, Auth::user()->password)) {
             return response()->json(["current_password" => "Password does not match"]);
@@ -164,11 +161,8 @@ class UserController extends Controller
 
     public function modifyPassword(Request $request)
     {
-        if (!Gate::allows('admin')) {
-            return response()->json([
-                'message' => "You are not allow"
-            ]);
-        }
+        Gate::authorize("admin");
+
         $request->validate([
             "new_password" => "required|min:8|max:15",
             "user_id" => "required|exists:users,id"
@@ -185,5 +179,25 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Staff password changed successfully'
         ]);
+    }
+
+
+    public function ban(string $id)
+    {
+        Gate::authorize('isAdmin');
+
+        $user = User::find($id);
+        if (is_null($user)) {
+            return response()->json([
+                'message' => 'user not found'
+            ], 404);
+        }
+        $user->update([
+            'role' => 'ban'
+        ]);
+        return response()->json([
+            'message' => 'User has been banned'
+        ]);
+        //
     }
 }
