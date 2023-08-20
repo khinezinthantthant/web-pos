@@ -16,10 +16,13 @@ class PhotoResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            "id" => $this->id,
             "url" => asset(Storage::url($this->url)),
-            "name" => $this->name,
+            "name" => $this->fileName,
             "extension" => $this->extension,
-            "fileSize" => $this->size
+            "fileSize" => $this->fileSize,
+            "user_name" => $this->user->name,
+            "user_id" => $this->user_id
         ];
         return parent::toArray($request);
     }

@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
             'phone_number' => '098888888',
             'address' => 'yangon',
             'date_of_birth' => '1/1/2000',
-            'gender' => 'female'
+            'gender' => 'female',
         ]);
 
     }

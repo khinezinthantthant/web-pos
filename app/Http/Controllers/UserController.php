@@ -37,6 +37,7 @@ class UserController extends Controller
             "gender" => "required|in:male,female",
             "date_of_birth" => "required",
             "role" => "required|in:admin,staff",
+            "photo" => "required"
         ]);
 
         $user = User::create([
@@ -51,7 +52,7 @@ class UserController extends Controller
             "photo" => $request->photo ?? config("info.default_user_photo")
         ]);
 
-        // return $user;
+        // retur n $user;
         return response()->json([
             "message" => "User created successful",
             $user

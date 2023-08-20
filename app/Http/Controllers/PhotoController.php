@@ -31,7 +31,9 @@ class PhotoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'files.*' => 'required|mimes:jpeg,png,jpg,gif'
+            // 'files.*' => 'required|mimes:jpeg,png,jpg,gif'
+            "photos" => "required|array",
+            "photos.*" => "required|file|max:500|min:50|mimes:jpeg,png,jpg,gif"
         ]);
 
 

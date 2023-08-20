@@ -9,4 +9,9 @@ class Photo extends Model
 {
     use HasFactory;
     protected $fillable = ["url","fileName","fileSize","extension","user_id"];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
