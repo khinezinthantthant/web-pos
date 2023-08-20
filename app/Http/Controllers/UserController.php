@@ -36,7 +36,7 @@ class UserController extends Controller
             "address" => "required|min:5",
             "gender" => "required|in:male,female",
             "date_of_birth" => "required",
-            "role" => "required|in:admin,staff"
+            "role" => "required|in:admin,staff",
         ]);
 
         $user = User::create([
@@ -155,7 +155,6 @@ class UserController extends Controller
         return response()->json([
             "message" => "password change successful.",
         ]);
-
     }
 
 
