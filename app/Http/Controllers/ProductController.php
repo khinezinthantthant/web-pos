@@ -68,7 +68,7 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, string $id)
     {
         Gate::authorize("admin");
-        
+
         $product = Product::find($id);
         if (is_null($product)) {
             return response()->json([

@@ -28,7 +28,7 @@ class UpdateProductRequest extends FormRequest
             "unit" => "required",
             "more_information" => "nullable",
             "brand_id" => "required|exists:brands,id",
-            // 'photo' => 'nullable|mimes:png,jpeg,gif'
+            'photo' => 'nullable|mimes:png,jpeg,gif'
         ];
     }
 }
