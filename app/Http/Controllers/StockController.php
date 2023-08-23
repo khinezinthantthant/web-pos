@@ -90,6 +90,8 @@ class StockController extends Controller
     /**
      * Remove the specified resource from storage.
      */
+
+
     public function destroy(string $id)
     {
         Gate::authorize("admin");
@@ -102,14 +104,10 @@ class StockController extends Controller
             ], 404);
         }
 
-        $stock->delete();
-        $this->syncProductTotalStock();
-
         return response()->json([
             "message" => "stock deleted"
         ], 204);
     }
-
 
     private function syncProductTotalStock() :void
     {
@@ -119,4 +117,5 @@ class StockController extends Controller
         $product->total_stock = $totalStock;
         $product->save();
     }
+
 }

@@ -23,7 +23,8 @@ class BrandFactory extends Factory
             "company" => fake()->company(),
             "agent" => fake()->company(),
             "description" =>fake()->text(),
-            "phone_no" => fake()->phoneNumber()
+            "phone_no" => fake()->phoneNumber(),
+            "user_id" => 1
         ];
     }
 }

@@ -19,7 +19,7 @@ class ProductResource extends JsonResource
             'name' => $this->name,
             'sale_price' => $this->sale_price,
             'total_stock' => $this->total_stock,
-            'brand_name' => $this->brand_name,
+            'brand_name' => $this->brand->name,
             'unit' => $this->unit,
         ];
         return parent::toArray($request);
