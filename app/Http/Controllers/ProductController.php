@@ -36,6 +36,7 @@ class ProductController extends Controller
             "actual_price" => $request->actual_price,
             "sale_price" => $request->sale_price,
             "total_stock" => 0,
+            "user_id" => Auth::id(),
             "unit" => $request->unit,
             "more_information" => $request->more_information,
             "brand_id" => $request->brand_id,

@@ -38,21 +38,38 @@ class VoucherController extends Controller
         $tax = $total * 0.05;
         $netTotal = $total + $tax;
 
-        $voucher = Voucher::create([
-            "voucher_number" => rand(1,100),
-            "total" => $total,
-            "tax" => $tax,
-            "net_total" => $netTotal,
-            "user_id" => Auth::id()
-        ]); //use database
+        // $voucher = Voucher::create([
+        //     "customer_name" => $request->customer_name,
+        //     "phone_number" => $request->phone_number,
+        //     "voucher_number" => rand(1, 100),
+        //     "total" => $total,
+        //     "tax" => $tax,
+        //     "net_total" => $netTotal,
+        //     "user_id" => Auth::id()
+        // ]); //use database
 
+
+        $voucher = new Voucher();
+        $voucher->customer_name = $request->customer_name;
+        $voucher->phone_number = $request->phone_number;
+        $voucher->voucher_number =  rand(1, 100);
+        $voucher->total = $total;
+        $voucher->tax = $tax;
+        $voucher->net_total = $netTotal;
+        $voucher->user_id = Auth::id();
+
+        $voucher->save();
+
+        return $voucher;
+
+        // return $voucher;
         $records = [];
 
         foreach ($request->items as $item) {
 
             $currentProduct = $products->find($item["product_id"]);
 
-            if($currentProduct->total_stock >= $item["quantity"]){
+            if ($currentProduct->total_stock >= $item["quantity"]) {
                 $records[] = [
                     "voucher_id" => $voucher->id,
                     "product_id" => $item["product_id"],
@@ -67,7 +84,6 @@ class VoucherController extends Controller
                     "total_stock" => $currentProduct->total_stock - $item["quantity"]
                 ]);
             }
-
         }
 
         $voucherRecords = VoucherRecord::insert($records); //use database

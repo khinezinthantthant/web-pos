@@ -26,6 +26,7 @@ class StoreProductRequest extends FormRequest
             "actual_price" => "required|numeric",
             "sale_price" => "required|numeric",
             "unit" => "required",
+            "user_id" => "exists:users,id",
             "more_information" => "nullable",
             "brand_id" => "required|exists:brands,id",
             "photo" => 'nullable|file|mimes:png,jpeg,gif'
