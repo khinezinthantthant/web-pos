@@ -29,7 +29,7 @@ class StoreProductRequest extends FormRequest
             "user_id" => "exists:users,id",
             "more_information" => "nullable",
             "brand_id" => "required|exists:brands,id",
-            "photo" => 'nullable|file|mimes:png,jpeg,gif'
+            "photo" => 'nullable'
         ];
     }
 }

@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class VoucherResource extends JsonResource
+class VoucherRecordResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,15 +15,12 @@ class VoucherResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            "id" => $this->id,
-            "customer_name" => $this->customer_name,
-            "phone_number" => $this->phone_number,
-            "total" => $this->total,
-            "tax" => $this->tax,
-            "net_total" => $this->net_total,
-            "count" => $this->voucher_records->count()
+            "product_id" => $this->product_id,
+            "product_name" => $this->product->name,
+            "quantity" => $this->quantity,
+            "cost" => $this->cost,
+            "price" => $this->cost / $this->quantity
         ];
-
         return parent::toArray($request);
     }
 }

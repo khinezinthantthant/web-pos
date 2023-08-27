@@ -7,6 +7,7 @@ use App\Http\Resources\VoucherResource;
 use App\Models\Product;
 use App\Models\Voucher;
 use App\Models\VoucherRecord;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,14 @@ class VoucherController extends Controller
      */
     public function index()
     {
-        $vouchers = Voucher::all();
+
+
+        if(Auth::user()->role == "admin"){
+            $vouchers = Voucher::all();
+        }else{
+            $vouchers = Voucher::select("*")->whereDate('created_at', Carbon::today())
+            ->get();
+        }
         return VoucherResource::collection($vouchers);
     }
 
@@ -60,8 +68,6 @@ class VoucherController extends Controller
 
         $voucher->save();
 
-        return $voucher;
-
         // return $voucher;
         $records = [];
 
@@ -88,8 +94,7 @@ class VoucherController extends Controller
 
         $voucherRecords = VoucherRecord::insert($records); //use database
         // dd($voucherRecords);
-        // return $request;
-        return VoucherDetailResource::collection($voucher);
+        return new VoucherDetailResource($voucher);
     }
 
     /**
