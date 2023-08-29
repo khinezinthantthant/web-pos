@@ -66,4 +66,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Photo::class);
     }
+
+    public function role()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 }

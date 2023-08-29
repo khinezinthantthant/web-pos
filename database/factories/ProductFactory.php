@@ -28,7 +28,6 @@ class ProductFactory extends Factory
             "sale_price"=>$sale_price,
             "unit"=>fake()->randomElement(['single', 'dozen']),
             "more_information"=>fake()->text(),
-            "photo" => fake()->imageUrl($width = 640, $height = 480)
         ];
     }
 }

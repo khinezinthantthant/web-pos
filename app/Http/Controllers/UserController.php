@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,8 +18,11 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::latest("id")->paginate(5)->withQueryString();
-        return $users;
+        $roles = User::where('role', 'ban')->get("role");
+        // $users = User::latest("id")->paginate(5)->withQueryString();
+        if($roles){
+           return User::where("role","admin")->orWhere("role","staff")->get();
+        }
     }
 
     /**
@@ -54,7 +58,7 @@ class UserController extends Controller
 
         // retur n $user;
         return response()->json([
-            "message" => "User created successful",
+            "message" => "Successfully created an account",
             $user
         ]);
     }
@@ -89,6 +93,7 @@ class UserController extends Controller
             "address" => "required|min:5",
             "gender" => "required|in:male,female",
             "date_of_birth" => "required",
+            "photo" => "nullable"
             // "role" => "required|in:admin,staff"
         ]);
 
@@ -176,6 +181,10 @@ class UserController extends Controller
 
         $user->password = Hash::make($request->new_password);
         $user->save();
+
+        //clear token
+        Auth::user()->currentAccessToken()->delete();
+
         return response()->json([
             'message' => 'Staff password changed successfully'
         ]);
@@ -185,6 +194,34 @@ class UserController extends Controller
     public function ban(string $id)
     {
         Gate::authorize('admin');
+        $user = User::find($id);
+        if (is_null($user)) {
+            return response()->json([
+                'message' => 'user not found'
+            ], 404);
+        }
+
+        $user->update([
+            'role' => 'ban'
+        ]);
+
+        return response()->json([
+            'message' => 'User has been banned'
+        ]);
+        //
+    }
+
+    public function bannedUsers()
+    {
+        Gate::authorize("admin");
+        // banned users
+        $banneUsers = collect(User::all())->where('role', 'ban');
+        return $banneUsers;
+    }
+
+    public function restoreUser(string $id)
+    {
+        Gate::authorize('admin');
 
         $user = User::find($id);
         if (is_null($user)) {
@@ -192,11 +229,13 @@ class UserController extends Controller
                 'message' => 'user not found'
             ], 404);
         }
+
         $user->update([
-            'role' => 'ban'
+            'role' => 'staff'
         ]);
+
         return response()->json([
-            'message' => 'User has been banned'
+            'message' => 'User has been restored'
         ]);
         //
     }

@@ -22,9 +22,12 @@ class UpdateBrandRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name" => "required|min:3|max:20",
-            "company" => "required|min:5|max:20",
-            "information" => "nullable"
+            'name' => 'required|min:3|max:20|unique:brands,name,' . $this->brand,
+            'company' => 'required|min:3|max:20',
+            'agent' => 'nullable',
+            'photo' => 'nullable',
+            'phone_no' => 'nullable',
+            'description' => 'nullable',
         ];
     }
 }

@@ -36,6 +36,7 @@ class BrandController extends Controller
             'agent' => $request->agent,
             'description' => $request->description ?? null,
             'phone_no' => $request->phone_no,
+            "photo" => $request->photo,
             "user_id" => Auth::id()
         ]);
 
@@ -85,6 +86,7 @@ class BrandController extends Controller
             "agent" => $request->agent,
             'description' => $request->description ?? null,
             'phone_no' => $request->phone_no,
+            'photo' => $request->photo,
         ]);
 
 

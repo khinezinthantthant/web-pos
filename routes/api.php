@@ -41,6 +41,9 @@ Route::prefix("v1")->group(function () {
         Route::post("logout", [AuthController::class, 'logout']);
         Route::post("logout-all", [AuthController::class, 'logoutAll']);
         Route::post('/ban-user/{id}', [UserController::class, 'ban']);
+        Route::get('/banned-user', [UserController::class, 'bannedUsers']);
+        Route::get('/restore-user/{id}', [UserController::class, 'restoreUser']);
+
 
         Route::post("register", [AuthController::class, 'register']);
 

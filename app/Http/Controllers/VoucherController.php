@@ -119,7 +119,7 @@ class VoucherController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        return abort(403);
     }
 
     /**
@@ -127,6 +127,6 @@ class VoucherController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        return abort(403);
     }
 }

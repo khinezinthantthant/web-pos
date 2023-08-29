@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('agent');
             $table->text('description')->nullable();
             $table->string('phone_no')->nullable();
+            $table->string('photo')->nullable();
             $table->timestamps();
         });
     }

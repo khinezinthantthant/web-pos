@@ -63,29 +63,29 @@ class StockController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateStockRequest $request, string $id)
-    {
-        Gate::authorize("admin");
-        $stock = Stock::find($id);
-        if (is_null($stock)) {
-            return response()->json([
-                // "success" => false,
-                "message" => "Stock not found",
+    // public function update(UpdateStockRequest $request, string $id)
+    // {
+    //     Gate::authorize("admin");
+    //     $stock = Stock::find($id);
+    //     if (is_null($stock)) {
+    //         return response()->json([
+    //             // "success" => false,
+    //             "message" => "Stock not found",
 
-            ], 404);
-        }
+    //         ], 404);
+    //     }
 
-        $stock->update([
-            "user_id" => Auth::id(),
-            "product_id" => $request->product_id,
-            "quantity" => $request->quantity,
-            "more" => $request->more
-        ]);
+    //     $stock->update([
+    //         "user_id" => Auth::id(),
+    //         "product_id" => $request->product_id,
+    //         "quantity" => $request->quantity,
+    //         "more" => $request->more
+    //     ]);
 
-        $this->syncProductTotalStock();
+    //     $this->syncProductTotalStock();
 
-        return new StockResource($stock);
-    }
+    //     return new StockResource($stock);
+    // }
 
     /**
      * Remove the specified resource from storage.
@@ -104,6 +104,12 @@ class StockController extends Controller
             ], 404);
         }
 
+        // $totalStock = Stock::where("product_id", request()->product_id)->sum("quantity");
+
+        // $product = Product::find(request()->product_id);
+        // $product->total_stock  -= $totalStock;
+        // $product->save();
+
         return response()->json([
             "message" => "stock deleted"
         ], 204);
@@ -114,7 +120,7 @@ class StockController extends Controller
         $totalStock = Stock::where("product_id", request()->product_id)->sum("quantity");
 
         $product = Product::find(request()->product_id);
-        $product->total_stock = $totalStock;
+        $product->total_stock  += $totalStock;
         $product->save();
     }
 

@@ -17,9 +17,11 @@ class BrandResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'photo' => $this->photo ?? config('info.default_brand_photo'),
             'company' => $this->company,
             'agent' => $this->agent,
-            "phone_no" => $this->phone_no,
+            'phone_no' => $this->phone_no,
+            'products' => $this->products->pluck('name')
         ];
         return parent::toArray($request);
 

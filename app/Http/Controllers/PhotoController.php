@@ -7,6 +7,7 @@ use App\Models\Photo;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class PhotoController extends Controller
@@ -91,6 +92,8 @@ class PhotoController extends Controller
      */
     public function destroy(string $id)
     {
+        Gate::authorize("staff");
+
         $photo = Photo::find($id);
 
         if (is_null($photo)) {

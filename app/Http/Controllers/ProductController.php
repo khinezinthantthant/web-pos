@@ -86,7 +86,8 @@ class ProductController extends Controller
             "unit" => $request->unit,
             "more_information" => $request->more_information,
             "brand_id" => $request->brand_id,
-            "user_id" => Auth::id()
+            "user_id" => Auth::id(),
+            "photo" => $request->photo
         ]);
 
         return new ProductDetailResource($product);
