@@ -19,7 +19,7 @@ class VoucherSeeder extends Seeder
             VoucherRecord::factory(rand(1, 5))->create([
                 'voucher_id' => $voucher->id
             ]);
-            $total_cost = $voucher->records()->sum('cost');
+            $total_cost = $voucher->voucher_records()->sum('cost');
             $voucher->net_total = $total_cost;
             $voucher->save();
         }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\DailySaleOverview;
+use App\Http\Resources\DailySaleOverviewResource;
 use App\Http\Resources\VoucherDetailResource;
 use App\Http\Resources\VoucherResource;
 use App\Models\Product;
@@ -20,14 +22,13 @@ class VoucherController extends Controller
     public function index()
     {
 
-
         if(Auth::user()->role == "admin"){
-            $vouchers = Voucher::all();
+            $vouchers = Voucher::paginate(10)->withQueryString();
         }else{
-            $vouchers = Voucher::select("*")->whereDate('created_at', Carbon::today())
-            ->get();
+            $vouchers = Voucher::select("*")->whereDate('created_at', Carbon::today())->paginate(10)->withQueryString();
         }
-        return VoucherResource::collection($vouchers);
+        // return VoucherResource::collection($vouchers);
+        return new DailySaleOverviewResource($vouchers);
     }
 
     /**

@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\DailySaleOverviewController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherController;
+use App\Models\DailySaleOverview;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +45,12 @@ Route::prefix("v1")->group(function () {
         Route::post('/ban-user/{id}', [UserController::class, 'ban']);
         Route::get('/banned-user', [UserController::class, 'bannedUsers']);
         Route::get('/restore-user/{id}', [UserController::class, 'restoreUser']);
+
+        Route::post("/sale_close", [DailySaleOverviewController::class, 'saleClose']);
+        Route::post("/daily_sale_records", [DailySaleOverviewController::class, 'daily']);
+        Route::post("/monthly_sale_record", [DailySaleOverviewController::class, 'monthly']);
+        Route::post("/yearly_sale_record", [DailySaleOverviewController::class, 'yearly']);
+        Route::post("/custom_sale_records", [DailySaleOverviewController::class, 'customSaleRecords']);
 
 
         Route::post("register", [AuthController::class, 'register']);

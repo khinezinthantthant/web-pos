@@ -2,12 +2,11 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Voucher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class VoucherResource extends JsonResource
+class TodaySaleOverviewResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,22 +15,15 @@ class VoucherResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
         return [
             "id" => $this->id,
-            "voucher_number" => $this->voucher_number,
-            "customer_name" => $this->customer_name,
-            "sale_person" => $this->user->name,
-            "phone_number" => $this->phone_number,
-            "total" => $this->total,
-            "tax" => $this->tax,
-            "net_total" => $this->net_total,
+            "voucher" => $this->voucher_number,
+            "time" => (new Carbon($this->created_at))->format('H:m'),
             "item_count" => $this->voucher_records->count(),
-            "time" => (new Carbon($this->created_at))->format('h:i A'),
-
+            "cash" => $this->total,
+            "tax" => $this->tax,
+            "total" => $this->net_total,
         ];
-
-
         return parent::toArray($request);
     }
 }
