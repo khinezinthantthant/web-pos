@@ -23,9 +23,9 @@ class VoucherController extends Controller
     {
 
         if(Auth::user()->role == "admin"){
-            $vouchers = Voucher::paginate(10)->withQueryString();
+            $vouchers = Voucher::whereDate('created_at', Carbon::today())->paginate(10)->withQueryString();
         }else{
-            $vouchers = Voucher::select("*")->whereDate('created_at', Carbon::today())->paginate(10)->withQueryString();
+            $vouchers = Auth::user()->vouchers()->whereDate('created_at', Carbon::today())->get();
         }
         // return VoucherResource::collection($vouchers);
         return new DailySaleOverviewResource($vouchers);
