@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\DailySaleOverview;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -24,7 +26,8 @@ class DatabaseSeeder extends Seeder
             BrandSeeder::class,
             ProductSeeder::class,
             StockSeeder::class,
-            VoucherSeeder::class
+            VoucherSeeder::class,
+            DailySaleOverviewSeeder::class
         ]);
     }
 }
