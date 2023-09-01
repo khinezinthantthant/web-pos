@@ -18,7 +18,7 @@ class TodaySaleOverviewResource extends JsonResource
         return [
             "id" => $this->id,
             "voucher" => $this->voucher_number,
-            "time" => (new Carbon($this->created_at))->format('H:m'),
+            "time" => (new Carbon($this->created_at))->format('h:i A'),
             "item_count" => $this->voucher_records->count(),
             "cash" => $this->total,
             "tax" => $this->tax,
