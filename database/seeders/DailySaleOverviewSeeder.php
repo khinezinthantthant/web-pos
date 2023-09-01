@@ -16,16 +16,17 @@ class DailySaleOverviewSeeder extends Seeder
     public function run(): void
     {
         $carbon = (new Carbon())->subMonths(3);
-        while(!$carbon->isCurrentDay()){
-            $daily_sale_overview = DailySaleOverview::create([
-                "total_vouchers" => Voucher::whereDate("created_at",$carbon->toDate())->count("id"),
-                "total_cash" => Voucher::whereDate("created_at",$carbon->toDate())->sum("total"),
-                "total_tax" => Voucher::whereDate("created_at",$carbon->toDate())->sum("tax"),
-                "total" => Voucher::whereDate("created_at",$carbon->toDate())->sum("net_total"),
-                "day" => Carbon::today()->format("d"),
-                "month" => Carbon::today()->format("m"),
-                "year" => Carbon::today()->format("Y")
+        while(!$carbon->isCurrentDay()) {
+            $dailySaleOverview = DailySaleOverview::create([
+                    "total_vouchers" => Voucher::whereDate("created_at", $carbon->toDate())->count('id'),
+                    "total_cash" => Voucher::whereDate("created_at", $carbon->toDate())->sum('total'),
+                    "total_tax" => Voucher::whereDate("created_at", $carbon->toDate())->sum('tax'),
+                    "total" => Voucher::whereDate("created_at", $carbon->toDate())->sum('net_total'),
+                    "day" => $carbon->format('d'),
+                    "month" => $carbon->format('m'),
+                    "year" => $carbon->format('Y'),
             ]);
+            $carbon->addDay();
         }
     }
 }
