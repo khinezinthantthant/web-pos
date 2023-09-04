@@ -38,7 +38,11 @@ class StockController extends Controller
             "more" => $request->more
         ]);
 
-        $this->syncProductTotalStock();
+        $totalStock = Stock::where("product_id", request()->product_id)->sum("quantity");
+
+        $product = Product::find(request()->product_id);
+        $product->total_stock  = $totalStock;
+        $product->save();
 
         return new StockResource($stock);
     }
@@ -100,28 +104,20 @@ class StockController extends Controller
             return response()->json([
                 // "success" => false,
                 "message" => "Stock not found",
-
             ], 404);
         }
 
-        // $totalStock = Stock::where("product_id", request()->product_id)->sum("quantity");
+        $stock->delete();
 
-        // $product = Product::find(request()->product_id);
-        // $product->total_stock  -= $totalStock;
-        // $product->save();
+        $product = Product::find($stock->product_id);
+        $totalStock = Stock::where("product_id", $product->id)->sum("quantity");
+        $product->total_stock = $totalStock;
+        $product->save();
 
         return response()->json([
             "message" => "stock deleted"
         ], 204);
     }
 
-    private function syncProductTotalStock() :void
-    {
-        $totalStock = Stock::where("product_id", request()->product_id)->sum("quantity");
-
-        $product = Product::find(request()->product_id);
-        $product->total_stock  += $totalStock;
-        $product->save();
-    }
 
 }

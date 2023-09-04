@@ -21,6 +21,10 @@ class ProductResource extends JsonResource
             'total_stock' => $this->total_stock,
             'brand_name' => $this->brand->name,
             'unit' => $this->unit,
+            'photo' => $this->photo ?? config('info.default_contact_photo'),
+            'more_information' => $this->more_information,
+            'create_at' => $this->created_at->format('d-m-y'),
+            'update_at' => $this->updated_at->format('d-m-y'),
         ];
         return parent::toArray($request);
     }

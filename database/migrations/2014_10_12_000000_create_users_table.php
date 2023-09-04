@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string("password");
 
             $table->enum("role",["admin","staff","ban"])->default("staff");
-            $table->string("photo")->default(config('info.default_contact_photo'));
+            $table->string("photo")->nullable();
             $table->string("phone_number");
             $table->string("date_of_birth");
             $table->enum("gender",["male","female"]);

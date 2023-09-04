@@ -18,7 +18,7 @@ class PhotoController extends Controller
     public function index()
     {
         if(Auth::user()->role === "admin") {
-            $photos = Photo::all();
+            $photos = Photo::latest("id")->paginate(15)->withQueryString();
         } else {
             $photos = Auth::user()->photos;
         }
@@ -34,7 +34,7 @@ class PhotoController extends Controller
         $request->validate([
             // 'files.*' => 'required|mimes:jpeg,png,jpg,gif'
             "photos" => "required|array",
-            "photos.*" => "required|file|max:500|min:50|mimes:jpeg,png,jpg,gif"
+            "photos.*" => "required|file|mimes:jpeg,png,jpg,gif"
         ]);
 
 

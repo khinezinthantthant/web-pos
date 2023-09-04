@@ -19,7 +19,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest("id")->paginate(15)->withQueryString();
+        $products = Product::latest("id")->paginate(10)->withQueryString();
 
         return ProductResource::collection($products);
     }
@@ -40,7 +40,7 @@ class ProductController extends Controller
             "unit" => $request->unit,
             "more_information" => $request->more_information,
             "brand_id" => $request->brand_id,
-            "photo" => $request->photo ?? config("info.default_user_photo"),
+            "photo" => $request->photo ?? config("info.default_contact_photo"),
         ]);
 
         return new ProductDetailResource($product);
@@ -86,7 +86,7 @@ class ProductController extends Controller
             "unit" => $request->unit,
             "more_information" => $request->more_information,
             "brand_id" => $request->brand_id,
-            "user_id" => Auth::id(),
+            // "user_id" => Auth::id(),
             "photo" => $request->photo
         ]);
 

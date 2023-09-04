@@ -111,12 +111,11 @@ class UserController extends Controller
             "address" => $request->address,
             "gender" => $request->gender,
             "date_of_birth" => $request->date_of_birth,
-            "role" => 'staff',
             "photo" => $request->photo ?? config("info.default_user_photo")
         ]);
 
         // return $user;
-        return response()->json([
+        return response()  ->json([
             "message" => "User Updated successful",
             $user
         ]);
@@ -143,7 +142,7 @@ class UserController extends Controller
     {
         $request->validate([
             "current_password" => "required|min:8",
-            "password" => "required|confirmed",
+            "password" => "required|confirmed|min:8|max:15",
         ]);
 
         if (!Hash::check($request->current_password, Auth::user()->password)) {
@@ -169,8 +168,8 @@ class UserController extends Controller
         Gate::authorize("admin");
 
         $request->validate([
-            "new_password" => "required|min:8|max:15",
-            "user_id" => "required|exists:users,id"
+            "user_id" => "required|exists:users,id",
+            "new_password" => "required|min:8|max:15"
         ]);
         $user = User::find($request->user_id);
         if (is_null($user)) {

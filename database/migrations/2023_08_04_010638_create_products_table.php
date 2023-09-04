@@ -17,9 +17,9 @@ return new class extends Migration
             $table->foreignId("brand_id");
             $table->double("actual_price");
             $table->double("sale_price");
-            $table->integer("total_stock")->default(0);
+            $table->bigInteger("total_stock")->default(0);
             $table->string("unit");
-            $table->longText("more_information");
+            $table->longText("more_information")->nullable();
             $table->foreignId("user_id");
             $table->string("photo")->nullable();
             $table->timestamps();

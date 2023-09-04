@@ -95,6 +95,27 @@ https://h.mmsdev.site/api/v1/logout-all
 
 -   Method: `POST`
 
+#### 3.3 Change Password
+
+```
+https://h.mmsdev.site/api/v1/change-password
+```
+
+**Description**: This endpoint is used to change admin user password.
+
+#### Request
+
+Method: `POST`
+
+-   form-data
+
+| Arguments                 | Type      | Description             |
+| :-------------            | :-------- | :---------------------- |
+| `current_password`        | `string`  | **Required**    asdffdsa|
+| `password`                | `string`  | **Required**       hello|
+| `password_confirmation`   | `string`  | **Required**       hello|
+
+
 ### 4. User
 
 #### Auth
@@ -140,17 +161,18 @@ https://h.mmsdev.site/api/v1/user
 
 -   form-data
 
-| Arguments       | Type     | Description                   |
-| :-------------- | :------- | :---------------------------- |
-| `name`          | `string` | **Required** Aye Aye          |
-| `email`         | `string` | **Required** ayeaye@gmail.com |
-| `password`      | `string` | **Required** asdffdsa         |
-| `phone_number`  | `number` | **Required** 098888888        |
-| `address`       | `string` | **Required** yangon           |
-| `gender`        | `string` | **Required** female           |
-| `date_of_birth` | `string` | **Required** 1/1/2000         |
-| `role`          | `string` | **Required** staff            |
-| `photo`         | `string` | (upload file)                 |
+| Arguments                  | Type     | Description                   |
+| :--------------            | :------- | :---------------------------- |
+| `name`                     | `string` | **Required** Aye Aye          |
+| `email`                    | `string` | **Required** ayeaye@gmail.com |
+| `password`                 | `string` | **Required** asdffdsa         |
+| `password_confirmation`    | `string` | **Required** asdffdsa         |
+| `phone_number`             | `number` | **Required** 098888888        |
+| `address`                  | `string` | **Required** yangon           |
+| `gender`                   | `string` | **Required** female           |
+| `date_of_birth`            | `string` | **Required** 1/1/2000         |
+| `role`                     | `string` | **Required** staff            |
+| `photo`                    | `string` | (upload file)                 |
 
 #### 4.4 Update User
 
@@ -170,13 +192,11 @@ https://h.mmsdev.site/api/v1/user/2
 | :-------------- | :------- | :------------------------------ |
 | `name`          | `string` | **Required** Kyaw Kyaw          |
 | `email`         | `string` | **Required** kyawkyaw@gmail.com |
-| `password`      | `string` | **Required** 097777777          |
 | `phone_number`  | `number` | **Required** mandalay           |
 | `address`       | `string` | **Required** male               |
 | `gender`        | `string` | **Required** 1/1/2000           |
 | `date_of_birth` | `string` | **Required** staff              |
-| `role`          | `string` | **Required** dozen              |
-| `photo`         | `string` | (remove existing photo)         |
+| `photo`         | `string` | **nullable**                    |
 
 #### 4.5 Delete User
 
