@@ -17,13 +17,16 @@ class StockResource extends JsonResource
         return [
             "id" => $this->id,
             "product_name" => $this->product->name,
+            "sale_price" => $this->product->sale_price,
+            "brand_name" => $this->product->brand->name,
+            "unit" => $this->product->unit,
             "user_name" => $this->user->name,
             "more" => $this->more,
-            "quantitiy" => $this->quantity,
+            "total_stock" => $this->quantity,
             "created_at" => $this->created_at->format("d m Y"),
             "updated_at" => $this->updated_at->format("d m Y"),
         ];
-        
+
         return parent::toArray($request);
     }
 }

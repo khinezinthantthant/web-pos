@@ -27,6 +27,7 @@ class UpdateProductRequest extends FormRequest
             "sale_price" => "required|numeric",
             "unit" => "required",
             "more_information" => "nullable",
+            // "total_stock" => "nullable",
             "brand_id" => "required|exists:brands,id",
             'photo' => 'nullable'
         ];
