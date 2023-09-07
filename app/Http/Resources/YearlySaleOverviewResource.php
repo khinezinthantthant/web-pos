@@ -17,8 +17,12 @@ class YearlySaleOverviewResource extends JsonResource
     {
         return [
             "id" => $this->id,
-            "month" => $this->month,
-            "year" => $this->year,
+            // "month" => $this->month,
+            // "year" => $this->year,
+            // "total_vouchers" => $this->total_vouchers,
+            // "total_cash" => $this->total_cash,
+            // "total_tax" => $this->total_tax,
+            // "total" => $this->total
         ];
         return parent::toArray($request);
     }

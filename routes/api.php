@@ -42,16 +42,21 @@ Route::prefix("v1")->group(function () {
 
         Route::post("logout", [AuthController::class, 'logout']);
         Route::post("logout-all", [AuthController::class, 'logoutAll']);
-        Route::post('/ban-user/{id}', [UserController::class, 'ban']);
         Route::get('/banned-user', [UserController::class, 'bannedUsers']);
-        Route::get('/restore-user/{id}', [UserController::class, 'restoreUser']);
+        Route::post('/restore-user/{id}', [UserController::class, 'restoreUser']);
 
         Route::post("/sale_close", [DailySaleOverviewController::class, 'saleClose']);
-        Route::post("/daily_sale_records", [DailySaleOverviewController::class, 'daily']);
-        Route::post("/monthly_sale_record", [DailySaleOverviewController::class, 'monthly']);
-        Route::post("/yearly_sale_record", [DailySaleOverviewController::class, 'yearly']);
-        Route::post("/custom_sale_records", [DailySaleOverviewController::class, 'customSaleRecords']);
+        // Route::post("/daily_sale_records", [DailySaleOverviewController::class, 'daily']);
+        Route::get("/daily_sale_records", [DailySaleOverviewController::class, 'daily']);
 
+        // Route::post("/monthly_sale_record", [DailySaleOverviewController::class, 'monthly']);
+        Route::get("/monthly_sale_record", [DailySaleOverviewController::class, 'monthly']);
+
+        // Route::post("/yearly_sale_record", [DailySaleOverviewController::class, 'yearly']);
+        Route::get("/yearly_sale_record", [DailySaleOverviewController::class, 'yearly']);
+
+        // Route::post("/custom_sale_records", [DailySaleOverviewController::class, 'customSaleRecords']);
+        Route::get("/custom_sale_records", [DailySaleOverviewController::class, 'customSaleRecords']);
 
         Route::post("register", [AuthController::class, 'register']);
 

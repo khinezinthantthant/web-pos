@@ -14,6 +14,15 @@ class YearlyTotalSaleOverviewResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        return [
+            "total_vouchers" => $this->sum("total_vouchers"),
+            "total_cash" => $this->sum("total_cash"),
+            "total_tax" => $this->sum("total_tax"),
+            "total" => $this->sum("total"),
+            "total_month" => $this->count("id"),
+            // "yearly_sale_overview" =>  YearlySaleOverviewResource::collection($this)
+        ];
+
         return parent::toArray($request);
     }
 }

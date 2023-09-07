@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string("address");
 
             $table->rememberToken();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

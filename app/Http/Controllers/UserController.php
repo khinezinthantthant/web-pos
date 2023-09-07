@@ -190,52 +190,80 @@ class UserController extends Controller
     }
 
 
-    public function ban(string $id)
-    {
-        Gate::authorize('admin');
-        $user = User::find($id);
-        if (is_null($user)) {
-            return response()->json([
-                'message' => 'user not found'
-            ], 404);
-        }
+    // public function ban(string $id)
+    // {
+    //     Gate::authorize('admin');
+    //     $user = User::find($id);
+    //     if (is_null($user)) {
+    //         return response()->json([
+    //             'message' => 'user not found'
+    //         ], 404);
+    //     }
 
-        $user->update([
-            'role' => 'ban'
-        ]);
+    //     $user->update([
+    //         'role' => 'ban'
+    //     ]);
 
-        return response()->json([
-            'message' => 'User has been banned'
-        ]);
-        //
-    }
+    //     return response()->json([
+    //         'message' => 'User has been banned'
+    //     ]);
+    //     //
+    // }
+
+    // public function bannedUsers()
+    // {
+    //     Gate::authorize("admin");
+    //     // banned users
+    //     $banneUsers = collect(User::all())->where('role', 'ban');
+    //     return $banneUsers;
+    // }
+
+    // public function restoreUser(string $id)
+    // {
+    //     Gate::authorize('admin');
+
+    //     $user = User::find($id);
+    //     if (is_null($user)) {
+    //         return response()->json([
+    //             'message' => 'user not found'
+    //         ], 404);
+    //     }
+
+    //     $user->update([
+    //         'role' => 'staff'
+    //     ]);
+
+    //     return response()->json([
+    //         'message' => 'User has been restored'
+    //     ]);
+    //     //
+    // }
+
 
     public function bannedUsers()
     {
-        Gate::authorize("admin");
-        // banned users
-        $banneUsers = collect(User::all())->where('role', 'ban');
-        return $banneUsers;
-    }
-
-    public function restoreUser(string $id)
-    {
-        Gate::authorize('admin');
-
-        $user = User::find($id);
-        if (is_null($user)) {
-            return response()->json([
-                'message' => 'user not found'
-            ], 404);
-        }
-
-        $user->update([
-            'role' => 'staff'
-        ]);
+        $user = User::onlyTrashed()
+        ->where("id", auth()->id())
+        ->get();
 
         return response()->json([
-            'message' => 'User has been restored'
+            $user
         ]);
-        //
+    }
+
+    public function restoreUser($id)
+    {
+        return $id;
+        Gate::authorize("admin");
+
+        $user = User::onlyTrashed()
+        ->where("id", auth()->id())
+        ->findOrFail($id);
+
+        $user->restore();
+
+        return response()->json([
+            "message" => "User has been restored"
+        ]);
     }
 }
