@@ -14,4 +14,7 @@ class Product extends Model
     {
         return $this->belongsTo(Brand::class);
     }
+    public function voucher_records(){
+        return $this->hasMany(VoucherRecord::class);
+    }
 }

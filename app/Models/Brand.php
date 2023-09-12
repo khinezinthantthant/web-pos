@@ -8,10 +8,18 @@ use Illuminate\Database\Eloquent\Model;
 class Brand extends Model
 {
     use HasFactory;
-    protected $fillable = ["name","company","agent","phone_no","description","user_id"];
+    protected $fillable = ["name", "company", "agent", "phone_no", "description", "user_id"];
 
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+    // public function voucher_records()
+    // {
+    //     return $this->hasManyThrough(Brand::class,)
+    // }
+    public function stocks()
+    {
+        return $this->hasManyThrough(Stock::class, Product::class);
     }
 }

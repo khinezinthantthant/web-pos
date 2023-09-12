@@ -189,6 +189,25 @@ class UserController extends Controller
         ]);
     }
 
+     public function banned(string $id)
+    {
+        Gate::authorize('admin');
+        $user = User::find($id);
+        if (is_null($user)) {
+            return response()->json([
+                'message' => 'user not found'
+            ], 404);
+        }
+
+        $user->update([
+            'role' => 'ban'
+        ]);
+        return $user;
+        return response()->json([
+            'message' => 'User has been banned'
+        ]);
+        //
+    }
 
     // public function ban(string $id)
     // {
