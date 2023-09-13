@@ -18,19 +18,117 @@ class UserController extends Controller
      */
     public function index()
     {
+        if (Gate::denies("admin")) {
+            return response()->json([
+                "message" => "This action is unauthorized"
+            ]);
+        }
         $roles = User::where('role', 'ban')->get("role");
         // $users = User::latest("id")->paginate(5)->withQueryString();
-        if($roles){
-           return User::where("role","admin")->orWhere("role","staff")->get();
+        if ($roles) {
+            return User::where("role", "admin")->orWhere("role", "staff")->get();
         }
     }
+    public function banUser(Request $request, $id)
+    {
 
+        // Gate::authorize('admin');
+        if (Gate::denies("admin")) {
+            return response()->json([
+                "message" => "This action is unauthorized"
+            ]);
+        }
+        $request->validate([
+            "name" => "nullable|min:3",
+            "email" => "email|unique:users",
+            "password" => "min:8",
+            "phone_number" => "min:9|max:15",
+            "address" => "min:5",
+            "gender" => "in:male,female",
+            "date_of_birth" => "date",
+            "role" => "in:admin,staff,ban",
+            "photo" => "nullable"
+        ]);
+        $user = User::find($id);
+        if (is_null($user)) {
+            return response()->json([
+                'message' => 'user not found'
+            ], 404);
+        }
+        $user = User::find($id);
+        $user->role = "ban";
+        $user->update();
+
+        return response()->json([
+            "message" => "User banned successfully",
+            "user" => $user
+
+        ]);
+    }
+    public function banUserList()
+    {
+        if (Gate::denies("admin")) {
+            return response()->json([
+                "message" => "This action is unauthorized"
+            ]);
+        }
+        // Gate::authorize("admin");
+        $users = User::where("role", "ban")->latest("id")->paginate(10)->withQueryString();
+        return response()->json([
+            "users" => $users
+        ]);
+    }
+    public function restore(Request $request, $id)
+    {
+        if (Gate::denies("admin")) {
+            return response()->json([
+                "message" => "This action is unauthorized"
+            ]);
+        }
+        $request->validate([
+            "name" => "nullable|min:3",
+            "email" => "email|unique:users",
+            "password" => "min:8",
+            "phone_number" => "min:9|max:15",
+            "address" => "min:5",
+            "gender" => "in:male,female",
+            "date_of_birth" => "date",
+            "role" => "in:admin,staff,ban",
+            "photo" => "nullable"
+        ]);
+        // $user = User::withTrashed()->findOrFail($id);
+        // if ($user->trashed()) {
+        //     $user->restore();
+        //     return response()->json(['message' => 'User restored successfully']);
+        // }else{
+        //     return response()->json(['message' => 'User is not soft-delete'], 404);
+        // }
+
+        $user = User::withTrashed()->find($id);
+        if (is_null($user)) {
+            return response()->json([
+                "message" => "Softdeleted user is not found"
+            ]);
+        }
+
+        if ($user->restore()) {
+            return response()->json([
+                "message" => "User has been restored",
+                "user" => $user
+            ]);
+        }
+    }
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        Gate::authorize("admin");
+        // Gate::authorize("admin");
+        if (Gate::denies("admin")) {
+            return response()->json([
+                "message" => "This action is unauthorized"
+            ]);
+        }
 
         $request->validate([
             "name" => "nullable|min:3",
@@ -59,7 +157,7 @@ class UserController extends Controller
         // retur n $user;
         return response()->json([
             "message" => "Successfully created an account",
-            $user
+            "user" => $user
         ]);
     }
 
@@ -68,6 +166,11 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
+        if (Gate::denies("admin")) {
+            return response()->json([
+                "message" => "This action is unauthorized"
+            ]);
+        }
         $user = User::find($id);
         if (is_null($user)) {
             return response()->json([
@@ -85,7 +188,12 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-
+        // Gate::authorize("admin");
+        if (Gate::denies("admin")) {
+            return response()->json([
+                "message" => "This action is unauthorized"
+            ]);
+        }
         $request->validate([
             "name" => "nullable|min:3",
             "email" => "required|email|unique:users,email,$id",
@@ -93,8 +201,8 @@ class UserController extends Controller
             "address" => "required|min:5",
             "gender" => "required|in:male,female",
             "date_of_birth" => "required",
-            "photo" => "nullable"
-            // "role" => "required|in:admin,staff"
+            "photo" => "nullable",
+            "role" => "required|in:admin,staff,ban"
         ]);
 
         $user = User::find($id);
@@ -111,11 +219,12 @@ class UserController extends Controller
             "address" => $request->address,
             "gender" => $request->gender,
             "date_of_birth" => $request->date_of_birth,
+            "role" => $request->role,
             "photo" => $request->photo ?? config("info.default_user_photo")
         ]);
 
         // return $user;
-        return response()  ->json([
+        return response()->json([
             "message" => "User Updated successful",
             $user
         ]);
@@ -189,25 +298,6 @@ class UserController extends Controller
         ]);
     }
 
-     public function banned(string $id)
-    {
-        Gate::authorize('admin');
-        $user = User::find($id);
-        if (is_null($user)) {
-            return response()->json([
-                'message' => 'user not found'
-            ], 404);
-        }
-
-        $user->update([
-            'role' => 'ban'
-        ]);
-        return $user;
-        return response()->json([
-            'message' => 'User has been banned'
-        ]);
-        //
-    }
 
     // public function ban(string $id)
     // {
@@ -262,8 +352,8 @@ class UserController extends Controller
     public function bannedUsers()
     {
         $user = User::onlyTrashed()
-        ->where("id", auth()->id())
-        ->get();
+            ->where("id", auth()->id())
+            ->get();
 
         return response()->json([
             $user
@@ -276,8 +366,8 @@ class UserController extends Controller
         Gate::authorize("admin");
 
         $user = User::onlyTrashed()
-        ->where("id", auth()->id())
-        ->findOrFail($id);
+            ->where("id", auth()->id())
+            ->findOrFail($id);
 
         $user->restore();
 

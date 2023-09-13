@@ -31,6 +31,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    // protected $table =  App\Model\User;
     protected $fillable = [
         "name",
         "email",

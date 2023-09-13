@@ -43,8 +43,13 @@ Route::prefix("v1")->group(function () {
         Route::post("logout", [AuthController::class, 'logout']);
         Route::post("logout-all", [AuthController::class, 'logoutAll']);
         Route::get('/banned-user', [UserController::class, 'bannedUsers']);
-        Route::post('/banned-user', [UserController::class, 'banned']);
+
+        Route::post('/ban-user', [UserController::class, 'banUser']);
         Route::post('/restore-user/{id}', [UserController::class, 'restoreUser']);
+
+        Route::patch("user/{id}/ban-user", [UserController::class, 'banUser']);
+        Route::get("ban-user-list", [UserController::class, 'banUserList']);
+        Route::patch("user/{id}/restore", [UserController::class, 'restore']);
 
         Route::post("/sale_close", [DailySaleOverviewController::class, 'saleClose']);
         // Route::post("/daily_sale_records", [DailySaleOverviewController::class, 'daily']);
