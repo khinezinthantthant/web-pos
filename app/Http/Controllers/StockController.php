@@ -13,6 +13,9 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
+use function PHPUnit\Framework\isEmpty;
+use function PHPUnit\Framework\isNull;
+
 class StockController extends Controller
 {
     /**
@@ -31,17 +34,32 @@ class StockController extends Controller
     public function store(StoreStockRequest $request)
     {
         Gate::authorize("admin");
-        $stock = Stock::create([
-            "user_id" => Auth::id(),
-            "product_id" => $request->product_id,
-            "quantity" => $request->quantity,
-            "more" => $request->more
-        ]);
 
-        $totalStock = Stock::where("product_id", request()->product_id)->sum("quantity");
+        $productIds = Stock::where("product_id",$request->product_id)->pluck("id");
+        // return $productIds;
+        if(count($productIds) === 0){
+            $stock = Stock::create([
+                "user_id" => Auth::id(),
+                "product_id" => $request->product_id,
+                "quantity" => $request->quantity,
+                "more" => $request->more
+            ]);
+
+            $totalStock = Stock::where("product_id", request()->product_id)->sum("quantity");
+
+            $product = Product::find(request()->product_id);
+            $product->total_stock  = $totalStock;
+            $product->save();
+
+            return new StockResource($stock);
+        }
+
+        $stock = Stock::find(request()->product_id);
+        $stock->quantity += $request->quantity;
+        $stock->save();
 
         $product = Product::find(request()->product_id);
-        $product->total_stock  = $totalStock;
+        $product->total_stock = $stock->quantity;
         $product->save();
 
         return new StockResource($stock);
