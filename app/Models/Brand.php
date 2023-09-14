@@ -14,4 +14,9 @@ class Brand extends Model
     {
         return $this->hasMany(Product::class);
     }
+
+    public function stocks()
+    {
+        return $this->hasManyThrough(Stock::class,Product::class);
+    }
 }

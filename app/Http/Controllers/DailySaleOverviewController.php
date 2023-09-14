@@ -12,19 +12,31 @@ use App\Http\Resources\YearlySaleOverviewResource;
 use App\Http\Resources\YearlyTotalSaleOverviewResource;
 use App\Models\DailySaleOverview;
 use App\Models\MonthlySaleOverview;
+use App\Models\SaleClose;
 use App\Models\Voucher;
 use App\Models\YearlySaleOverview;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-
+   
 class DailySaleOverviewController extends Controller
 {
     public function saleClose(Request $request)
     {
-        // return $request->close;
+
+        $saleClose = SaleClose::find(1);
+        if($saleClose->sale_close){
+            return response()->json([
+                "message" => "Already Closed"
+            ]);
+        }
+        $saleClose->sale_close = true;
+        $saleClose->update();
+
+
         $totalCash = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("total");
         $totalTax = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("tax");
         $total = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("net_total");
@@ -46,6 +58,24 @@ class DailySaleOverviewController extends Controller
         return $daily_sale_overview;
     }
 
+    public function saleOpen()
+    {
+        // return "hello";
+        $saleClose = SaleClose::find(1);
+        if(!$saleClose->sale_close){
+            return response()->json([
+                "message" => "Already Opened"
+            ]);
+        }
+        $saleClose->sale_close = false;
+        $saleClose->update();
+
+        return response()->json([
+            "data" => $saleClose,
+            "message" => "Opened Sale"
+        ]);
+    }
+
     public function daily(Request $request)
     {
         $year = (new Carbon($request->date))->format("Y");
@@ -55,7 +85,7 @@ class DailySaleOverviewController extends Controller
             // ->whereYear("created_at",$year)
             ->paginate(5);
         // return $daily_sale_records;
-        $date = $request->date;
+        $date = $request ->date;
         // return $date;
         $day = (new Carbon($date))->format("d");
         // return $day;
@@ -64,7 +94,7 @@ class DailySaleOverviewController extends Controller
             ->where("month", $month)
             ->where("year", $year)
             ->first();
-        // return $dailyReport;
+        return $dailyReport;
         $dailyReport->daily_sale_records  = $daily_sale_records;
 
         // return $dailyReport;
@@ -132,5 +162,10 @@ class DailySaleOverviewController extends Controller
         $custom_sale_records = Voucher::whereBetween('created_at', [$startDate, $endDate])->get();
 
         return TodaySaleOverviewResource::collection($custom_sale_records);
+    }
+
+    public function year(){
+        return collect(DailySaleOverview::groupBy("year")->get("year"))->pluck("year");
+
     }
 }

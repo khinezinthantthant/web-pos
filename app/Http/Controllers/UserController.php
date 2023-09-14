@@ -134,7 +134,7 @@ class UserController extends Controller
         $user = User::find($id);
         $user->delete();
         return response()->json([
-            "message" => "User Successfully deleted"
+            "message" => "User Successfully Bnned"
         ]);
     }
 
@@ -242,9 +242,11 @@ class UserController extends Controller
 
     public function bannedUsers()
     {
+        // return auth()->id();
         $user = User::onlyTrashed()
-        ->where("id", auth()->id())
+        // ->where("id", auth()->id())
         ->get();
+        return $user;
 
         return response()->json([
             $user

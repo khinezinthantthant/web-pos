@@ -14,7 +14,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        
+
         $request->validate([
             "email" => "required|email|exists:users,email",
             "password" => "required|min:8"
@@ -28,7 +28,8 @@ class AuthController extends Controller
 
         return response()->json([
             "message" => "login successful",
-            "token" => Auth::user()->createToken($request->has("device") ? $request->device : 'unknown')->plainTextToken
+            "token" => Auth::user()->createToken($request->has("device") ? $request->device : 'unknown')->plainTextToken,
+            "user" => Auth::user()
         ]);
     }
 

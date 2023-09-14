@@ -5,6 +5,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DailySaleOverviewController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherController;
@@ -46,6 +47,8 @@ Route::prefix("v1")->group(function () {
         Route::post('/restore-user/{id}', [UserController::class, 'restoreUser']);
 
         Route::post("/sale_close", [DailySaleOverviewController::class, 'saleClose']);
+        Route::post("/sale_open", [DailySaleOverviewController::class, 'saleOpen']);
+
         // Route::post("/daily_sale_records", [DailySaleOverviewController::class, 'daily']);
         Route::get("/daily_sale_records", [DailySaleOverviewController::class, 'daily']);
 
@@ -57,6 +60,11 @@ Route::prefix("v1")->group(function () {
 
         // Route::post("/custom_sale_records", [DailySaleOverviewController::class, 'customSaleRecords']);
         Route::get("/custom_sale_records", [DailySaleOverviewController::class, 'customSaleRecords']);
+        Route::get("/year", [DailySaleOverviewController::class, 'year']);
+
+        Route::get("/stock_report", [ReportController::class, 'stockReport']);
+        Route::get("/brand_report", [ReportController::class, 'brandReport']);
+        Route::get("/weekely_best_seller_brands", [ReportController::class, 'weekelyBestSellerBrands']);
 
         Route::post("register", [AuthController::class, 'register']);
 
