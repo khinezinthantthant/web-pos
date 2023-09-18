@@ -82,7 +82,7 @@ class SaleReportController extends Controller
                         // ->withSum("brands", "quantity")
                         ->limit(5)
                         ->get();
-                return $brands;
+                // return $brands;
                 $brandInfo = [];
 
                 foreach ($brands as $brand) {
