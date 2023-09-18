@@ -55,6 +55,7 @@ class SaleReportController extends Controller
                         $productName = $product->name;
                         $brandName = $product->brand->name;
                         $porductPrice = $product->sale_price;
+                        $unit = $product->unit;
                         $totalVoucher = $product->voucher_records_count;
                         $totalStock = $product->total_stock;
 
@@ -62,6 +63,7 @@ class SaleReportController extends Controller
                                 "name" => $productName,
                                 "brand" => $brandName,
                                 "sale price" => $porductPrice,
+                                "unit" => $unit,
                                 "total stock" => $totalStock,
                                 "totoal voucher" => $totalVoucher
 
@@ -80,7 +82,7 @@ class SaleReportController extends Controller
                         // ->withSum("brands", "quantity")
                         ->limit(5)
                         ->get();
-                // return $brands;
+                return $brands;
                 $brandInfo = [];
 
                 foreach ($brands as $brand) {
@@ -90,8 +92,8 @@ class SaleReportController extends Controller
 
                         $brandInfo[] = [
                                 "name" => $brandName,
-                                "number_of_brand_sale" => $brandSaleCount,
-                                "total_sales" => $brandSales,
+                                "brand sale count" => $brandSaleCount,
+                                "brand sales" => $brandSales,
                         ];
                 }
 
