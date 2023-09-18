@@ -5,6 +5,8 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DailySaleOverviewController;
 use App\Http\Controllers\PhotoController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\SaleReportController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VoucherController;
@@ -66,7 +68,19 @@ Route::prefix("v1")->group(function () {
         Route::post('/change-staff-password', [UserController::class, 'modifyPassword']);
 
         // Route::get("devices", [ApiAuthController::class, 'devices']);
+        Route::controller(ReportController::class)->group(function () {
+            Route::get("instock-product", [ReportController::class, "instockProducts"]);
+            Route::get("lowstock-product", [ReportController::class, "getLowStockProducts"]);
+            Route::get("outOfStock-product", [ReportController::class, "outOfStockProducts"]);
+        });
+        Route::controller(SaleReportController::class)->group(function () {
+            Route::get("today-sale-report","todaySaleReport");
+            Route::get("weekly-sale","weeklySale");
+            Route::get("product-sale","productSale");
+            Route::get("brand-sale", "brandSale");
+            
 
+        });
     });
 
     Route::post("login", [AuthController::class, 'login']);

@@ -14,12 +14,17 @@ class Brand extends Model
     {
         return $this->hasMany(Product::class);
     }
-    // public function voucher_records()
-    // {
-    //     return $this->hasManyThrough(Brand::class,)
-    // }
+    public function voucher_records()
+    {
+        return $this->hasManyThrough(VoucherRecord::class,Product::class);
+    }
     public function stocks()
     {
         return $this->hasManyThrough(Stock::class, Product::class);
     }
+    public function brands()
+    {
+        return $this->hasManyThrough(VoucherRecord::class, Product::class);
+    }
+    
 }
