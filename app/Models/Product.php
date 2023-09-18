@@ -14,4 +14,11 @@ class Product extends Model
     {
         return $this->belongsTo(Brand::class);
     }
+
+    public function voucher_records(){
+        return $this->hasMany(VoucherRecord::class);
+    }
+    public function vouchers(){
+        return $this->belongsToMany(Voucher::class,VoucherRecord::class);
+    }
 }

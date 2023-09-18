@@ -64,6 +64,12 @@ Route::prefix("v1")->group(function () {
 
         Route::get("/stock_report", [ReportController::class, 'stockReport']);
         Route::get("/brand_report", [ReportController::class, 'brandReport']);
+        Route::get("/today-sale-report", [ReportController::class, 'todaySaleReport']);
+        Route::get("/product-sale-report", [ReportController::class, 'productSaleReport']);
+        Route::get("/brand-sale-report", [ReportController::class, 'brandSaleReport']);
+        Route::get("/weekely-sale-report", [ReportController::class, 'weeklySaleReport']);
+
+
         Route::get("/weekely_best_seller_brands", [ReportController::class, 'weekelyBestSellerBrands']);
 
         Route::post("register", [AuthController::class, 'register']);
