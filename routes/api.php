@@ -37,28 +37,25 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("product", ProductController::class);
         Route::apiResource("stock", StockController::class);
         Route::apiResource("voucher", VoucherController::class);
-
         Route::apiResource("photo", PhotoController::class);
+
+
         Route::apiResource("user", UserController::class);
+        Route::get('/banned-user', [UserController::class, 'bannedUsers']);
+        Route::post('/restore-user/{id}', [UserController::class, 'restoreUser']);
+        Route::post('/change-password', [UserController::class, 'passwordChanging']);
+        Route::post('/change-staff-password', [UserController::class, 'modifyPassword']);
+
 
         Route::post("logout", [AuthController::class, 'logout']);
         Route::post("logout-all", [AuthController::class, 'logoutAll']);
-        Route::get('/banned-user', [UserController::class, 'bannedUsers']);
-        Route::post('/restore-user/{id}', [UserController::class, 'restoreUser']);
+
 
         Route::post("/sale_close", [DailySaleOverviewController::class, 'saleClose']);
         Route::post("/sale_open", [DailySaleOverviewController::class, 'saleOpen']);
-
-        // Route::post("/daily_sale_records", [DailySaleOverviewController::class, 'daily']);
         Route::get("/daily_sale_records", [DailySaleOverviewController::class, 'daily']);
-
-        // Route::post("/monthly_sale_record", [DailySaleOverviewController::class, 'monthly']);
         Route::get("/monthly_sale_record", [DailySaleOverviewController::class, 'monthly']);
-
-        // Route::post("/yearly_sale_record", [DailySaleOverviewController::class, 'yearly']);
         Route::get("/yearly_sale_record", [DailySaleOverviewController::class, 'yearly']);
-
-        // Route::post("/custom_sale_records", [DailySaleOverviewController::class, 'customSaleRecords']);
         Route::get("/custom_sale_records", [DailySaleOverviewController::class, 'customSaleRecords']);
         Route::get("/year", [DailySaleOverviewController::class, 'year']);
 
@@ -68,16 +65,9 @@ Route::prefix("v1")->group(function () {
         Route::get("/product-sale-report", [ReportController::class, 'productSaleReport']);
         Route::get("/brand-sale-report", [ReportController::class, 'brandSaleReport']);
         Route::get("/weekely-sale-report", [ReportController::class, 'weeklySaleReport']);
-
-
         Route::get("/weekely_best_seller_brands", [ReportController::class, 'weekelyBestSellerBrands']);
 
-        Route::post("register", [AuthController::class, 'register']);
-
-
-        Route::post('/change-password', [UserController::class, 'passwordChanging']);
-        Route::post('/change-staff-password', [UserController::class, 'modifyPassword']);
-
+        // Route::post("register", [AuthController::class, 'register']);
         // Route::get("devices", [ApiAuthController::class, 'devices']);
 
     });

@@ -155,10 +155,10 @@ class ReportController extends Controller
                     $productInfo[] = [
                             "name" => $productName,
                             "brand" => $brandName,
-                            "sale price" => $porductPrice,
+                            "sale_price" => $porductPrice,
                             "unit" => $unit,
-                            "total stock" => $totalStock,
-                            "totoal voucher" => $totalVoucher
+                            "total_stock" => $totalStock,
+                            "total_voucher" => $totalVoucher
                     ];
             }
             return response()->json([
@@ -183,8 +183,8 @@ class ReportController extends Controller
 
                 $brandInfo[] = [
                         "name" => $brandName,
-                        "brand sale count" => $brandSaleCount,
-                        "brand sales" => $brandSales,
+                        "brand_sale_count" => $brandSaleCount,
+                        "brand_sales" => $brandSales,
                 ];
         }
 

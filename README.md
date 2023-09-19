@@ -1,535 +1,322 @@
-# Web POS API Documentation
+# Web POS
+## API Documentation
+#### Admin Login (Post)
 
-This document provides details about the Web POS API endpoints along with their request methods and descriptions.
+``` https://h.mmsdev.site/api/v1/login ```
 
-## Database Design
+| Arguments | Type      | Description                   |
+| :-------- | :---------| :-----------------------------|
+| email     | string    | **Required** admin@gmail.com  |
+| password  | string    | **Required** asdffdsa         |
 
-[drawsql.app](https://drawsql.app/teams/hello-world-20/diagrams/copy-of-web-pos)
 
-## Authentication
+#### Staff Login (Post)
 
-All endpoints require authentication using a **bearer token**. The token must be included in the request headers with the key `Authorization`.
+``` https://h.mmsdev.site/api/v1/login ```
 
-```http
-Authorization: Bearer 2|KgdoQujKkqSRb74j6NhelW8veouaE9hLnSMlbEVj
-```
+| Arguments | Type      | Description                       |
+| :-------- | :---------| :---------------------------------|
+| email     | string    | **Required** staffone@gmail.com   |
+| password  | string    | **Required** asdffdsa             |
 
-### 1.Admin Login
 
-```
- https://h.mmsdev.site/api/v1/login
-```
+## Profile
+#### Logout (Post)
 
-**Description**: This endpoint is used for admin user login. It requires an email and password as form-data and returns a bearer token upon successful authentication.
+``` https://h.mmsdev.site/api/v1/logout ```
 
-#### Request
+#### Logout All (Post)
 
--   Method: `POST`
--   form-data
+``` https://h.mmsdev.site/api/v1/logout-all ```
 
-| Arguments  | Type     | Description                  |
-| :--------- | :------- | :--------------------------- |
-| `email`    | `string` | **Required** admin@gmail.com |
-| `password` | `string` | **Required** asdffdsa        |
+#### Change Password (Post)
 
-##### Response
+``` https://h.mmsdev.site/api/v1/change-password ```
 
-The response will contain the bearer token used for subsequent authenticated requests.
-`2|KgdoQujKkqSRb74j6NhelW8veouaE9hLnSMlbEVj`
+| Arguments             | Type      | Description                       |
+| :---------------------| :---------| :---------------------------------|
+| current_password      | string    | **Required** asdfdsa              |
+| password              | string    | **Required** hellohello           |
+| password_confirmation | string    | **Required** hellohello           |
 
----
+## User
 
-### 2.Staff Login
+#### User List
 
-```
- https://h.mmsdev.site/api/v1/login
-```
+``` https://h.mmsdev.site/api/v1/user ```
 
-**Description**: This endpoint is used for staff user login. It requires an email and password as form-data and returns a bearer token upon successful authentication.
+#### Show User
 
-#### Request
+``` https://h.mmsdev.site/api/v1/user/{id} ```
 
--   Method: `POST`
--   form-data
+#### Create User (Post)
 
-| Arguments  | Type     | Description                   |
-| :--------- | :------- | :---------------------------- |
-| `email`    | `string` | **Required** ayeaye@gmail.com |
-| `password` | `string` | **Required** asdffdsa         |
+``` https://h.mmsdev.site/api/v1/user ```
 
-##### Response
+| Arguments             | Type      | Description                       |
+| :---------------------| :---------| :---------------------------------|
+| name                  | string    | **Required** Mg Mg                |
+| email                 | string    | **Required** mgmg@gmail.com       |
+| password              | string    | **Required** asdffdsa             |
+| phone_number          | string    | **Required** 098888888            |
+| address               | string    | **Required** yangon               |
+| gender                | enum      | **Required** male/female          |
+| date_of_birth         | string    | **Required** 1/1/1999             |
+| role                  | enum      | **Required** admin/staff          |
+| photo                 | string    | **Required** url()                |
+| password_confirmation | string    | **Required** asdfdsa              |
 
-The response will contain the bearer token used for subsequent authenticated requests.
-`5|KgdoQujKkqSRb74j6NhelW8veouaE9hLnSMlbEVj`
+#### Edit User (Put)
 
----
+``` https://h.mmsdev.site/api/v1/user/{id} ```
 
-### 3. Profile
+| Arguments             | Type      | Description                       |
+| :---------------------| :---------| :---------------------------------|
+| name                  | string    | **Required** Hnin Nu              |
+| email                 | string    | **Required** hninnu@gmail.com     |
+| phone_number          | string    | **Required** 097777777            |
+| address               | string    | **Required** mandalay             |
+| gender                | enum      | **Required** male/female          |
+| date_of_birth         | string    | **Required** 1/1/1999             |
+| photo                 | string    | **Required** url()                |
 
-#### Auth
 
--   Type: `Bearer Token`
--   Token: `{{token}}`
+#### Modify Password (Post)
 
-#### 3.1 Logout
+``` https://h.mmsdev.site/api/v1/change-staff-password ```
 
-```
-https://h.mmsdev.site/api/v1/logout
-```
+| Arguments             | Type      | Description                       |
+| :---------------------| :---------| :---------------------------------|
+| user_id               | integer   | **Required** 4                    |
+| new_password          | string    | **Required** asdffdsa             |
 
-**Description**: This endpoint is used to log out the currently authenticated user.
 
-#### Request
+## Media
 
--   Method: `POST`
+#### Photo Upload (Post)
 
-#### 3.2 Logout All
+``` https://h.mmsdev.site/api/v1/photo ```
 
-```
-https://h.mmsdev.site/api/v1/logout-all
-```
+| Arguments             | Type      | Description                       |
+| :---------------------| :---------| :---------------------------------|
+| photos[]              | array     | **Required** []                   |
 
-**Description**: This endpoint is used to logout for all authenticated users.
+#### Photo List
 
-#### Request
+``` https://h.mmsdev.site/api/v1/photo ```
 
--   Method: `POST`
+#### Delete Photo (Delete)
 
-#### 3.3 Change Password
+``` https://h.mmsdev.site/api/v1/photo/{id} ```
 
-```
-https://h.mmsdev.site/api/v1/change-password
-```
+## Inventory Management
 
-**Description**: This endpoint is used to change admin user password.
+### Brand
 
-#### Request
+#### Brand List
 
-Method: `POST`
+``` https://h.mmsdev.site/api/v1/brand ```
 
--   form-data
+#### Show Brand
 
-| Arguments                 | Type      | Description             |
-| :-------------            | :-------- | :---------------------- |
-| `current_password`        | `string`  | **Required**    asdffdsa|
-| `password`                | `string`  | **Required**       hello|
-| `password_confirmation`   | `string`  | **Required**       hello|
+``` https://h.mmsdev.site/api/v1/brand/{id} ```
 
+#### Create Brand (Post)
 
-### 4. User
+``` https://h.mmsdev.site/api/v1/brand ```
 
-#### Auth
+| Arguments             | Type      | Description                       |
+| :---------------------| :---------| :---------------------------------|
+| name                  | string    | **Required** orange               |
+| company               | string    | **Required** abcde                |
+| description           | string    | **Required** hellohello           |
+| user_id               | string    | **Required** 1                    |
+| agent                 | string    | **Required** Micheal              |
+| phone_no              | string    | **Required** 09888888             |
+| photo                 | string    | **Required** url()                |
 
--   Type: `Bearer Token`
--   Token: `{{token}}`
 
-#### 4.1 User List
+#### Update Brand (Put)
 
-```
-https://h.mmsdev.site/api/v1/user
-```
+``` https://h.mmsdev.site/api/v1/brand/{id} ```
 
-**Description**: This endpoint is used to retrieve a list of all users.
+| Arguments             | Type      | Description                       |
+| :---------------------| :---------| :---------------------------------|
+| name                  | string    | **Required** orange               |
+| company               | string    | **Required** abcde                |
+| description           | string    | **Required** hellohello           |
+| agent                 | string    | **Required** Pagac-Reinger        |
+| phone_no              | string    | **Required** 09888888             |
+| photo                 | string    | **Required** url()                |
 
-##### Response
+#### Delete Brand (Delete)
 
-The response will contain a list of users.
+``` https://h.mmsdev.site/api/v1/brand/{id} ```
 
-#### 4.2 Show User
+#### Product List
 
-```
-https://h.mmsdev.site/api/v1/user/1
-```
+``` https://h.mmsdev.site/api/v1/product ```
 
-**Description**: This endpoint is used to retrieve information about a specific user.
+#### Show Product
 
-##### Response
+``` https://h.mmsdev.site/api/v1/product/{id} ```
 
-The response will contain information about the specified user.
+#### Create Product (Post)
 
-#### 4.3 Create User
+``` https://h.mmsdev.site/api/v1/product ```
 
-```
-https://h.mmsdev.site/api/v1/user
-```
+| Arguments             | Type      | Description                       |
+| :---------------------| :---------| :---------------------------------|
+| name                  | string    | **Required** apple                |
+| actual_price          | string    | **Required** 100                  |
+| sale_price            | string    | **Required** 150                  |
+| unit                  | string    | **Required** single               |
+| more_information      | string    | **Required** text                 |
+| brand_id              | string    | **Required** 1                    |
+| photo                 | string    | **Required** url()                |
+| total_stock           | string    | **Required** 10                   |
 
-**Description**: This endpoint is used to create a new user account.
 
-#### Request
+#### Update Product (Put)
 
--   Method: `POST`
+``` https://h.mmsdev.site/api/v1/product/{id} ```
 
--   form-data
+| Arguments             | Type      | Description                       |
+| :---------------------| :---------| :---------------------------------|
+| name                  | string    | **Required** apple                |
+| actual_price          | string    | **Required** 100                  |
+| sale_price            | string    | **Required** 150                  |
+| unit                  | string    | **Required** single               |
+| more_information      | string    | **Required** text                 |
+| brand_id              | string    | **Required** 1                    |
+| photo                 | string    | **Required** url()                |
+| total_stock           | string    | **Required** 10                   |
 
-| Arguments                  | Type     | Description                   |
-| :--------------            | :------- | :---------------------------- |
-| `name`                     | `string` | **Required** Aye Aye          |
-| `email`                    | `string` | **Required** ayeaye@gmail.com |
-| `password`                 | `string` | **Required** asdffdsa         |
-| `password_confirmation`    | `string` | **Required** asdffdsa         |
-| `phone_number`             | `number` | **Required** 098888888        |
-| `address`                  | `string` | **Required** yangon           |
-| `gender`                   | `string` | **Required** female           |
-| `date_of_birth`            | `string` | **Required** 1/1/2000         |
-| `role`                     | `string` | **Required** staff            |
-| `photo`                    | `string` | (upload file)                 |
 
-#### 4.4 Update User
+#### Delete Product (Put)
 
-```
-https://h.mmsdev.site/api/v1/user/2
-```
+``` https://h.mmsdev.site/api/v1/product/{id} ```
 
-**Description**: This endpoint is used to update information about a specific user.
+#### Stock List
 
-#### Request
+``` https://h.mmsdev.site/api/v1/stock ```
 
--   Method: `PUT`
+#### Show Stock
 
--   form-data
+``` https://h.mmsdev.site/api/v1/stock/{id} ```
 
-| Arguments       | Type     | Description                     |
-| :-------------- | :------- | :------------------------------ |
-| `name`          | `string` | **Required** Kyaw Kyaw          |
-| `email`         | `string` | **Required** kyawkyaw@gmail.com |
-| `phone_number`  | `number` | **Required** mandalay           |
-| `address`       | `string` | **Required** male               |
-| `gender`        | `string` | **Required** 1/1/2000           |
-| `date_of_birth` | `string` | **Required** staff              |
-| `photo`         | `string` | **nullable**                    |
+#### Add Stock
 
-#### 4.5 Delete User
+``` https://h.mmsdev.site/api/v1/product ```
 
-```
-https://h.mmsdev.site/api/v1/user/2
-```
+| Arguments             | Type      | Description                       |
+| :---------------------| :---------| :---------------------------------|
+| user_id               | integer   | **Required** 1                    |
+| product_id            | integer   | **Required** 20                   |
+| quantity              | integer   | **Required** 10                   |
+| more_information      | string    | **Required** text                 |
 
-#### Request
+#### Delete Stock
 
-Method: `DELETE`
+``` https://h.mmsdev.site/api/v1/stock/{id} ```
 
-**Description**: This endpoint is used to delete a specific user.
+## Sale
 
-#### 4.6 Modify Password
+### Voucher
 
-```
-https://h.mmsdev.site/api/v1/change-staff-password
-```
+#### Checkout (Post)
 
-**Description**: This endpoint is used to modify user password.
+``` https://h.mmsdev.site/api/v1/voucher ```
 
-#### Request
+| Arguments             | Type      | Description                       |
+| :---------------------| :---------| :---------------------------------|
+| customer_name         | string    | **Nullable** John Doe             |
+| phone_number          | string    | **Nullable** 09888888             |
+| product_id            | integer   | **Required** 1                    |
+| quantity              | integer   | **Required** 20                   |
 
-Method: `POST`
+#### Voucher List
 
--   form-data
+``` https://h.mmsdev.site/api/v1/voucher ```
 
-| Arguments      | Type      | Description             |
-| :------------- | :-------- | :---------------------- |
-| `user_id`      | `integer` | **Required** 2          |
-| `new_password` | `string`  | **Required** hellohello |
+#### Show Voucher
 
-#### 4.7 Ban User
+``` https://h.mmsdev.site/api/v1/voucher/{id} ```
 
-```
-https://h.mmsdev.site/api/v1/ban_user/
-```
+### Finance
 
-**Description**: This endpoint is used to ban user.
+#### Sale Close (Post)
 
-#### Request
+``` https://h.mmsdev.site/api/v1/sale_close ```
 
-Method: `POST`
+#### Sale Open (Post)
 
----
+``` https://h.mmsdev.site/api/v1/sale_open ```
 
-### 5. Inventory Management
+#### Daily Sale Records (Post)
 
-#### 5.1 Products
+``` https://h.mmsdev.site/api/v1/daily_sale_records?date=2023-09-11 ```
 
-#### 5.1.1 Product List
+#### Monthly Sale Records (Post)
 
-```
-https://h.mmsdev.site/api/v1/product
-```
+``` https://h.mmsdev.site/api/v1/monthly_sale_record?month=7&year=2023 ```
 
-**Description**: This endpoint is used to retrieve a list of all products from the inventory.
 
-##### Response
+| Id  | Month    | Id  | Month     |
+| :-- | :------- | :-- | :-------- |
+| 1   | January  | 7   | July      |
+| 2   | February | 8   | August    |
+| 3   | March    | 9   | September |
+| 4   | April    | 10  | October   |
+| 5   | May      | 11  | November  |
+| 6   | June     | 12  | December  |
 
-The response will contain a list of products.
+#### Yearly Sale Records (Post)
 
-#### 5.1.2 Show Product
+``` https://h.mmsdev.site/api/v1/yearly_sale_record?year=2023 ```
 
-```
-https://h.mmsdev.site/api/v1/product/2
-```
+#### Custom Sale Records (Post)
 
-**Description**: This endpoint is used to retrieve information about a specific product.
+``` https://h.mmsdev.site/api/v1/custom_sale_records?start_date=2023-06-13&end_date=2023-06-25 ```
 
-##### Response
+| Arguments         | Type | Description           |
+| :-----------------| :--- | :---------------------|
+| start_date        | date | **Search** 2023-06-13 |
+| end_date          | date | **Search** 2023-06-25 |
 
-The response will contain information about the specified product.
+#### Get Year
 
-#### 5.1.3 Store Product
+``` https://h.mmsdev.site/api/v1/year ```
 
-```
-https://h.mmsdev.site/api/v1/product
-```
+### Report
 
-**Description**: This endpoint is used to add a new product to the inventory.
+#### Stock Overview
 
-#### Request
+``` https://h.mmsdev.site/api/v1/stock_report?keyword=voluptatem&stock_level=instock ```
 
--   Method: `POST`
+| Arguments         | Type   | Description                                  |
+| :-----------------| :------| :--------------------------------------------|
+| stock_level       | string | **required** instock/low stock/ out of stock |
+| keyword           | string | **Nullable** product_name                    |
 
--   form-data
 
-| Arguments          | Type     | Description             |
-| :----------------- | :------- | :---------------------- |
-| `name`             | `string` | **Required** toothbrush |
-| `brand_id`         | `number` | **Required** 3          |
-| `actual_price`     | `number` | **Required** 100        |
-| `sale_price`       | `number` | **Required** 1200       |
-| `unit`             | `string` | **Required** dozen      |
-| `photo`            | `string` | **Required**            |
-| `more_information` | `string` | it's a toothbrush       |
+#### Brand Report
 
-##### Response
+``` https://h.mmsdev.site/api/v1/brand_report ```
 
-The response will contain information about the created product with successful message.
+#### Today Sale Report
 
-#### 5.1.4 Update Product
+``` https://h.mmsdev.site/api/v1/today-sale-report ```
 
-```
-https://h.mmsdev.site/api/v1/product/4
-```
+#### Product Sale Reportk
 
-**Description**: This endpoint is used to update information about a specific product.
+``` https://h.mmsdev.site/api/v1/product-sale-report ```
 
-#### Request
+#### Weekely Sale Report
 
--   Method: `PUT`
+``` https://h.mmsdev.site/api/v1/weekely-sale-report ```
 
--   form-data
 
-| Arguments          | Type     | Description             |
-| :----------------- | :------- | :---------------------- |
-| `name`             | `string` | **Required** toothpaste |
-| `brand_id`         | `number` | **Required** 3          |
-| `user_id`          | `number` | **Required** 1          |
-| `actual_price`     | `number` | **Required** 100        |
-| `sale_price`       | `number` | **Required** 1200       |
-| `unit`             | `string` | **Required** dozen      |
-| `more_information` | `string` | it's a toothpaste       |
 
-#### 5.1.5 Delete Product
 
-```
-https://h.mmsdev.site/api/v1/product/1
-```
 
-#### Request
-
-Method: `DELETE`
-
-**Description**: This endpoint is used to delete a specific product from the inventory.
-
----
-
-#### 5.2 Brand
-
-#### 5.2.1 Store
-
-```http
- https://h.mmsdev.site/api/v1/brand
-```
-
-**Description**: This endpoint is used to add a new brand to the inventory.
-
-#### Request
-
--   Method: `POST`
-
--   form-data
-
-| Arguments     | Type      | Description              |
-| :------------ | :-------- | :----------------------- |
-| `name`        | `string`  | **Required** cocala      |
-| `company`     | `string`  | **Required** max         |
-| `description` | `text`    | **Required** lorem ispum |
-| `user_id`     | `integer` | **Required** max         |
-| `agent`       | `string`  | **Required** max         |
-| `phone_no`    | `string`  | **Required** max         |
-
-#### 5.2.2 Index
-
-```
-https://h.mmsdev.site/api/v1/brand
-```
-
-**Description**: This endpoint is used to retrieve a list of all brands in the inventory.
-
-##### Response
-
-The response will contain a list of brands.
-
-#### 5.2.3 Show
-
-```
- https://h.mmsdev.site/api/v1/brand/4
-```
-
-**Description**: This endpoint is used to retrieve information about a specific brand.
-
-##### Response
-
-The response will contain information about the specified brand.
-
-#### 5.2.4 Update
-
-```
-https://h.mmsdev.site/api/v1/brand/4
-```
-
-**Description**: This endpoint is used to update information about a specific brand.
-
-#### Request
-
--   Method: `PUT`
-
--   form-data
-
-| Arguments     | Type     | Description              |
-| :------------ | :------- | :----------------------- |
-| `name`        | `string` | **Required** cocala      |
-| `company`     | `string` | **Required** max         |
-| `description` | `text`   | **Required** lorem ispum |
-| `agent`       | `string` | **Required** max         |
-| `phone_no`    | `string` | **Required** max         |
-
-#### 5.2.5 Delete
-
-```
-https://h.mmsdev.site/api/v1/brand/1
-```
-
-Method: `DELETE`
-
-**Description**: This endpoint is used to delete a specific brand from the inventory.
-
----
-
-#### 5.3 Stock
-
-#### 5.3.1 Store
-
-```
-https://h.mmsdev.site/api/v1/stock
-```
-
-**Description**: This endpoint is used to store stock information.
-
-#### Request
-
--   Method: `POST`
-
--   form-data
-
-| Arguments    | Type     | Description              |
-| :----------- | :------- | :----------------------- |
-| `user_id`    | `number` | **Required** 1           |
-| `product_id` | `number` | **Required** 2           |
-| `quantity`   | `number` | **Required** 50          |
-| `more`       | `text`   | **Required** lorem ispum |
-
-#### 5.3.2 Index
-
-```
-https://h.mmsdev.site/api/v1/stock
-```
-
-**Description**: This endpoint is used to retrieve a list of all stock items.
-
-##### Response
-
-The response will contain a list of stock items.
-
-#### 5.3.3 Show
-
-```
-https://h.mmsdev.site/api/v1/stock/10
-```
-
-**Description**: This endpoint is used to retrieve information about a specific stock item.
-
-##### Response
-
-The response will contain information about the specified stock item.
-
-#### 5.3.4 Update Stock
-
-```
-https://h.mmsdev.site/api/v1/stock/4
-```
-
-**Description**: This endpoint is used to update information about a specific brand.
-
-#### Request
-
--   Method: `PUT`
-
--   form-data
-
-| Arguments    | Type     | Description              |
-| :----------- | :------- | :----------------------- |
-| `user_id`    | `number` | **Required** 1           |
-| `product_id` | `number` | **Required** 2           |
-| `quantity`   | `number` | **Required** 50          |
-| `more`       | `text`   | **Required** lorem ispum |
-
-#### 5.3.5 Delete
-
-```
-https://h.mmsdev.site/api/v1/stock/1
-```
-
-Method: `DELETE`
-
-**Description**: This endpoint is used to delete a specific stock item.
-
-### 3. Sale Processing
-
-#### 3.1 Voucher
-
-#### 3.1.1 Store
-
-```
-http://127.0.0.1:8000/api/v1/voucher
-```
-
-**Description**: This endpoint is used to process a sale and generate a voucher for the purchased products.
-
-#### Request
-
--   Method: `POST`
-
--   Body:
-    ```json
-    {
-        "products": [
-            {
-                "product_id": 1,
-                "quantity": 5
-            },
-            {
-                "product_id": 2,
-                "quantity": 2
-            }
-        ],
-        "customer_name": "hnin si",
-        "phone_number": "098888888"
-    }
-    ```
-
----
