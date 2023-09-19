@@ -28,11 +28,32 @@ class SaleReportController extends Controller
                         // ->orderBy('net_total', 'DESC')
                         ->get();
                 // return $todaySaleProduct;
+                // if(is_null($todaySaleProduct)){
+                //         return response()->json([
+                //                 "message" => "there is no today sale product"
+                //         ]);
+                // }
                 $todayTotal = $todaySaleProduct->sum('net_total');
                 $todaySaleMax = $todaySaleProduct->where("net_total", $todaySaleProduct->max("net_total"))->first();
                 // return $todaySaleMax;
+                $todaySaleMaxVoucherNumber = $todaySaleMax->voucher_number;
+                // return $todaySaleMaxVoucherNumber;
+                $todaySaleMaxTotal = $todaySaleMax->net_total;
+                $max = [
+                        "Voucher_number" => $todaySaleMaxVoucherNumber,
+                        "total" => $todaySaleMaxTotal
+                ];
+                // return $max;
                 $todaySaleMin = $todaySaleProduct->where("net_total", $todaySaleProduct->min("net_total"))->first();
                 // return $todaySaleMin;
+                $todaySaleMinVoucherNumber = $todaySaleMin->voucher_number;
+                // return $todaySaleMinVoucherNumber;
+                $todaySaleMinTotal = $todaySaleMin->net_total;
+                $min = [
+                        "Voucher_number" => $todaySaleMinVoucherNumber,
+                        "total" => $todaySaleMinTotal
+                ];
+                // return $min;
                 $todaySaleAvg = $todaySaleProduct->avg("net_total");
                 // return $todaySaleAvg;
 
@@ -40,6 +61,8 @@ class SaleReportController extends Controller
                         "today_sales" => [
                                 "total_today_sale_amount" => round($todayTotal),
                                 "today_avg_sale" => round($todaySaleAvg),
+                                // "today_max_sale" => $max,
+                                // "today_min_sale" => $min
                                 "today_max_sale" => new TodaySaleProductResource($todaySaleMax),
                                 "today_min_sale" => new TodaySaleProductResource($todaySaleMin),
                         ]
@@ -101,10 +124,10 @@ class SaleReportController extends Controller
                         'brandsInfo' => $brandInfo
                 ]);
         }
-       
 
 
-       
+
+
 
         public function weeklySale()
         {
@@ -118,7 +141,7 @@ class SaleReportController extends Controller
                 $max = $weeklySale->max("net_total");
                 $min = $weeklySale->min("net_total");
                 $avgSale = $weeklySale->avg("net_total");
-                $avg = round($avgSale,2);
+                $avg = round($avgSale, 2);
                 $totalWeeklySale = $weeklySale->sum("net_total");
                 // return $total;
                 // return $avg;
@@ -127,6 +150,47 @@ class SaleReportController extends Controller
                         "maxSale" => $max,
                         "minSale" => $min,
                         "avgSale" => $avg
+                ]);
+        }
+
+       
+
+        public function week()
+        {
+                $weeklySales = DB::table('vouchers')
+                        ->select(
+                                DB::raw('CASE DAYOFWEEK(created_at)
+                        WHEN 1 THEN "Sunday"
+                        WHEN 2 THEN "Monday"
+                        WHEN 3 THEN "Tuesday"
+                        WHEN 4 THEN "Wednesday"
+                        WHEN 5 THEN "Thursday"
+                        WHEN 6 THEN "Friday"
+                        WHEN 7 THEN "Saturday"
+                    END AS day_name'),
+                                // DB::raw('SUM(net_total) as total_sale'),
+                                // DB::raw('MIN(net_total) as min_sale'),
+                                // DB::raw('MAX(net_total) as max_sale'),
+                                // DB::raw('AVG(net_total) as avg_sale')
+                        )
+                        // ->groupBy('day_name')
+                        ->get();
+
+                $weeklySaleTotal = $weeklySales->sum("total_sale");
+                return $weeklySales;
+                // $maxSale = $weeklySales->pluck("total_sale");
+                $maxSale = $weeklySales->max("total_sale");
+                return $maxSale;
+                // $bestSellingDate = $weeklySales->where('total_sales', $maxSellingPrice)->pluck('sale_date')->first();
+                $highestSaleDay = $weeklySales->where("total_sale", $maxSale)->pluck("day_name")->first();
+                // $dayName = ; 
+                // return $dayName;
+                // return $highestSaleDay;
+
+                return response()->json([
+                        // $weeklySales,
+                        $weeklySaleTotal
+                        // "dayName" => $
                 ]);
         }
 }

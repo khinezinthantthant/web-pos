@@ -76,6 +76,8 @@ Route::prefix("v1")->group(function () {
         Route::controller(SaleReportController::class)->group(function () {
             Route::get("today-sale-report","todaySaleReport");
             Route::get("weekly-sale","weeklySale");
+            Route::get("weekly-sale-report","weeklySaleReport");
+            Route::get("week","week");
             Route::get("product-sale","productSale");
             Route::get("brand-sale", "brandSale");
             
