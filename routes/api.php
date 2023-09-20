@@ -37,6 +37,7 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("product", ProductController::class);
         Route::apiResource("stock", StockController::class);
         Route::apiResource("voucher", VoucherController::class);
+        Route::get('/overview', [VoucherController::class, 'overview']);
         Route::apiResource("photo", PhotoController::class);
 
 

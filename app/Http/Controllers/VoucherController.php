@@ -7,12 +7,15 @@ use App\Http\Resources\DailySaleOverviewResource;
 use App\Http\Resources\VoucherDetailResource;
 use App\Http\Resources\VoucherResource;
 use App\Models\Product;
+use App\Models\Stock;
+use App\Models\User;
 use App\Models\Voucher;
 use App\Models\VoucherRecord;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use PhpParser\Node\Stmt\Return_;
 
 class VoucherController extends Controller
 {
@@ -129,5 +132,55 @@ class VoucherController extends Controller
     public function destroy(string $id)
     {
         return abort(403);
+    }
+
+    public function overview()
+    {
+        $totalStock = Stock::all()->sum("quantity");
+        $totalStaff = User::all()->count();
+        // return $totalStaff;
+
+        $yearlySales = Voucher::selectRaw('YEAR(created_at) as year,SUM(total) as total')
+        ->groupBy('year')
+        ->orderBy('year','asc')
+        ->get();
+
+
+        $monthlySales = Voucher::selectRaw('MONTH(created_at) as month, YEAR(created_at) as year,SUM(total) as total')
+        ->groupBy('year','month')
+        ->orderBy('year','asc')
+        ->orderBy('month','asc')
+        ->get();
+
+        $startDate = Carbon::now()->startOfWeek();
+        $endDate = Carbon::now()->endOfWeek();
+        $sales = Voucher::whereBetween('created_at',[$startDate,$endDate])
+        ->selectRaw("DATE(created_at) as date, SUM(total) as total")
+        ->groupBy("date")
+        ->orderBy('date')
+        ->get();
+
+        $count = $sales->pluck("date")->count();
+        $date =[];
+        $dayName = [];
+        $weekelySales = [];
+        for($i=0;$i<$count;$i++){
+            $date[] = Carbon::parse($sales->pluck("date")[$i]);
+            $dayName[] = $date[$i]->format("l");
+
+            $weekelySales[] =  [
+                "total" => $sales->pluck("total")[$i],
+                "dayName" => $dayName[$i]
+            ];
+        }
+
+        return response()->json([
+            "total_stocks" => $totalStock,
+            "total_staff" => $totalStaff,
+            "yearly_sales" => $yearlySales,
+            "monthly_sales" => $monthlySales,
+            "weekely_sales" => $weekelySales,
+        ]);
+
     }
 }
