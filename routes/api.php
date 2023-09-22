@@ -80,6 +80,7 @@ Route::prefix("v1")->group(function () {
             Route::get("week","week");
             Route::get("product-sale","productSale");
             Route::get("brand-sale", "brandSale");
+            Route::get("sale-overview/{type}", "saleOverview");
             
 
         });

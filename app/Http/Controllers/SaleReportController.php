@@ -9,6 +9,7 @@ use App\Http\Resources\ProductResource;
 use App\Http\Resources\TodaySaleProductResource;
 use App\Http\Resources\weeklySaleProductResource;
 use App\Models\Brand;
+use App\Models\DailySaleOverview;
 use App\Models\Product;
 use App\Models\Voucher;
 use App\Models\VoucherRecord;
@@ -28,32 +29,12 @@ class SaleReportController extends Controller
                         // ->orderBy('net_total', 'DESC')
                         ->get();
                 // return $todaySaleProduct;
-                // if(is_null($todaySaleProduct)){
-                //         return response()->json([
-                //                 "message" => "there is no today sale product"
-                //         ]);
-                // }
+                
                 $todayTotal = $todaySaleProduct->sum('net_total');
                 $todaySaleMax = $todaySaleProduct->where("net_total", $todaySaleProduct->max("net_total"))->first();
                 // return $todaySaleMax;
-                $todaySaleMaxVoucherNumber = $todaySaleMax->voucher_number;
-                // return $todaySaleMaxVoucherNumber;
-                $todaySaleMaxTotal = $todaySaleMax->net_total;
-                $max = [
-                        "Voucher_number" => $todaySaleMaxVoucherNumber,
-                        "total" => $todaySaleMaxTotal
-                ];
-                // return $max;
                 $todaySaleMin = $todaySaleProduct->where("net_total", $todaySaleProduct->min("net_total"))->first();
                 // return $todaySaleMin;
-                $todaySaleMinVoucherNumber = $todaySaleMin->voucher_number;
-                // return $todaySaleMinVoucherNumber;
-                $todaySaleMinTotal = $todaySaleMin->net_total;
-                $min = [
-                        "Voucher_number" => $todaySaleMinVoucherNumber,
-                        "total" => $todaySaleMinTotal
-                ];
-                // return $min;
                 $todaySaleAvg = $todaySaleProduct->avg("net_total");
                 // return $todaySaleAvg;
 
@@ -61,8 +42,6 @@ class SaleReportController extends Controller
                         "today_sales" => [
                                 "total_today_sale_amount" => round($todayTotal),
                                 "today_avg_sale" => round($todaySaleAvg),
-                                // "today_max_sale" => $max,
-                                // "today_min_sale" => $min
                                 "today_max_sale" => new TodaySaleProductResource($todaySaleMax),
                                 "today_min_sale" => new TodaySaleProductResource($todaySaleMin),
                         ]
@@ -85,10 +64,10 @@ class SaleReportController extends Controller
                         $productInfo[] = [
                                 "name" => $productName,
                                 "brand" => $brandName,
-                                "sale price" => $porductPrice,
+                                "sale_price" => $porductPrice,
                                 "unit" => $unit,
-                                "total stock" => $totalStock,
-                                "totoal voucher" => $totalVoucher
+                                "total_stock" => $totalStock,
+                                "totoal_voucher" => $totalVoucher
 
                         ];
                 }
@@ -115,8 +94,8 @@ class SaleReportController extends Controller
 
                         $brandInfo[] = [
                                 "name" => $brandName,
-                                "brand sale count" => $brandSaleCount,
-                                "brand sales" => $brandSales,
+                                "brand_sale_count" => $brandSaleCount,
+                                "brand_sales" => $brandSales,
                         ];
                 }
 
@@ -157,7 +136,7 @@ class SaleReportController extends Controller
 
         public function week()
         {
-                $weeklySales = DB::table('vouchers')
+                $weeklySales = DB::table('daily_sale_overviews')
                         ->select(
                                 DB::raw('CASE DAYOFWEEK(created_at)
                         WHEN 1 THEN "Sunday"
@@ -168,12 +147,12 @@ class SaleReportController extends Controller
                         WHEN 6 THEN "Friday"
                         WHEN 7 THEN "Saturday"
                     END AS day_name'),
-                                // DB::raw('SUM(net_total) as total_sale'),
+                                DB::raw('SUM(total) as total_sale'),
                                 // DB::raw('MIN(net_total) as min_sale'),
                                 // DB::raw('MAX(net_total) as max_sale'),
                                 // DB::raw('AVG(net_total) as avg_sale')
                         )
-                        // ->groupBy('day_name')
+                        ->groupBy('day_name')
                         ->get();
 
                 $weeklySaleTotal = $weeklySales->sum("total_sale");
@@ -192,5 +171,40 @@ class SaleReportController extends Controller
                         $weeklySaleTotal
                         // "dayName" => $
                 ]);
+        }
+        public function saleOverview($type)
+        {
+            $currentDate = Carbon::now();
+            $previousDate = '';
+            $day = "day";
+    
+            if ($type == "weekly") {
+                $previousDate = Carbon::now()->subDays(7);
+            } else if ($type == "monthly") {
+                $previousDate = Carbon::now()->subDays(30);
+            } else if ($type == "yearly") {
+                $previousDate = Carbon::now()->subDays(365);
+                $day = "monthly";
+            } else {
+                return response()->json(["message" => "weekly or monthly or yearly is required"]);
+            }
+    
+            $query = Voucher::whereBetween("created_at", [$previousDate, $currentDate])->where("day", $day);
+            $query2 = Voucher::whereBetween("created_at", [$previousDate, $currentDate])->where("day", $day);
+    
+            $average = $query->avg("total");
+    
+            $records = $query->select("total", "created_at")->get();
+    
+            $max = $query->where('total', $query->max('total'))->select("total", "created_at")->first();
+    
+            $min = $query2->where('total', $query2->min('total'))->select("total", "created_at")->first();
+    
+            return response()->json([
+                "average" => $average,
+                "max" => $max,
+                "min" => $min,
+                "records" => $records
+            ]);
         }
 }
