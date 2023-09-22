@@ -12,9 +12,11 @@ use App\Models\User;
 use App\Models\Voucher;
 use App\Models\VoucherRecord;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Stmt\Return_;
 
 class VoucherController extends Controller
@@ -146,11 +148,28 @@ class VoucherController extends Controller
         ->get();
 
 
-        $monthlySales = Voucher::selectRaw('MONTH(created_at) as month, YEAR(created_at) as year,SUM(total) as total')
-        ->groupBy('year','month')
-        ->orderBy('year','asc')
-        ->orderBy('month','asc')
+        $monthlySales = Voucher::select(
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('YEAR(created_at) as year'),
+            DB::raw('SUM(total) as total')
+        )
+        ->groupBy('year', 'month')
+        ->orderBy('year', 'asc')
+        ->orderBy('month', 'asc')
         ->get();
+
+
+        $formatedMonthlySales = $monthlySales->map(function($item){
+            $dateObj = DateTime::createFromFormat('!m',$item->month);
+            $monthName = $dateObj->format("F");
+
+            return [
+                'month' => $monthName,
+                'year' => $item->year,
+                'total' => $item->total
+            ];
+        });
+
 
         $startDate = Carbon::now()->startOfWeek();
         $endDate = Carbon::now()->endOfWeek();
@@ -178,7 +197,7 @@ class VoucherController extends Controller
             "total_stocks" => $totalStock,
             "total_staff" => $totalStaff,
             "yearly_sales" => $yearlySales,
-            "monthly_sales" => $monthlySales,
+            "monthly_sales" => $formatedMonthlySales,
             "weekely_sales" => $weekelySales,
         ]);
 
