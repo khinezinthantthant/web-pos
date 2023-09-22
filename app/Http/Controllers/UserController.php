@@ -362,7 +362,7 @@ class UserController extends Controller
 
     public function restoreUser($id)
     {
-        return $id;
+        // return $id;
         Gate::authorize("admin");
 
         $user = User::onlyTrashed()
