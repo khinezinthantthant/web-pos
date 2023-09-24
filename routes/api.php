@@ -75,12 +75,15 @@ Route::prefix("v1")->group(function () {
         });
         Route::controller(SaleReportController::class)->group(function () {
             Route::get("today-sale-report","todaySaleReport");
-            Route::get("weekly-sale","weeklySale");
-            Route::get("weekly-sale-report","weeklySaleReport");
-            Route::get("week","week");
+            // Route::get("weekly-sale","weeklySale");
+            // Route::get("get-weekly-sale","getWeeklySales");
+            // Route::get("weekly-sale-test","weeklySaleTest");
+            // Route::get("weekly-sale-report","weeklySaleReport");
+            // Route::get("week","week");
             Route::get("product-sale","productSale");
             Route::get("brand-sale", "brandSale");
-            Route::get("sale-overview/{type}", "saleOverview");
+            Route::get("sale-overview", "saleOverview");
+            // Route::get("sale-overview/{type}", "saleOverview");
             
 
         });
