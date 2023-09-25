@@ -2,27 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\CustomSaleOverviewResource;
-use App\Http\Resources\DailySaleOverviewResource;
-use App\Http\Resources\MonthlySaleOverviewResource;
 use App\Http\Resources\MonthlyTotalSaleOverviewResource;
 use App\Http\Resources\TodaySaleOverviewResource;
 use App\Http\Resources\TodayTotalSaleOverviewResource;
-use App\Http\Resources\YearlySaleOverviewResource;
 use App\Http\Resources\YearlyTotalSaleOverviewResource;
 use App\Models\DailySaleOverview;
 use App\Models\MonthlySaleOverview;
 use App\Models\SaleClose;
 use App\Models\Voucher;
-use App\Models\YearlySaleOverview;
 use Carbon\Carbon;
-use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Date;
-use Illuminate\Support\Facades\DB;
-   
-class DailySaleOverviewController extends Controller
+
+class FinanceController extends Controller
 {
     public function saleClose(Request $request)
     {

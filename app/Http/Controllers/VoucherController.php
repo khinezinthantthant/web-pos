@@ -49,6 +49,7 @@ class VoucherController extends Controller
             $total += $item["quantity"] * Product::find($item["product_id"])->sale_price;
         }
 
+
         $tax = $total * 0.05;
         $netTotal = $total + $tax;
 
@@ -92,8 +93,13 @@ class VoucherController extends Controller
                     "updated_at" => now()
                 ];
 
+
                 Product::where("id", $item["product_id"])->update([
                     "total_stock" => $currentProduct->total_stock - $item["quantity"]
+                ]);
+
+                Stock::where("id", $item["product_id"])->update([
+                    "quantity" => $currentProduct->total_stock - $item["quantity"]
                 ]);
             }
         }

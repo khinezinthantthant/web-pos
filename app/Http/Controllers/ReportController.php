@@ -195,23 +195,142 @@ class ReportController extends Controller
 
     public function weeklySaleReport()
     {
-        $now = Carbon::now();
+        // weekely sale
+        $startDate = Carbon::now()->startOfWeek();
+        $endDate = Carbon::now()->endOfWeek();
+        $sales = Voucher::whereBetween("created_at",[$startDate,$endDate])
+                ->selectRaw("Date(created_at) as date, SUM(net_total) as total")
+                ->groupBy("date")
+                ->orderBy("date")
+                ->get();
 
-        $weeklySale = Voucher::whereBetween("created_at", [
-                $now->startOfWeek()->format('Y-m-d'), //This will return date in format like this: 2022-01-10
-                $now->endOfWeek()->format('Y-m-d')
-        ])->get();
-        $max = $weeklySale->max("net_total");
-        $min = $weeklySale->min("net_total");
-        $avgSale = $weeklySale->avg("net_total");
-        $avg = round($avgSale,2);
-        $totalWeeklySale = $weeklySale->sum("net_total");
+        $count = $sales->pluck("date")->count();
+
+        $max = $sales->max("total");
+        $highestSaleDate = $sales->where("total",$max)->pluck("date")->first();
+
+        $highestSale[] = [
+            "highest_sale" => $max,
+            "highest_sale_date" => $highestSaleDate,
+            "dayName" => Carbon::parse($highestSaleDate)->format("l")
+        ];
+
+        $min = $sales->min("total");
+        $lowestSaleDate = $sales->where("total",$min)->pluck("date")->first();
+
+        $lowestSale[] = [
+            "lowest_sale" => $min,
+            "lowest_sale_date" => $lowestSaleDate,
+            "dayName" => Carbon::parse($lowestSaleDate)->format("l")
+        ];
+
+        $total = $sales->sum("total");
+        $avg =$sales->avg("total");
+
+        $date = [];
+        $dayName = [];
+        $weekelySales = [];
+
+        for ($i = 0; $i < $count; $i++) {
+            $date[] = Carbon::parse($sales->pluck("date")[$i]);
+            $dayName[] = $date[$i]->format("l");
+
+            $weekelySales[] =  [
+                    "total" => $sales->pluck("total")[$i],
+                    "dayName" => $dayName[$i],
+                    "date" =>  $sales->pluck("date")[$i],
+            ];
+        }
 
         return response()->json([
-                "totalWeeklySale" => $totalWeeklySale,
-                "maxSale" => $max,
-                "minSale" => $min,
-                "avgSale" => $avg
+            "weekely_sales" => $weekelySales,
+            "total_weekely_sale_amount" => round($total,2),
+            "weekely_average_amount" => round($avg,2),
+            "weekely_highest_sale" => $highestSale,
+            "weekely_lowest_sale" => $lowestSale
         ]);
+
+
     }
+
+    public function monthlySaleReport()
+    {
+        // monthly sale
+        $monthlySales = Voucher::whereBetween('created_at', [
+            Carbon::now()->startOfYear(),
+            Carbon::now()->endOfYear(),
+        ])
+        ->select(
+            DB::raw('MONTHNAME(created_at) as month'),
+            DB::raw('YEAR(created_at) as year'),
+            DB::raw('SUM(net_total) as total')
+        )
+        ->groupBy("month","year")
+
+        ->get();
+
+        $monthlySaleAverage = $monthlySales->avg("total");
+        $totalMonthlySale = $monthlySales->sum("total");
+        $monthlySaleMax = $monthlySales->max("total");
+        $highestSaleDate = $monthlySales->where('total', $monthlySaleMax)->pluck('month')->first();
+
+        $highestSaleMonth[] = [
+            "highest_sale" => $monthlySaleMax,
+            "highest_sale_month" => $highestSaleDate
+        ];
+
+        $monthlySaleMin = $monthlySales->min("total");
+        // return $monthlySaleMin;
+
+        $monthlyLowestSaleDate = $monthlySales->where('total', $monthlySaleMin)->pluck('month')->first();
+        // return $monthlyLowestSaleDate;
+
+        $lowestSaleMonth[] = [
+            "lowest_sale" => $monthlySaleMin,
+            "lowest_sale_month" => $monthlyLowestSaleDate
+            ];
+
+            return response()->json([
+                "monthly_sales" => $monthlySales,
+                "TotalMonthlySalesAmount" => round($totalMonthlySale,2),
+                "MonthlyAverageAmount" => round($monthlySaleAverage, 2),
+                "MonthlyHighestSale" => $highestSaleMonth,
+                "MonthlyLowestSale" => $lowestSaleMonth,
+
+        ]);
+
+    }
+
+    public function yearlySaleReport()
+    {
+        $yearlySales = Voucher::selectRaw('YEAR(created_at) as year, SUM(net_total) as total')
+                    ->groupBy("year")
+                    ->orderBy("year","asc")
+                    ->get();
+        $totalYearlySale = $yearlySales->sum("total");
+        $averageYearlySale = $yearlySales->avg("total");
+        $yearlyMaxSale = $yearlySales->max("total");
+        $highestSaleYear = $yearlySales->where("total", $yearlyMaxSale)->pluck("year")->first();
+        $yearlyHighestSale[] = [
+            "highest_sale" => $yearlyMaxSale,
+            "highest_sale_year" => $highestSaleYear
+        ];
+
+        $yearlyMinSale = $yearlySales->min("total");
+        $lowestSaleYear = $yearlySales->where("total", $yearlyMinSale)->pluck("year")->first();
+        $yearlyLowestSale[] = [
+            "lowest_sale" => $yearlyMinSale,
+            "lowest_sale_year" => $lowestSaleYear
+        ];
+
+        return response()->json([
+            "yearly_sales" => $yearlySales,
+            "total_yearly_sales_amount" => round($totalYearlySale,2),
+            "yearly_average_amount" => round($averageYearlySale, 2),
+            "yearly_highest_sale" => $yearlyHighestSale,
+            "yearly_lowest_sale" => $yearlyLowestSale,
+        ]);
+
+    }
+
 }
