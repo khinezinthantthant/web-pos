@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
+
     public function stockReport(Request $request)
     {
         $brand = Product::join('brands', 'brands.id', '=', 'products.brand_id')
