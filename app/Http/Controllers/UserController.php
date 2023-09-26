@@ -29,95 +29,7 @@ class UserController extends Controller
             return User::where("role", "admin")->orWhere("role", "staff")->get();
         }
     }
-    public function banUser(Request $request, $id)
-    {
-
-        // Gate::authorize('admin');
-        if (Gate::denies("admin")) {
-            return response()->json([
-                "message" => "This action is unauthorized"
-            ]);
-        }
-        $request->validate([
-            "name" => "nullable|min:3",
-            "email" => "email|unique:users",
-            "password" => "min:8",
-            "phone_number" => "min:9|max:15",
-            "address" => "min:5",
-            "gender" => "in:male,female",
-            "date_of_birth" => "date",
-            "role" => "in:admin,staff,ban",
-            "photo" => "nullable"
-        ]);
-        $user = User::find($id);
-        if (is_null($user)) {
-            return response()->json([
-                'message' => 'user not found'
-            ], 404);
-        }
-        $user = User::find($id);
-        $user->role = "ban";
-        $user->update();
-
-        return response()->json([
-            "message" => "User banned successfully",
-            "user" => $user
-
-        ]);
-    }
-    public function banUserList()
-    {
-        if (Gate::denies("admin")) {
-            return response()->json([
-                "message" => "This action is unauthorized"
-            ]);
-        }
-        // Gate::authorize("admin");
-        $users = User::where("role", "ban")->latest("id")->paginate(10)->withQueryString();
-        return response()->json([
-            "users" => $users
-        ]);
-    }
-    public function restore(Request $request, $id)
-    {
-        if (Gate::denies("admin")) {
-            return response()->json([
-                "message" => "This action is unauthorized"
-            ]);
-        }
-        $request->validate([
-            "name" => "nullable|min:3",
-            "email" => "email|unique:users",
-            "password" => "min:8",
-            "phone_number" => "min:9|max:15",
-            "address" => "min:5",
-            "gender" => "in:male,female",
-            "date_of_birth" => "date",
-            "role" => "in:admin,staff,ban",
-            "photo" => "nullable"
-        ]);
-        // $user = User::withTrashed()->findOrFail($id);
-        // if ($user->trashed()) {
-        //     $user->restore();
-        //     return response()->json(['message' => 'User restored successfully']);
-        // }else{
-        //     return response()->json(['message' => 'User is not soft-delete'], 404);
-        // }
-
-        $user = User::withTrashed()->find($id);
-        if (is_null($user)) {
-            return response()->json([
-                "message" => "Softdeleted user is not found"
-            ]);
-        }
-
-        if ($user->restore()) {
-            return response()->json([
-                "message" => "User has been restored",
-                "user" => $user
-            ]);
-        }
-    }
+    
     /**
      * Store a newly created resource in storage.
      */
@@ -374,5 +286,96 @@ class UserController extends Controller
         return response()->json([
             "message" => "User has been restored"
         ]);
+    }
+
+    //
+    public function banUser(Request $request, $id)
+    {
+
+        // Gate::authorize('admin');
+        if (Gate::denies("admin")) {
+            return response()->json([
+                "message" => "This action is unauthorized"
+            ]);
+        }
+        $request->validate([
+            "name" => "nullable|min:3",
+            "email" => "email|unique:users",
+            "password" => "min:8",
+            "phone_number" => "min:9|max:15",
+            "address" => "min:5",
+            "gender" => "in:male,female",
+            "date_of_birth" => "date",
+            "role" => "in:admin,staff,ban",
+            "photo" => "nullable"
+        ]);
+        $user = User::find($id);
+        if (is_null($user)) {
+            return response()->json([
+                'message' => 'user not found'
+            ], 404);
+        }
+        $user = User::find($id);
+        $user->role = "ban";
+        $user->update();
+
+        return response()->json([
+            "message" => "User banned successfully",
+            "user" => $user
+
+        ]);
+    }
+    public function banUserList()
+    {
+        if (Gate::denies("admin")) {
+            return response()->json([
+                "message" => "This action is unauthorized"
+            ]);
+        }
+        // Gate::authorize("admin");
+        $users = User::where("role", "ban")->latest("id")->paginate(10)->withQueryString();
+        return response()->json([
+            "users" => $users
+        ]);
+    }
+    public function restore(Request $request, $id)
+    {
+        if (Gate::denies("admin")) {
+            return response()->json([
+                "message" => "This action is unauthorized"
+            ]);
+        }
+        $request->validate([
+            "name" => "nullable|min:3",
+            "email" => "email|unique:users",
+            "password" => "min:8",
+            "phone_number" => "min:9|max:15",
+            "address" => "min:5",
+            "gender" => "in:male,female",
+            "date_of_birth" => "date",
+            "role" => "in:admin,staff,ban",
+            "photo" => "nullable"
+        ]);
+        // $user = User::withTrashed()->findOrFail($id);
+        // if ($user->trashed()) {
+        //     $user->restore();
+        //     return response()->json(['message' => 'User restored successfully']);
+        // }else{
+        //     return response()->json(['message' => 'User is not soft-delete'], 404);
+        // }
+
+        $user = User::withTrashed()->find($id);
+        if (is_null($user)) {
+            return response()->json([
+                "message" => "Softdeleted user is not found"
+            ]);
+        }
+
+        if ($user->restore()) {
+            return response()->json([
+                "message" => "User has been restored",
+                "user" => $user
+            ]);
+        }
     }
 }
