@@ -78,9 +78,9 @@ Route::prefix("v1")->group(function () {
             Route::get("product-sale","productSale");
             Route::get("brand-sale", "brandSale");
             
-            Route::get("weekly-sale","weeklySale");
-            Route::get("monthly-sale","monthlySale");
-            Route::get("yearly-sale","yearlySale");
+            Route::get("weekly-sale-report","weeklySale");
+            Route::get("monthly-sale-report","monthlySale");
+            Route::get("yearly-sale-report","yearlySale");
             // Route::get("get-monthly-sale","getMonthlySales");
             // Route::get("get-weekly-sale","getWeeklySales");
             // Route::get("weekly-sale-test","weeklySaleTest");

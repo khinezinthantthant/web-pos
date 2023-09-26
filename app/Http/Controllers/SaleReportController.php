@@ -109,28 +109,39 @@ class SaleReportController extends Controller
 
         public function weeklySale()
         {
-                //weekely
-                $startDate = Carbon::now()->startOfWeek();
-                $endDate = Carbon::now()->endOfWeek();
-                $sales = Voucher::whereBetween('created_at', [$startDate, $endDate])
-                        ->selectRaw("DATE(created_at) as date, SUM(net_total) as total")
-                        ->groupBy("date")
-                        ->orderBy('date')
+
+                $sales = Voucher::select(
+                        DB::raw('DATE(created_at) as date'),
+                        DB::raw('SUM(net_total) as total')
+                )
+                        ->whereBetween('created_at', [
+                                now()->startOfWeek(),
+                                now()->endOfWeek()
+                        ])
+                        ->groupBy('date')
                         ->get();
+                //weekely
+                // $startDate = Carbon::now()->startOfWeek();
+                // $endDate = Carbon::now()->endOfWeek();
+                // $sales = Voucher::whereBetween('created_at', [$startDate, $endDate])
+                //         ->selectRaw("DATE(created_at) as date, SUM(net_total) as total")
+                //         ->groupBy("date")
+                //         ->orderBy('date')
+                //         ->get();
 
                 $count = $sales->pluck("date")->count();
 
                 $max = $sales->max("total");
                 $highestSaleDate = $sales->where('total', $max)->pluck('date')->first();
                 $highestSale[] = [
-                        "highest_sale" => $max,
+                        "highest_sale" => round($max,2),
                         "highest_sale_date" => $highestSaleDate
                 ];
                 // return $highestSaleDate;
                 $min = $sales->min("total");
                 $lowestSaleDate = $sales->where('total', $min)->pluck('date')->first();
                 $lowestSale[] = [
-                        "lowest_sale" => $min,
+                        "lowest_sale" => round($min,2),
                         "lowest_sale_date" => $lowestSaleDate
                 ];
                 // return $lowestSaleDate;
@@ -186,7 +197,7 @@ class SaleReportController extends Controller
                 $monthSaleMax = $monthlySales->max("total");
                 $highestSaleDate = $monthlySales->where('total', $monthSaleMax)->pluck('month')->first();
                 $highestSaleMonth[] = [
-                        "highest_sale" => $monthSaleMax,
+                        "highest_sale" => round($monthSaleMax,2),
                         "highest_sale_month" => $highestSaleDate
                 ];
 
@@ -199,7 +210,7 @@ class SaleReportController extends Controller
                 // return $monthlyLowestSaleDate;
 
                 $lowestSaleMonth[] = [
-                        "lowest_sale" => $monthlySaleMin,
+                        "lowest_sale" => round($monthlySaleMin,2),
                         "lowest_sale_month" => $monthlyLowestSaleDate
                 ];
 
@@ -226,14 +237,14 @@ class SaleReportController extends Controller
                 $yearlyMaxSale = $yearlySales->max('total');
                 $highestSaleYear = $yearlySales->where('total', $yearlyMaxSale)->pluck('year')->first();
                 $yearlyHighestSale[] = [
-                        "highest_sale" => $yearlyMaxSale,
+                        "highest_sale" => round($yearlyMaxSale,2),
                         "highest_sale_year" => $highestSaleYear
                 ];
                 // return $yearlyMaxSale;
                 $yearlyMinSale = $yearlySales->min('total');
                 $lowestSaleYear = $yearlySales->where('total', $yearlyMinSale)->pluck('year')->first();
                 $yearlyLowestSale[] = [
-                        "lowest_sale" => $yearlyMinSale,
+                        "lowest_sale" => round($yearlyMinSale,2),
                         "lowest_sale_year" => $lowestSaleYear
                 ];
 
