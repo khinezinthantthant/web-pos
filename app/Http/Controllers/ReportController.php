@@ -269,7 +269,6 @@ class ReportController extends Controller
         ->groupBy("month","year")
 
         ->get();
-
         $monthlySaleAverage = $monthlySales->avg("total");
         $totalMonthlySale = $monthlySales->sum("total");
         $monthlySaleMax = $monthlySales->max("total");
