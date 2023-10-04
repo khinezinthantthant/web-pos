@@ -17,7 +17,8 @@ class TodaySaleProductResource extends JsonResource
         // return parent::toArray($request);
         return [
             "voucher_number" => $this->voucher_number,
-            'total' => $this->net_total
+            'total' => $this->net_total,
+            // "percentage"=>$this->$todayPercentage
         ];
     }
 }

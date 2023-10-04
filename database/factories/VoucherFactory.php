@@ -17,12 +17,12 @@ class VoucherFactory extends Factory
      */
     public function definition(): array
     {
+        
         $total = rand(2, 10) * 100;
         $tax = $total * 0.05;
         $net_total = $total + $tax;
-        $carbon = new Carbon();
-        $carbon->subMonth(rand(1,3));
-        $carbon->addDays(rand(1,30));
+        $carbon  = Carbon::now()->subDay(7);
+        $carbon->addDay(rand(1,7));
 
         return [
             'customer_name' => fake()->name(),
