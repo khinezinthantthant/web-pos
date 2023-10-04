@@ -12,6 +12,7 @@ use App\Models\Stock;
 use App\Models\Voucher;
 use App\Models\VoucherRecord;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -112,30 +113,32 @@ class ReportController extends Controller
 
     public function todaySaleReport()
     {
-            $todayStart = Carbon::now()->format('Y-m-d 00:00:00');
-            $todayEnd = Carbon::now()->format('Y-m-d 23:59:59');
-            $todaySaleProduct = Voucher::whereBetween('created_at', [$todayStart, $todayEnd])
-                    ->get();
-            $todayTotal = $todaySaleProduct->sum('total');
-            $todaySaleMax = $todaySaleProduct->max("total");
-            $todaySaleMin = $todaySaleProduct->min("total");
-            $todaySaleAvg = $todaySaleProduct->avg("total");
+        $today = Carbon::today();
+        $vouchers = Voucher::whereDate("created_at", $today)
+                ->orderBy("net_total", "desc")
+                ->limit(3)
+                ->get();
+        // return $vouchers;
+        $total_amount = $vouchers->sum("net_total");
+        $todaySale = [];
 
-            // return response()->json([
-            //         "today_sales" => [
-            //                 "total_today_sale_amount" => round($todayTotal),
-            //                 "today_avg_sale" => round($todaySaleAvg),
-            //                 "today_max_sale" => new TodaySaleProductResource($todaySaleMax),
-            //                 "today_min_sale" => new TodaySaleProductResource($todaySaleMin),
-            //         ]
-            // ]);
+        $total_amount = $vouchers->sum("net_total");
+        $todaySale = [];
+        foreach ($vouchers as $voucher) {
+                $voucher_number = $voucher->voucher_number;
+                $total = ($voucher->net_total);
+                $percentage = round(($total / $total_amount) * 100, 1) . "%";
+                $todaySale[] = [
+                        "voucher_number" => $voucher_number,
+                        "total" => $total,
+                        "percentage" => $percentage
+                ];
+        }
+        return response()->json([
+                "total_amount" => $total_amount,
+                "todaySale" => $todaySale
+        ]);
 
-            return response()->json([
-                "total_today_sale_amount" => round($todayTotal),
-                            "today_avg_sale" => round($todaySaleAvg),
-                            "today_max_sale" => $todaySaleMax,
-                            "today_min_sale" => $todaySaleMin,
-            ]);
     }
 
     public function productSaleReport()
@@ -195,37 +198,73 @@ class ReportController extends Controller
 
     public function weeklySaleReport()
     {
+        //start seeding
+        $total = rand(2, 10) * 100;
+        $tax = $total * 0.05;
+        $net_total = $total + $tax;
+        $startDate = Carbon::now()->subDay(7);
+        $endDate = Carbon::now();
+
+        $currentDate = $startDate->copy();
+
+        while ($currentDate->lte($endDate)) {
+            $voucher = Voucher::factory()->create();
+            $total_cost = $voucher->voucher_records()->sum('cost');
+            $voucher->net_total = $total_cost;
+            $voucher->customer_name = fake()->name();
+            $voucher->phone_number = fake()->phoneNumber();
+            $voucher->voucher_number = fake()->regexify('[A-Z0-9]{8}');
+            $voucher->total = $total;
+            $voucher->tax = $tax;
+            $voucher->net_total = $net_total;
+            $voucher->user_id = rand(1, 3);
+            $voucher->created_at = $currentDate->toDateString();
+            $voucher->updated_at = $currentDate->toDateString();
+            $voucher->update();
+            $currentDate->addDay();
+        }
+
+        //end seeding
+
         // weekely sale
-        $startDate = Carbon::now()->startOfWeek();
-        $endDate = Carbon::now()->endOfWeek();
-        $sales = Voucher::whereBetween("created_at",[$startDate,$endDate])
-                ->selectRaw("Date(created_at) as date, SUM(net_total) as total")
+        $date = Carbon::now()->subDays(7);
+
+        $sales = Voucher::where('created_at', '>=', $date)
+                ->selectRaw("DATE(created_at) as date, SUM(net_total) as net_total")
                 ->groupBy("date")
-                ->orderBy("date")
+                ->orderBy('date')
                 ->get();
 
         $count = $sales->pluck("date")->count();
 
-        $max = $sales->max("total");
-        $highestSaleDate = $sales->where("total",$max)->pluck("date")->first();
+        $total = $sales->sum("net_total");
+        $max = $sales->max("net_total");
+        $highestSaleDate = $sales->where("net_total",$max)->pluck("date")->first();
+        $highestPercentage = round(($max / $total) * 100 ,1) ."%";
 
         $highestSale[] = [
             "highest_sale" => $max,
             "highest_sale_date" => $highestSaleDate,
-            "dayName" => Carbon::parse($highestSaleDate)->format("l")
+            "dayName" => Carbon::parse($highestSaleDate)->format("D"),
+            "highestPercentage" => $highestPercentage
         ];
 
-        $min = $sales->min("total");
-        $lowestSaleDate = $sales->where("total",$min)->pluck("date")->first();
+        // return $highestSale;
+
+        $min = $sales->min("net_total");
+        $lowestSaleDate = $sales->where("net_total",$min)->pluck("date")->first();
+        $lowestPercentage = round(($min / $total) * 100 ,1) ."%";
 
         $lowestSale[] = [
             "lowest_sale" => $min,
             "lowest_sale_date" => $lowestSaleDate,
-            "dayName" => Carbon::parse($lowestSaleDate)->format("l")
+            "dayName" => Carbon::parse($lowestSaleDate)->format("D"),
+            "lowestPercentage" => $lowestPercentage
         ];
 
-        $total = $sales->sum("total");
-        $avg =$sales->avg("total");
+        // return $lowestSale;
+
+        $avg =$sales->avg("net_total");
 
         $date = [];
         $dayName = [];
@@ -233,10 +272,10 @@ class ReportController extends Controller
 
         for ($i = 0; $i < $count; $i++) {
             $date[] = Carbon::parse($sales->pluck("date")[$i]);
-            $dayName[] = $date[$i]->format("l");
+            $dayName[] = $date[$i]->format("D");
 
             $weekelySales[] =  [
-                    "total" => $sales->pluck("total")[$i],
+                    "total" => $sales->pluck("net_total")[$i],
                     "dayName" => $dayName[$i],
                     "date" =>  $sales->pluck("date")[$i],
             ];
@@ -255,44 +294,110 @@ class ReportController extends Controller
 
     public function monthlySaleReport()
     {
-        // monthly sale
-        $monthlySales = Voucher::whereBetween('created_at', [
-            Carbon::now()->startOfYear(),
-            Carbon::now()->endOfYear(),
-        ])
-        ->select(
-            DB::raw('MONTHNAME(created_at) as month'),
-            DB::raw('YEAR(created_at) as year'),
-            DB::raw('SUM(net_total) as total')
+        // my code start
+        // $monthlySales = Voucher::whereBetween('created_at', [
+        //     Carbon::now()->startOfYear(),
+        //     Carbon::now()->endOfYear(),
+        // ])
+        // ->select(
+        //     DB::raw('MONTHNAME(created_at) as month'),
+        //     DB::raw('YEAR(created_at) as year'),
+        //     DB::raw('SUM(net_total) as total')
+        // )
+        // ->groupBy("month","year")
+
+        // ->get();
+
+        // $monthlySaleAverage = $monthlySales->avg("total");
+        // $totalMonthlySale = $monthlySales->sum("total");
+        // $monthlySaleMax = $monthlySales->max("total");
+        // $highestSaleDate = $monthlySales->where('total', $monthlySaleMax)->pluck('month')->first();
+
+        // $highestPercentage = round(($monthlySaleMax / $totalMonthlySale) * 100, 1) . "%";
+
+
+        // $highestSaleMonth[] = [
+        //     "highest_sale" => $monthlySaleMax,
+        //     "highest_sale_month" => $highestSaleDate,
+        //     "highest_percentage" => $highestPercentage
+        // ];
+
+        // $monthlySaleMin = $monthlySales->min("total");
+        // // return $monthlySaleMin;
+
+        // $monthlyLowestSaleDate = $monthlySales->where('total', $monthlySaleMin)->pluck('month')->first();
+        // // return $monthlyLowestSaleDate;
+
+        // $lowestPercentage = round(($monthlySaleMin / $totalMonthlySale) * 100, 1) . "%";
+
+
+        // $lowestSaleMonth[] = [
+        //     "lowest_sale" => $monthlySaleMin,
+        //     "lowest_sale_month" => $monthlyLowestSaleDate,
+        //     "lowest_percentage" => $lowestPercentage
+        //     ];
+
+        //     return response()->json([
+        //         "monthly_sales" => $monthlySales,
+        //         "TotalMonthlySalesAmount" => round($totalMonthlySale,2),
+        //         "MonthlyAverageAmount" => round($monthlySaleAverage, 2),
+        //         "MonthlyHighestSale" => $highestSaleMonth,
+        //         "MonthlyLowestSale" => $lowestSaleMonth,
+
+        // ]);
+
+        // my code end
+
+
+        //monthly Sale
+            $monthlySales = Voucher::select(
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('SUM(net_total) as total')
         )
-        ->groupBy("month","year")
+                ->groupBy('month', 'year')
+                ->orderBy('month', 'asc')
+                ->get();
 
-        ->get();
+        $formatedMonthlySales = $monthlySales->map(function ($item) {
+                $dateObj = DateTime::createFromFormat('!m', $item->month);
+                $monthName = $dateObj->format("M");
 
+                return [
+                        'month' => $monthName,
+                        'year' => $item->year,
+                        'total' => $item->total
+                ];
+        });
         $monthlySaleAverage = $monthlySales->avg("total");
+
         $totalMonthlySale = $monthlySales->sum("total");
-        $monthlySaleMax = $monthlySales->max("total");
-        $highestSaleDate = $monthlySales->where('total', $monthlySaleMax)->pluck('month')->first();
+
+        $monthSaleMax = $monthlySales->max("total");
+        $highestSaleDate = $formatedMonthlySales->where('total', $monthSaleMax)->pluck('month')->first();
+
+        $highestPercentage = round(($monthSaleMax / $totalMonthlySale) * 100, 1) . "%";
 
         $highestSaleMonth[] = [
-            "highest_sale" => $monthlySaleMax,
-            "highest_sale_month" => $highestSaleDate
+                "highest_sale" => round($monthSaleMax, 2),
+                "highest_sale_month" => $highestSaleDate,
+                "percentage" => $highestPercentage
         ];
 
         $monthlySaleMin = $monthlySales->min("total");
-        // return $monthlySaleMin;
-
-        $monthlyLowestSaleDate = $monthlySales->where('total', $monthlySaleMin)->pluck('month')->first();
-        // return $monthlyLowestSaleDate;
-
+        $monthlyLowestSaleDate = $formatedMonthlySales->where('total', $monthlySaleMin)->pluck('month')->first();
+        $lowestPercentage = round(($monthlySaleMin / $totalMonthlySale) * 100, 1) . "%";
         $lowestSaleMonth[] = [
-            "lowest_sale" => $monthlySaleMin,
-            "lowest_sale_month" => $monthlyLowestSaleDate
-            ];
+                "lowest_sale" => round($monthlySaleMin, 2),
+                "lowest_sale_month" => $monthlyLowestSaleDate,
+                "percentage" => $lowestPercentage
+        ];
+        $date = [];
+        $dayName = [];
 
-            return response()->json([
-                "monthly_sales" => $monthlySales,
-                "TotalMonthlySalesAmount" => round($totalMonthlySale,2),
+        return response()->json([
+                "monthly_sales" => $formatedMonthlySales,
+                "TotalMonthlySalesAmount" => round($totalMonthlySale, 2),
                 "MonthlyAverageAmount" => round($monthlySaleAverage, 2),
                 "MonthlyHighestSale" => $highestSaleMonth,
                 "MonthlyLowestSale" => $lowestSaleMonth,
@@ -311,16 +416,22 @@ class ReportController extends Controller
         $averageYearlySale = $yearlySales->avg("total");
         $yearlyMaxSale = $yearlySales->max("total");
         $highestSaleYear = $yearlySales->where("total", $yearlyMaxSale)->pluck("year")->first();
+
+        $highestPercentage = round(($yearlyMaxSale / $totalYearlySale) * 100, 1) . "%";
+
         $yearlyHighestSale[] = [
             "highest_sale" => $yearlyMaxSale,
-            "highest_sale_year" => $highestSaleYear
+            "highest_sale_year" => $highestSaleYear,
+            "highest_percentage" => $highestPercentage
         ];
 
         $yearlyMinSale = $yearlySales->min("total");
         $lowestSaleYear = $yearlySales->where("total", $yearlyMinSale)->pluck("year")->first();
+        $lowestPercentage = round(($yearlyMinSale / $totalYearlySale) * 100, 1) . "%";
         $yearlyLowestSale[] = [
             "lowest_sale" => $yearlyMinSale,
-            "lowest_sale_year" => $lowestSaleYear
+            "lowest_sale_year" => $lowestSaleYear,
+            "lowest_percentage" => $lowestPercentage
         ];
 
         return response()->json([
