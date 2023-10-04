@@ -81,6 +81,7 @@ Route::prefix("v1")->group(function () {
             
             Route::get("weekly-sale-report","weeklySale");
             Route::get("monthly-sale-report","monthlySale");
+            Route::get("monthly-sale-test","monthlySaleTest");
             Route::get("yearly-sale-report","yearlySale");
 
             // Route::get("get-monthly-sale","getMonthlySales");

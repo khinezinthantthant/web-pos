@@ -187,12 +187,12 @@ class SaleReportController extends Controller
                 $count = $sales->pluck("date")->count();
                 // return $count;
                 $total = $sales->sum("net_total");
-                        // return $total;
+                // return $total;
                 $max = $sales->max("net_total");
                 // return $max;
                 $highestSaleDate = $sales->where('net_total', $max)->pluck('date')->first();
                 // return $highestSaleDate;
-                   $highestPercentage = round(($max / $total) * 100 ,1) ."%";
+                $highestPercentage = round(($max / $total) * 100, 1) . "%";
                 //    return $highestPercentage;
                 $highestSale[] = [
                         "highest_sale" => round($max, 2),
@@ -201,7 +201,7 @@ class SaleReportController extends Controller
                 ];
                 // return $highestSale;
                 $min = $sales->min("net_total");
-                $lowestPercentage = round(($min / $total) * 100 ,1) ."%";
+                $lowestPercentage = round(($min / $total) * 100, 1) . "%";
 
                 $lowestSaleDate = $sales->where('net_total', $min)->pluck('date')->first();
                 $lowestSale[] = [
@@ -218,7 +218,7 @@ class SaleReportController extends Controller
 
                 $weekelySales = [];
 
-                
+
                 for ($i = 0; $i < $count; $i++) {
                         $date[] = Carbon::parse($sales->pluck("date")[$i]);
                         $dayName[] = $date[$i]->format("D");
@@ -242,11 +242,11 @@ class SaleReportController extends Controller
         public function monthlySale()
         {
                 //monthly Sale
-                $monthlySales = Voucher::select(
+                $monthlySales = DailySaleOverview::select(
                         DB::raw('MONTHNAME(created_at) as month'),
                         // DB::raw('YEAR(created_at) as year'),
                         // DB::raw('DATE(created_at) as date'),
-                        DB::raw('SUM(net_total) as total')
+                        DB::raw('SUM(total) as total')
                 )
                         // ->groupBy('year', 'month','date')
                         ->groupBy('month')
@@ -262,6 +262,7 @@ class SaleReportController extends Controller
 
                 $monthSaleMax = $monthlySales->max("total");
                 $highestSaleDate = $monthlySales->where('total', $monthSaleMax)->pluck('month')->first();
+
 
                 $highestSaleMonth[] = [
                         "highest_sale" => round($monthSaleMax, 2),
@@ -291,6 +292,7 @@ class SaleReportController extends Controller
                 ]);
         }
 
+        
         public function yearlySale()
         {
                 $yearlySales = Voucher::selectRaw('YEAR(created_at) as year,SUM(net_total) as total')
