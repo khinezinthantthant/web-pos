@@ -72,8 +72,11 @@ Route::prefix("v1")->group(function () {
             Route::get("/brand-sale-report", 'brandSaleReport');
             Route::get("/weekely-sale-report", 'weeklySaleReport');
             Route::get("/monthly-sale-report", 'monthlySaleReport');
-            Route::get("/yearly-sale-report", 'yearlySaleReport');
+            // Route::get("/yearly-sale-report", 'yearlySaleReport');
             Route::get("/weekely_best_seller_brands", 'weekelyBestSellerBrands');
+
+            Route::get("/yearly-sale-report", 'yearlySaleReport');
+
         });
 
         // Route::post("register", [AuthController::class, 'register']);
