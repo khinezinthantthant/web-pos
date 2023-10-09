@@ -88,7 +88,7 @@ class FinanceController extends Controller
             ->first();
         return $dailyReport;
         $dailyReport->daily_sale_records  = $daily_sale_records;
-
+        // $dailyReport $dailyReport->simplePaginate(10);
         // return $dailyReport;
         return new TodayTotalSaleOverviewResource($dailyReport);
     }

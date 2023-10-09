@@ -40,34 +40,35 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("photo", PhotoController::class);
 
 
-        Route::controller(UserController::class)->group(function(){
-            Route::apiResource("user",UserController::class);
-            Route::get('/banned-user','bannedUsers');
+        Route::controller(UserController::class)->group(function () {
+            Route::apiResource("user", UserController::class);
+            Route::post('/ban-user/{id}', 'banUser');
+            Route::get('/ban-user-list', 'bannedUsers');
             Route::post('/restore-user/{id}', 'restoreUser');
             Route::post('/change-password', 'passwordChanging');
-            Route::post('/change-staff-password','modifyPassword');
+            Route::post('/change-staff-password', 'modifyPassword');
         });
 
-        Route::controller(AuthController::class)->group(function(){
+        Route::controller(AuthController::class)->group(function () {
             Route::post("logout", 'logout');
             Route::post("logout-all", 'logoutAll');
         });
 
-        Route::controller(FinanceController::class)->group(function() {
+        Route::controller(FinanceController::class)->group(function () {
             Route::post("/sale_close", 'saleClose');
             Route::post("/sale_open", 'saleOpen');
             Route::get("/daily_sale_records", 'daily');
             Route::get("/monthly_sale_record", 'monthly');
-            Route::get("/yearly_sale_record",'yearly');
+            Route::get("/yearly_sale_record", 'yearly');
             Route::get("/custom_sale_records", 'customSaleRecords');
-            Route::get("/year",'year');
+            Route::get("/year", 'year');
         });
 
 
-        Route::controller(ReportController::class)->group(function(){
+        Route::controller(ReportController::class)->group(function () {
             Route::get("/stock_report", 'stockReport');
             Route::get("/brand_report", 'brandReport');
-            Route::get("/today-sale-report",'todaySaleReport');
+            Route::get("/today-sale-report", 'todaySaleReport');
             Route::get("/product-sale-report", 'productSaleReport');
             Route::get("/brand-sale-report", 'brandSaleReport');
             Route::get("/weekely-sale-report", 'weeklySaleReport');

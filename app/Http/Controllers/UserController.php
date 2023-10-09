@@ -18,11 +18,16 @@ class UserController extends Controller
      */
     public function index()
     {
-        $roles = User::where('role', 'ban')->get("role");
+        // $roles = User::where('banned', false)->get("banned");
         // $users = User::latest("id")->paginate(5)->withQueryString();
-        if($roles){
-           return User::where("role","admin")->orWhere("role","staff")->get();
-        }
+        // if($roles){
+        //    return User::where("role","admin")->orWhere("role","staff")->get();
+        $user = User::where("banned",false)->get();
+
+        return response()->json([
+            "users" => $user
+        ]);
+        // }
     }
 
     /**
@@ -190,82 +195,62 @@ class UserController extends Controller
     }
 
 
-    // public function ban(string $id)
-    // {
-    //     Gate::authorize('admin');
-    //     $user = User::find($id);
-    //     if (is_null($user)) {
-    //         return response()->json([
-    //             'message' => 'user not found'
-    //         ], 404);
-    //     }
+    public function banUser(string $id)
+    {
+        Gate::authorize('admin');
+        $user = User::find($id);
+        if (is_null($user)) {
+            return response()->json([
+                'message' => 'user not found'
+            ], 404);
+        }
 
-    //     $user->update([
-    //         'role' => 'ban'
-    //     ]);
+        $user->banned = true;
+        $user->update();
 
-    //     return response()->json([
-    //         'message' => 'User has been banned'
-    //     ]);
-    //     //
-    // }
+        return response()->json([
+            'message' => 'User has been banned'
+        ]);
 
-    // public function bannedUsers()
-    // {
-    //     Gate::authorize("admin");
-    //     // banned users
-    //     $banneUsers = collect(User::all())->where('role', 'ban');
-    //     return $banneUsers;
-    // }
-
-    // public function restoreUser(string $id)
-    // {
-    //     Gate::authorize('admin');
-
-    //     $user = User::find($id);
-    //     if (is_null($user)) {
-    //         return response()->json([
-    //             'message' => 'user not found'
-    //         ], 404);
-    //     }
-
-    //     $user->update([
-    //         'role' => 'staff'
-    //     ]);
-
-    //     return response()->json([
-    //         'message' => 'User has been restored'
-    //     ]);
-    //     //
-    // }
-
+    }
 
     public function bannedUsers()
     {
-        // return auth()->id();
-        $user = User::onlyTrashed()
-        // ->where("id", auth()->id())
-        ->get();
-        return $user;
-
-        return response()->json([
-            $user
-        ]);
-    }
-
-    public function restoreUser($id)
-    {
-        return $id;
         Gate::authorize("admin");
 
-        $user = User::onlyTrashed()
-        ->where("id", auth()->id())
-        ->findOrFail($id);
+        // banned users
+        // $bannedUsers = collect(User::all())->where('banned', true);
 
-        $user->restore();
+        $bannedUsers = User::where('banned', true)->get();
+        if(count($bannedUsers) === 0){
+            return response()->json([
+                "bannedUsers" => "banned user does not have"
+            ]);
+        }
+        return response()->json([
+            "users" => $bannedUsers
+        ]);
+
+    }
+
+    public function restoreUser(string $id)
+    {
+        Gate::authorize('admin');
+
+        $user = User::find($id);
+        if (is_null($user)) {
+            return response()->json([
+                'message' => 'user not found'
+            ], 404);
+        }
+
+        $user->banned = false;
+        $user->update();
 
         return response()->json([
-            "message" => "User has been restored"
+            'message' => 'User has been restored'
         ]);
+        //
     }
+
 }
