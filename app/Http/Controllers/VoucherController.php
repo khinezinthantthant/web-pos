@@ -33,8 +33,10 @@ class VoucherController extends Controller
             // $vouchers = Auth::user()->vouchers()->whereDate('created_at', Carbon::today())->get();
 
             $vouchers = Auth::user()->vouchers()->whereDate('created_at', Carbon::today())->paginate(10)->withQueryString();
-
         }
+
+        // return $vouchers;
+
         // return VoucherResource::collection($vouchers);
         return new DailySaleOverviewResource($vouchers);
     }

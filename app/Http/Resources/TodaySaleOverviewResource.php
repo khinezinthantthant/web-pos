@@ -23,7 +23,10 @@ class TodaySaleOverviewResource extends JsonResource
             "cash" => $this->total,
             "tax" => $this->tax,
             "total" => $this->net_total,
+
+            
         ];
+
         return parent::toArray($request);
     }
 }

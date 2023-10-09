@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\DailySaleOverview;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -19,7 +20,9 @@ class TodayTotalSaleOverviewResource extends JsonResource
             "total_cash" => $this->total_cash,
             "total_tax" => $this->total_tax,
             "total" => $this->total,
-            "today_sale_overview" => TodaySaleOverviewResource::collection($this->daily_sale_records)
+
+            "today_sale_overview" => TodaySaleOverviewResource::collection($this->daily_sale_records),
+
         ];
         // return parent::toArray($request);
     }

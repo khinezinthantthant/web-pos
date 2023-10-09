@@ -75,9 +75,9 @@ class FinanceController extends Controller
 
         $daily_sale_records = Voucher::whereDate('created_at', '=', $request->date)
             // ->whereYear("created_at",$year)
-            ->paginate(10);
-        return $daily_sale_records;
-        $date = $request ->date;
+            ->paginate(10)->withQueryString();
+        // return $daily_sale_records;
+        $date = $request->date;
         // return $date;
         $day = (new Carbon($date))->format("d");
         // return $day;
@@ -86,11 +86,12 @@ class FinanceController extends Controller
             ->where("month", $month)
             ->where("year", $year)
             ->first();
-        return $dailyReport;
-        $dailyReport->daily_sale_records  = $daily_sale_records;
-        // $dailyReport $dailyReport->simplePaginate(10);
         // return $dailyReport;
-        return new TodayTotalSaleOverviewResource($dailyReport);
+        $dailyReport->daily_sale_records  = $daily_sale_records;
+
+        return $dailyReport;
+
+        // return new TodayTotalSaleOverviewResource($dailyReport);
     }
 
     public function monthly(Request $request)
@@ -101,7 +102,9 @@ class FinanceController extends Controller
 
         $monthly_sale_records = DailySaleOverview::where('month', $request->month)
             ->where('year', $request->year)
-            ->get();
+            ->paginate(10)->withQueryString();
+
+        // return $monthly_sale_records;
 
         return new MonthlyTotalSaleOverviewResource($monthly_sale_records);
     }
@@ -132,6 +135,7 @@ class FinanceController extends Controller
 
                 // return new YearlyTotalSaleOverviewResource($yearly_sale_overviews);
             }
+
         } else {
             MonthlySaleOverview::truncate();
         }
@@ -141,8 +145,9 @@ class FinanceController extends Controller
 
         return response()->json([
             "yearly_total_sale_overview" => new YearlyTotalSaleOverviewResource($yearly_sale_overviews),
-            "yearly_sale_overviews" => MonthlySaleOverview::all()
+            "yearly_sale_overviews" => MonthlySaleOverview::paginate(10)->withQueryString()
         ]);
+
     }
 
     public function customSaleRecords(Request $request)
@@ -151,7 +156,7 @@ class FinanceController extends Controller
         $startDate = $request->start_date . " 00::00::00";
         // return $startDate;
         $endDate = $request->end_date . " 23::59::59";
-        $custom_sale_records = Voucher::whereBetween('created_at', [$startDate, $endDate])->get();
+        $custom_sale_records = Voucher::whereBetween('created_at', [$startDate, $endDate])->paginate(10)->withQueryString();
 
         return TodaySaleOverviewResource::collection($custom_sale_records);
     }

@@ -20,7 +20,19 @@ class MonthlyTotalSaleOverviewResource extends JsonResource
             "total_cash" => $this->sum("total_cash"),
             "total_tax" => $this->sum("total_tax"),
             "total" => $this->sum("total"),
-            "monthly_sale_overview" => MonthlySaleOverviewResource::collection($this)
+            "monthly_sale_overview" => MonthlySaleOverviewResource::collection($this),
+
+            'current_page' => $this->currentPage(),
+            'first_page_url' => $this->url(1),
+            'from' => $this->firstItem(),
+            'last_page' => $this->lastPage(),
+            'last_page_url' => $this->url($this->lastPage()),
+            'next_page_url' => $this->nextPageUrl(),
+            'path' => $this->path(),
+            'per_page' => $this->perPage(),
+            'prev_page_url' => $this->previousPageUrl(),
+            'to' => $this->lastItem(),
+            // 'total' => $this->total(),
         ];
         return parent::toArray($request);
     }
