@@ -75,8 +75,8 @@ class FinanceController extends Controller
 
         $daily_sale_records = Voucher::whereDate('created_at', '=', $request->date)
             // ->whereYear("created_at",$year)
-            ->paginate(5);
-        // return $daily_sale_records;
+            ->paginate(10);
+        return $daily_sale_records;
         $date = $request ->date;
         // return $date;
         $day = (new Carbon($date))->format("d");

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
-            $table->string("customer_name");
-            $table->string("phone_number");
+            $table->string("customer_name")->nullable();
+            $table->string("phone_number")->nullable();
             $table->string("voucher_number");
             $table->double("total");
             $table->float("tax");

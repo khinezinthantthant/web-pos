@@ -30,7 +30,10 @@ class VoucherController extends Controller
         if(Auth::user()->role == "admin"){
             $vouchers = Voucher::whereDate('created_at', Carbon::today())->paginate(10)->withQueryString();
         }else{
-            $vouchers = Auth::user()->vouchers()->whereDate('created_at', Carbon::today())->get();
+            // $vouchers = Auth::user()->vouchers()->whereDate('created_at', Carbon::today())->get();
+
+            $vouchers = Auth::user()->vouchers()->whereDate('created_at', Carbon::today())->paginate(10)->withQueryString();
+
         }
         // return VoucherResource::collection($vouchers);
         return new DailySaleOverviewResource($vouchers);
@@ -63,11 +66,12 @@ class VoucherController extends Controller
         //     "user_id" => Auth::id()
         // ]); //use database
 
+        $id = Voucher::all()->last()->id;
 
         $voucher = new Voucher();
         $voucher->customer_name = $request->customer_name;
         $voucher->phone_number = $request->phone_number;
-        $voucher->voucher_number =  rand(1, 100);
+        $voucher->voucher_number = $id+1;
         $voucher->total = $total;
         $voucher->tax = $tax;
         $voucher->net_total = $netTotal;
@@ -82,7 +86,7 @@ class VoucherController extends Controller
 
             $currentProduct = $products->find($item["product_id"]);
 
-            if ($currentProduct->total_stock >= $item["quantity"]) {
+            // if ($currentProduct->total_stock >= $item["quantity"]) {
                 $records[] = [
                     "voucher_id" => $voucher->id,
                     "product_id" => $item["product_id"],
@@ -101,7 +105,7 @@ class VoucherController extends Controller
                 Stock::where("id", $item["product_id"])->update([
                     "quantity" => $currentProduct->total_stock - $item["quantity"]
                 ]);
-            }
+            // }
         }
 
         $voucherRecords = VoucherRecord::insert($records); //use database

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SaleResource;
 use App\Http\Resources\StockReportResource;
 use App\Http\Resources\StockResource;
 use App\Http\Resources\TodaySaleProductResource;
+use App\Http\Resources\WeekelySaleResource;
 use App\Models\Brand;
 use App\Models\DailySaleOverview;
 use App\Models\Product;
@@ -199,97 +201,139 @@ class ReportController extends Controller
     public function weeklySaleReport()
     {
         //start seeding
-        $total = rand(2, 10) * 100;
-        $tax = $total * 0.05;
-        $net_total = $total + $tax;
-        $startDate = Carbon::now()->subDay(7);
-        $endDate = Carbon::now();
+        // $total = rand(2, 10) * 100;
+        // $tax = $total * 0.05;
+        // $net_total = $total + $tax;
+        // $startDate = Carbon::now()->subDay(7);
+        // $endDate = Carbon::now();
 
-        $currentDate = $startDate->copy();
+        // $currentDate = $startDate->copy();
 
-        while ($currentDate->lte($endDate)) {
-            $voucher = Voucher::factory()->create();
-            $total_cost = $voucher->voucher_records()->sum('cost');
-            $voucher->net_total = $total_cost;
-            $voucher->customer_name = fake()->name();
-            $voucher->phone_number = fake()->phoneNumber();
-            $voucher->voucher_number = fake()->regexify('[A-Z0-9]{8}');
-            $voucher->total = $total;
-            $voucher->tax = $tax;
-            $voucher->net_total = $net_total;
-            $voucher->user_id = rand(1, 3);
-            $voucher->created_at = $currentDate->toDateString();
-            $voucher->updated_at = $currentDate->toDateString();
-            $voucher->update();
-            $currentDate->addDay();
-        }
+        // while ($currentDate->lte($endDate)) {
+        //     $voucher = Voucher::factory()->create();
+        //     $total_cost = $voucher->voucher_records()->sum('cost');
+        //     $voucher->net_total = $total_cost;
+        //     $voucher->customer_name = fake()->name();
+        //     $voucher->phone_number = fake()->phoneNumber();
+        //     $voucher->voucher_number = fake()->regexify('[A-Z0-9]{8}');
+        //     $voucher->total = $total;
+        //     $voucher->tax = $tax;
+        //     $voucher->net_total = $net_total;
+        //     $voucher->user_id = rand(1, 3);
+        //     $voucher->created_at = $currentDate->toDateString();
+        //     $voucher->updated_at = $currentDate->toDateString();
+        //     $voucher->update();
+        //     $currentDate->addDay();
+        // }
 
-        //end seeding
+        // //end seeding
 
-        // weekely sale
-        $date = Carbon::now()->subDays(7);
+        // // weekely sale
+        // $date = Carbon::now()->subDays(7);
 
-        $sales = Voucher::where('created_at', '>=', $date)
-                ->selectRaw("DATE(created_at) as date, SUM(net_total) as net_total")
-                ->groupBy("date")
-                ->orderBy('date')
-                ->get();
+        // $sales = Voucher::where('created_at', '>=', $date)
+        //         ->selectRaw("DATE(created_at) as date, SUM(net_total) as net_total")
+        //         ->groupBy("date")
+        //         ->orderBy('date')
+        //         ->get();
 
-        $count = $sales->pluck("date")->count();
+        // $count = $sales->pluck("date")->count();
 
-        $total = $sales->sum("net_total");
-        $max = $sales->max("net_total");
-        $highestSaleDate = $sales->where("net_total",$max)->pluck("date")->first();
-        $highestPercentage = round(($max / $total) * 100 ,1) ."%";
+        // $total = $sales->sum("net_total");
+        // $max = $sales->max("net_total");
+        // $highestSaleDate = $sales->where("net_total",$max)->pluck("date")->first();
+        // $highestPercentage = round(($max / $total) * 100 ,1) ."%";
 
-        $highestSale[] = [
-            "highest_sale" => $max,
-            "highest_sale_date" => $highestSaleDate,
-            "dayName" => Carbon::parse($highestSaleDate)->format("D"),
-            "highestPercentage" => $highestPercentage
-        ];
+        // $highestSale[] = [
+        //     "highest_sale" => $max,
+        //     "highest_sale_date" => $highestSaleDate,
+        //     "dayName" => Carbon::parse($highestSaleDate)->format("D"),
+        //     "highestPercentage" => $highestPercentage
+        // ];
 
-        // return $highestSale;
+        // // return $highestSale;
 
-        $min = $sales->min("net_total");
-        $lowestSaleDate = $sales->where("net_total",$min)->pluck("date")->first();
-        $lowestPercentage = round(($min / $total) * 100 ,1) ."%";
+        // $min = $sales->min("net_total");
+        // $lowestSaleDate = $sales->where("net_total",$min)->pluck("date")->first();
+        // $lowestPercentage = round(($min / $total) * 100 ,1) ."%";
 
-        $lowestSale[] = [
-            "lowest_sale" => $min,
-            "lowest_sale_date" => $lowestSaleDate,
-            "dayName" => Carbon::parse($lowestSaleDate)->format("D"),
-            "lowestPercentage" => $lowestPercentage
-        ];
+        // $lowestSale[] = [
+        //     "lowest_sale" => $min,
+        //     "lowest_sale_date" => $lowestSaleDate,
+        //     "dayName" => Carbon::parse($lowestSaleDate)->format("D"),
+        //     "lowestPercentage" => $lowestPercentage
+        // ];
 
-        // return $lowestSale;
+        // // return $lowestSale;
 
-        $avg =$sales->avg("net_total");
+        // $avg =$sales->avg("net_total");
 
-        $date = [];
-        $dayName = [];
-        $weekelySales = [];
+        // $date = [];
+        // $dayName = [];
+        // $weekelySales = [];
 
-        for ($i = 0; $i < $count; $i++) {
-            $date[] = Carbon::parse($sales->pluck("date")[$i]);
-            $dayName[] = $date[$i]->format("D");
+        // for ($i = 0; $i < $count; $i++) {
+        //     $date[] = Carbon::parse($sales->pluck("date")[$i]);
+        //     $dayName[] = $date[$i]->format("D");
 
-            $weekelySales[] =  [
-                    "total" => $sales->pluck("net_total")[$i],
-                    "dayName" => $dayName[$i],
-                    "date" =>  $sales->pluck("date")[$i],
-            ];
-        }
+        //     $weekelySales[] =  [
+        //             "total" => $sales->pluck("net_total")[$i],
+        //             "dayName" => $dayName[$i],
+        //             "date" =>  $sales->pluck("date")[$i],
+        //     ];
+        // }
+
+        // return response()->json([
+        //     "weekely_sales" => $weekelySales,
+        //     "total_weekely_sale_amount" => round($total,2),
+        //     "weekely_average_amount" => round($avg,2),
+        //     "weekely_highest_sale" => $highestSale,
+        //     "weekely_lowest_sale" => $lowestSale
+        // ]);
+
+
+
+
+        $startOfDay =  Carbon::now()->startOfWeek();
+        // return $startOfDay;
+        $endOfDay = $startOfDay->copy()->endOfWeek();
+        // return $endOfDay;
+        $totalSale = DailySaleOverview::whereBetween('created_at', [$startOfDay, $endOfDay])->get();
+
+        // return $totalSale;
+        $total = $totalSale->sum('total');
+        // return $total;
+
+        $maxWeekelySale = $totalSale->where('total', $totalSale->max('total'))->first();
+        // return $maxWeekelySale;
+        $maxPrice = $maxWeekelySale->max("total");
+        // return $maxPrice;
+        $max = new SaleResource($maxWeekelySale);
+        $maxPercentage = round(($maxPrice / $total) * 100, 1) . "%";
+        // return $maxPercentage;
+
+
+        $averageWeeklySale = $totalSale->avg('total');
+        $minWeeklySale = $totalSale->where('total', $totalSale->min('total'))->first();
+        // return $minWeeklySale;
+        $minPrice = $minWeeklySale->min("total");
+        // return $minPrice;
+        $minPercentage = round(($minPrice / $total) * 100, 1) . "%";
+        // return $minPercentage;
+        $min = new SaleResource($minWeeklySale);
+        $totalSale = WeekelySaleResource::collection($totalSale);
+        // return $totalSale;
 
         return response()->json([
-            "weekely_sales" => $weekelySales,
-            "total_weekely_sale_amount" => round($total,2),
-            "weekely_average_amount" => round($avg,2),
-            "weekely_highest_sale" => $highestSale,
-            "weekely_lowest_sale" => $lowestSale
+            "weekly_sale_total" => round($total,2),
+            "weekly_highest_sale" => $max,
+            "weekly_highest_percentage" => $maxPercentage,
+
+            "weekly_lowest_sale" => $min,
+            "weekly_lowest_percentage" => $minPercentage,
+            "average" => round($averageWeeklySale,2),
+            "weekly_sale" => $totalSale
         ]);
-
-
     }
 
     public function monthlySaleReport()
@@ -350,7 +394,11 @@ class ReportController extends Controller
 
 
         //monthly Sale
-            $monthlySales = Voucher::select(
+            $monthlySales = Voucher::whereBetween('created_at', [
+                    Carbon::now()->startOfYear(),
+                    Carbon::now()->endOfYear(),
+                ])
+            ->select(
                 DB::raw('MONTH(created_at) as month'),
                 DB::raw('YEAR(created_at) as year'),
                 DB::raw('SUM(net_total) as total')
