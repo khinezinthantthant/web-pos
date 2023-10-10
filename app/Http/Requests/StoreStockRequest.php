@@ -24,7 +24,7 @@ class StoreStockRequest extends FormRequest
         return [
             "product_id" => "required|exists:products,id",
             "quantity" => "required|min:1|numeric",
-            "more" => "required"
+            "more" => "nullable"
         ];
     }
 }
