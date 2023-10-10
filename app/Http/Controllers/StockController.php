@@ -68,6 +68,8 @@ class StockController extends Controller
     // }
     public function store(StoreStockRequest $request)
     {
+        Gate::authorize("admin");
+
         try {
             DB::beginTransaction();
 
