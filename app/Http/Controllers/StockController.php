@@ -138,4 +138,26 @@ class StockController extends Controller
     }
 
 
+    public function test()
+    {
+        for ($i = 1; $i <= 20; $i++) {
+            $currentQuantity = rand(1, 100);
+
+            // $currentProduct = Product::find($i);
+            // $currentProduct->total_stock = $currentQuantity;
+            // $currentProduct->save();
+
+            $stocks[] = [
+                "user_id" => 1,
+                "product_id" => $i,
+                "quantity" => $currentQuantity,
+                "created_at" => now(),
+                "updated_at" => now(), 
+            ];
+        }
+
+        Stock::insert($stocks);
+    }
+
+
 }

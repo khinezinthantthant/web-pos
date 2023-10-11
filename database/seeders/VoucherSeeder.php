@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Product;
+use App\Models\Stock;
 use App\Models\Voucher;
 use App\Models\VoucherRecord;
 use Carbon\Carbon;
@@ -63,6 +64,9 @@ class VoucherSeeder extends Seeder
                     ];
                     Product::where("id", $itemId)->update([
                         "total_stock" => $currentProduct->total_stock - $quantity
+                    ]);
+                    Stock::where("id", $itemId)->update([
+                        "quantity" => $currentProduct->total_stock - $quantity
                     ]);
                 }
                 VoucherRecord::insert($records); // use database

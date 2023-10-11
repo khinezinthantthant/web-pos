@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Http\Resources\ProductDetailResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
+use App\Models\Stock;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -43,6 +44,12 @@ class ProductController extends Controller
             "photo" => $request->photo ?? config("info.default_contact_photo"),
         ]);
 
+        $stock = Stock::create([
+            "user_id" => 1,
+            "product_id" => $product->id,
+            "quantity" => $request->total_stock
+        ]);
+
         return new ProductDetailResource($product);
     }
 
@@ -71,6 +78,7 @@ class ProductController extends Controller
         Gate::authorize("admin");
 
         $product = Product::find($id);
+        $stock = Stock::find($id);
         if (is_null($product)) {
             return response()->json([
                 // "success" => false,
@@ -91,6 +99,11 @@ class ProductController extends Controller
             "photo" => $request->photo
         ]);
 
+        $stock->update([
+            "quantity" => $product->total_stock
+        ]);
+
+
         return new ProductDetailResource($product);
     }
 
@@ -100,6 +113,8 @@ class ProductController extends Controller
     public function destroy(string $id)
     {
         $product = Product::find($id);
+        $stock = Stock::find($product->id);
+
         if (is_null($product)) {
             return response()->json([
                 // "success" => false,
@@ -109,6 +124,7 @@ class ProductController extends Controller
         }
 
         $product->delete();
+        $stock->delete();
 
         return response()->json([
             "message" => "product deleted",

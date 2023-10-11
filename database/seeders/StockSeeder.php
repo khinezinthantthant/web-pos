@@ -15,21 +15,22 @@ class StockSeeder extends Seeder
     public function run(): void
     {
         $stocks = [];
-        $product_stock = [];
-        for($i=1;$i<=20;$i++){
-            $currentQuantity = rand(1,100);
+        for ($i = 1; $i <= 20; $i++) {
+            // $currentQuantity = rand(1, 100);
+
+            $currentProduct = Product::find($i);
+            // $currentProduct->total_stock = $currentQuantity;
+            $currentProduct->total_stock = 1000;
+            $currentProduct->save();
+
             $stocks[] = [
                 "user_id" => 1,
                 "product_id" => $i,
-                "quantity" => $currentQuantity,
-                "more" => fake()->sentence(),
+                // "quantity" => $currentQuantity,
+                "quantity" => 1000,
                 "created_at" => now(),
-                "updated_at" => now(),
+                "updated_at" => now(), 
             ];
-
-            $currentProduct = Product::find($i);
-            $currentProduct->total_stock += $currentQuantity;
-            $currentProduct->update();
         }
 
         Stock::insert($stocks);

@@ -11,6 +11,7 @@ use App\Models\Brand;
 use App\Models\DailySaleOverview;
 use App\Models\Product;
 use App\Models\Stock;
+use App\Models\User;
 use App\Models\Voucher;
 use App\Models\VoucherRecord;
 use Carbon\Carbon;
@@ -117,9 +118,9 @@ class ReportController extends Controller
     {
         $today = Carbon::today();
         $vouchers = Voucher::whereDate("created_at", $today)
-                ->orderBy("net_total", "desc")
-                ->limit(3)
-                ->get();
+            ->orderBy("net_total", "desc")
+            ->limit(3)
+            ->get();
         // return $vouchers;
         $total_amount = $vouchers->sum("net_total");
         $todaySale = [];
@@ -127,74 +128,73 @@ class ReportController extends Controller
         $total_amount = $vouchers->sum("net_total");
         $todaySale = [];
         foreach ($vouchers as $voucher) {
-                $voucher_number = $voucher->voucher_number;
-                $total = ($voucher->net_total);
-                $percentage = round(($total / $total_amount) * 100, 1) . "%";
-                $todaySale[] = [
-                        "voucher_number" => $voucher_number,
-                        "total" => $total,
-                        "percentage" => $percentage
-                ];
+            $voucher_number = $voucher->voucher_number;
+            $total = ($voucher->net_total);
+            $percentage = round(($total / $total_amount) * 100, 1) . "%";
+            $todaySale[] = [
+                "voucher_number" => $voucher_number,
+                "total" => $total,
+                "percentage" => $percentage
+            ];
         }
         return response()->json([
-                "total_amount" => $total_amount,
-                "todaySale" => $todaySale
+            "total_amount" => $total_amount,
+            "todaySale" => $todaySale
         ]);
-
     }
 
     public function productSaleReport()
     {
-            $products = Product::withCount("voucher_records")->orderByDesc("voucher_records_count")
-                    ->limit(5)->get();
-            // return $products;
-            $productInfo = [];
-            foreach ($products as $product) {
-                    $productName = $product->name;
-                    $brandName = $product->brand->name;
-                    $porductPrice = $product->sale_price;
-                    $unit = $product->unit;
-                    $totalVoucher = $product->voucher_records_count;
-                    $totalStock = $product->total_stock;
+        $products = Product::withCount("voucher_records")->orderByDesc("voucher_records_count")
+            ->limit(5)->get();
+        // return $products;
+        $productInfo = [];
+        foreach ($products as $product) {
+            $productName = $product->name;
+            $brandName = $product->brand->name;
+            $porductPrice = $product->sale_price;
+            $unit = $product->unit;
+            $totalVoucher = $product->voucher_records_count;
+            $totalStock = $product->total_stock;
 
-                    $productInfo[] = [
-                            "name" => $productName,
-                            "brand" => $brandName,
-                            "sale_price" => $porductPrice,
-                            "unit" => $unit,
-                            "total_stock" => $totalStock,
-                            "total_voucher" => $totalVoucher
-                    ];
-            }
-            return response()->json([
-                    "productInfo" => $productInfo,
-            ]);
+            $productInfo[] = [
+                "name" => $productName,
+                "brand" => $brandName,
+                "sale_price" => $porductPrice,
+                "unit" => $unit,
+                "total_stock" => $totalStock,
+                "total_voucher" => $totalVoucher
+            ];
+        }
+        return response()->json([
+            "productInfo" => $productInfo,
+        ]);
     }
 
     public function brandSaleReport()
     {
         $brands = Brand::withCount("brands")
-                ->orderByDesc("brands_count")
-                ->withSum("brands", "cost")
-                // ->withSum("brands", "quantity")
-                ->limit(5)
-                ->get();
+            ->orderByDesc("brands_count")
+            ->withSum("brands", "cost")
+            // ->withSum("brands", "quantity")
+            ->limit(5)
+            ->get();
         $brandInfo = [];
 
         foreach ($brands as $brand) {
-                $brandName = $brand->name;
-                $brandSaleCount = $brand->brands_count;
-                $brandSales = $brand->brands_sum_cost;
+            $brandName = $brand->name;
+            $brandSaleCount = $brand->brands_count;
+            $brandSales = $brand->brands_sum_cost;
 
-                $brandInfo[] = [
-                        "name" => $brandName,
-                        "brand_sale_count" => $brandSaleCount,
-                        "brand_sales" => $brandSales,
-                ];
+            $brandInfo[] = [
+                "name" => $brandName,
+                "brand_sale_count" => $brandSaleCount,
+                "brand_sales" => $brandSales,
+            ];
         }
 
         return response()->json([
-                'brandsInfo' => $brandInfo
+            'brandsInfo' => $brandInfo
         ]);
     }
 
@@ -325,13 +325,13 @@ class ReportController extends Controller
         // return $totalSale;
 
         return response()->json([
-            "weekly_sale_total" => round($total,2),
+            "weekly_sale_total" => round($total, 2),
             "weekly_highest_sale" => $max,
             "weekly_highest_percentage" => $maxPercentage,
 
             "weekly_lowest_sale" => $min,
             "weekly_lowest_percentage" => $minPercentage,
-            "average" => round($averageWeeklySale,2),
+            "average" => round($averageWeeklySale, 2),
             "weekly_sale" => $totalSale
         ]);
     }
@@ -394,28 +394,28 @@ class ReportController extends Controller
 
 
         //monthly Sale
-            $monthlySales = Voucher::whereBetween('created_at', [
-                    Carbon::now()->startOfYear(),
-                    Carbon::now()->endOfYear(),
-                ])
+        $monthlySales = Voucher::whereBetween('created_at', [
+            Carbon::now()->startOfYear(),
+            Carbon::now()->endOfYear(),
+        ])
             ->select(
                 DB::raw('MONTH(created_at) as month'),
                 DB::raw('YEAR(created_at) as year'),
                 DB::raw('SUM(net_total) as total')
-        )
-                ->groupBy('month', 'year')
-                ->orderBy('month', 'asc')
-                ->get();
+            )
+            ->groupBy('month', 'year')
+            ->orderBy('month', 'asc')
+            ->get();
 
         $formatedMonthlySales = $monthlySales->map(function ($item) {
-                $dateObj = DateTime::createFromFormat('!m', $item->month);
-                $monthName = $dateObj->format("M");
+            $dateObj = DateTime::createFromFormat('!m', $item->month);
+            $monthName = $dateObj->format("M");
 
-                return [
-                        'month' => $monthName,
-                        'year' => $item->year,
-                        'total' => $item->total
-                ];
+            return [
+                'month' => $monthName,
+                'year' => $item->year,
+                'total' => $item->total
+            ];
         });
         $monthlySaleAverage = $monthlySales->avg("total");
 
@@ -427,39 +427,38 @@ class ReportController extends Controller
         $highestPercentage = round(($monthSaleMax / $totalMonthlySale) * 100, 1) . "%";
 
         $highestSaleMonth[] = [
-                "highest_sale" => round($monthSaleMax, 2),
-                "highest_sale_month" => $highestSaleDate,
-                "percentage" => $highestPercentage
+            "highest_sale" => round($monthSaleMax, 2),
+            "highest_sale_month" => $highestSaleDate,
+            "percentage" => $highestPercentage
         ];
 
         $monthlySaleMin = $monthlySales->min("total");
         $monthlyLowestSaleDate = $formatedMonthlySales->where('total', $monthlySaleMin)->pluck('month')->first();
         $lowestPercentage = round(($monthlySaleMin / $totalMonthlySale) * 100, 1) . "%";
         $lowestSaleMonth[] = [
-                "lowest_sale" => round($monthlySaleMin, 2),
-                "lowest_sale_month" => $monthlyLowestSaleDate,
-                "percentage" => $lowestPercentage
+            "lowest_sale" => round($monthlySaleMin, 2),
+            "lowest_sale_month" => $monthlyLowestSaleDate,
+            "percentage" => $lowestPercentage
         ];
         $date = [];
         $dayName = [];
 
         return response()->json([
-                "monthly_sales" => $formatedMonthlySales,
-                "TotalMonthlySalesAmount" => round($totalMonthlySale, 2),
-                "MonthlyAverageAmount" => round($monthlySaleAverage, 2),
-                "MonthlyHighestSale" => $highestSaleMonth,
-                "MonthlyLowestSale" => $lowestSaleMonth,
+            "monthly_sales" => $formatedMonthlySales,
+            "TotalMonthlySalesAmount" => round($totalMonthlySale, 2),
+            "MonthlyAverageAmount" => round($monthlySaleAverage, 2),
+            "MonthlyHighestSale" => $highestSaleMonth,
+            "MonthlyLowestSale" => $lowestSaleMonth,
 
         ]);
-
     }
 
     public function yearlySaleReport()
     {
         $yearlySales = Voucher::selectRaw('YEAR(created_at) as year, SUM(net_total) as total')
-                    ->groupBy("year")
-                    ->orderBy("year","asc")
-                    ->get();
+            ->groupBy("year")
+            ->orderBy("year", "asc")
+            ->get();
         $totalYearlySale = $yearlySales->sum("total");
         $averageYearlySale = $yearlySales->avg("total");
         $yearlyMaxSale = $yearlySales->max("total");
@@ -484,12 +483,74 @@ class ReportController extends Controller
 
         return response()->json([
             "yearly_sales" => $yearlySales,
-            "total_yearly_sales_amount" => round($totalYearlySale,2),
+            "total_yearly_sales_amount" => round($totalYearlySale, 2),
             "yearly_average_amount" => round($averageYearlySale, 2),
             "yearly_highest_sale" => $yearlyHighestSale,
             "yearly_lowest_sale" => $yearlyLowestSale,
         ]);
-
     }
 
+
+    public function overview()
+    {
+        $totalStock = Stock::all()->sum("quantity"); 
+        $totalStaff = User::all()->count();
+
+        $yearlySales = Voucher::selectRaw('YEAR(created_at) as year,SUM(total) as total')
+            ->groupBy('year')
+            ->orderBy('year', 'asc')
+            ->get();
+
+        //monthly sales
+
+        $monthlySales = Voucher::select(
+            DB::raw('MONTH(created_at) as month'),
+            DB::raw('YEAR(created_at) as year'),
+            DB::raw('SUM(total) as total')
+        )
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        $monthlySales = Voucher::whereBetween('created_at', [
+            Carbon::now()->startOfYear(),
+            Carbon::now()->endOfYear(),
+        ])
+            ->select(
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('SUM(net_total) as total')
+            )
+            ->groupBy('month', 'year')
+            ->orderBy('month', 'asc')
+            ->get();
+
+        $formatedMonthlySales = $monthlySales->map(function ($item) {
+            $dateObj = DateTime::createFromFormat('!m', $item->month);
+            $monthName = $dateObj->format("M");
+
+            return [
+                'month' => $monthName,
+                'year' => $item->year,
+                'total' => round($item->total,2)
+            ];
+        });
+
+        // weekelySales
+
+        $startOfDay =  Carbon::now()->startOfWeek();
+        $endOfDay = $startOfDay->copy()->endOfWeek();
+        $totalSale = DailySaleOverview::whereBetween('created_at', [$startOfDay, $endOfDay])->get();
+
+        $totalSale = WeekelySaleResource::collection($totalSale);
+
+        return response()->json([
+            "total_stocks" => $totalStock,
+            "total_staff" => $totalStaff,
+            "yearly_sales" => $yearlySales,
+            "monthly_sales" => $formatedMonthlySales,
+            "weekely_sales" => $totalSale,
+        ]);
+    }
 }

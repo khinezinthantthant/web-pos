@@ -36,10 +36,10 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("product", ProductController::class);
         Route::apiResource("stock", StockController::class);
         Route::apiResource("voucher", VoucherController::class);
-        Route::get('/overview', [VoucherController::class, 'overview']);
         Route::apiResource("photo", PhotoController::class);
 
-
+        Route::post('/test', [StockController::class,'test']);
+ 
         Route::controller(UserController::class)->group(function () {
             Route::apiResource("user", UserController::class);
             Route::post('/ban-user/{id}', 'banUser');
@@ -75,6 +75,8 @@ Route::prefix("v1")->group(function () {
             Route::get("/monthly-sale-report", 'monthlySaleReport');
             Route::get("/yearly-sale-report", 'yearlySaleReport');
             Route::get("/weekely_best_seller_brands", 'weekelyBestSellerBrands');
+            Route::get('/overview', 'overview');
+
         });
 
         // Route::post("register", [AuthController::class, 'register']);
@@ -83,4 +85,5 @@ Route::prefix("v1")->group(function () {
     });
 
     Route::post("login", [AuthController::class, 'login']);
+
 });

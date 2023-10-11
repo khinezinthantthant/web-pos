@@ -27,14 +27,13 @@ class VoucherController extends Controller
     public function index()
     {
 
-        if(Auth::user()->role == "admin"){
+        if (Auth::user()->role == "admin") {
             $vouchers = Voucher::whereDate('created_at', Carbon::today())->paginate(10)->withQueryString();
-        }else{
+        } else {
             // $vouchers = Auth::user()->vouchers()->whereDate('created_at', Carbon::today())->get();
 
             $vouchers = Auth::user()->vouchers()->whereDate('created_at', Carbon::today())->paginate(10)->withQueryString();
         }
-
         // return $vouchers;
 
         // return VoucherResource::collection($vouchers);
@@ -73,7 +72,7 @@ class VoucherController extends Controller
         $voucher = new Voucher();
         $voucher->customer_name = $request->customer_name;
         $voucher->phone_number = $request->phone_number;
-        $voucher->voucher_number = $id+1;
+        $voucher->voucher_number = $id + 1;
         $voucher->total = $total;
         $voucher->tax = $tax;
         $voucher->net_total = $netTotal;
@@ -89,24 +88,24 @@ class VoucherController extends Controller
             $currentProduct = $products->find($item["product_id"]);
 
             // if ($currentProduct->total_stock >= $item["quantity"]) {
-                $records[] = [
-                    "voucher_id" => $voucher->id,
-                    "product_id" => $item["product_id"],
-                    "price" => $products->find($item["product_id"])->sale_price,
-                    "quantity" => $item["quantity"],
-                    "cost" => $item["quantity"] * $currentProduct->sale_price,
-                    "created_at" => now(),
-                    "updated_at" => now()
-                ];
+            $records[] = [
+                "voucher_id" => $voucher->id,
+                "product_id" => $item["product_id"],
+                "price" => $products->find($item["product_id"])->sale_price,
+                "quantity" => $item["quantity"],
+                "cost" => $item["quantity"] * $currentProduct->sale_price,
+                "created_at" => now(),
+                "updated_at" => now()
+            ];
 
 
-                Product::where("id", $item["product_id"])->update([
-                    "total_stock" => $currentProduct->total_stock - $item["quantity"]
-                ]);
+            Product::where("id", $item["product_id"])->update([
+                "total_stock" => $currentProduct->total_stock - $item["quantity"]
+            ]);
 
-                Stock::where("id", $item["product_id"])->update([
-                    "quantity" => $currentProduct->total_stock - $item["quantity"]
-                ]);
+            Stock::where("id", $item["product_id"])->update([
+                "quantity" => $currentProduct->total_stock - $item["quantity"]
+            ]);
             // }
         }
 
@@ -148,70 +147,5 @@ class VoucherController extends Controller
         return abort(403);
     }
 
-    public function overview()
-    {
-        $totalStock = Stock::all()->sum("quantity");
-        $totalStaff = User::all()->count();
-        // return $totalStaff;
-
-        $yearlySales = Voucher::selectRaw('YEAR(created_at) as year,SUM(total) as total')
-        ->groupBy('year')
-        ->orderBy('year','asc')
-        ->get();
-
-
-        $monthlySales = Voucher::select(
-            DB::raw('MONTH(created_at) as month'),
-            DB::raw('YEAR(created_at) as year'),
-            DB::raw('SUM(total) as total')
-        )
-        ->groupBy('year', 'month')
-        ->orderBy('year', 'asc')
-        ->orderBy('month', 'asc')
-        ->get();
-
-
-        $formatedMonthlySales = $monthlySales->map(function($item){
-            $dateObj = DateTime::createFromFormat('!m',$item->month);
-            $monthName = $dateObj->format("F");
-
-            return [
-                'month' => $monthName,
-                'year' => $item->year,
-                'total' => $item->total
-            ];
-        });
-
-
-        $startDate = Carbon::now()->startOfWeek();
-        $endDate = Carbon::now()->endOfWeek();
-        $sales = Voucher::whereBetween('created_at',[$startDate,$endDate])
-        ->selectRaw("DATE(created_at) as date, SUM(total) as total")
-        ->groupBy("date")
-        ->orderBy('date')
-        ->get();
-
-        $count = $sales->pluck("date")->count();
-        $date =[];
-        $dayName = [];
-        $weekelySales = [];
-        for($i=0;$i<$count;$i++){
-            $date[] = Carbon::parse($sales->pluck("date")[$i]);
-            $dayName[] = $date[$i]->format("l");
-
-            $weekelySales[] =  [
-                "total" => $sales->pluck("total")[$i],
-                "dayName" => $dayName[$i]
-            ];
-        }
-
-        return response()->json([
-            "total_stocks" => $totalStock,
-            "total_staff" => $totalStaff,
-            "yearly_sales" => $yearlySales,
-            "monthly_sales" => $formatedMonthlySales,
-            "weekely_sales" => $weekelySales,
-        ]);
-
-    }
+    
 }
