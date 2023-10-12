@@ -82,32 +82,43 @@ class VoucherController extends Controller
 
         // return $voucher;
         $records = [];
+        $product = [];
 
         foreach ($request->items as $item) {
 
             $currentProduct = $products->find($item["product_id"]);
 
-            // if ($currentProduct->total_stock >= $item["quantity"]) {
-            $records[] = [
-                "voucher_id" => $voucher->id,
-                "product_id" => $item["product_id"],
-                "price" => $products->find($item["product_id"])->sale_price,
-                "quantity" => $item["quantity"],
-                "cost" => $item["quantity"] * $currentProduct->sale_price,
-                "created_at" => now(),
-                "updated_at" => now()
+            $product[] = [
+                "product_id" => $currentProduct->id,
+                "quantity" => $currentProduct->total_stock
             ];
 
+            if ($currentProduct->total_stock >= $item["quantity"]) {
+                $records[] = [
+                    "voucher_id" => $voucher->id,
+                    "product_id" => $item["product_id"],
+                    "price" => $products->find($item["product_id"])->sale_price,
+                    "quantity" => $item["quantity"],
+                    "cost" => $item["quantity"] * $currentProduct->sale_price,
+                    "created_at" => now(),
+                    "updated_at" => now()
+                ];
 
-            Product::where("id", $item["product_id"])->update([
-                "total_stock" => $currentProduct->total_stock - $item["quantity"]
-            ]);
 
-            Stock::where("id", $item["product_id"])->update([
-                "quantity" => $currentProduct->total_stock - $item["quantity"]
-            ]);
-            // }
+                Product::where("id", $item["product_id"])->update([
+                    "total_stock" => $currentProduct->total_stock - $item["quantity"]
+                ]);
+
+                Stock::where("id", $item["product_id"])->update([
+                    "quantity" => $currentProduct->total_stock - $item["quantity"]
+                ]);
+            }
         }
+
+        return response()->json([
+            "message" => "quantity is not enough for sale",
+            "products" => $product
+        ]);
 
         $voucherRecords = VoucherRecord::insert($records); //use database
         // dd($voucherRecords);
@@ -146,6 +157,4 @@ class VoucherController extends Controller
     {
         return abort(403);
     }
-
-    
 }
