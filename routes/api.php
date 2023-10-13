@@ -33,7 +33,9 @@ Route::prefix("v1")->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::apiResource("brand", BrandController::class);
+        Route::get('/get-brands', [BrandController::class, 'getBrands']);
         Route::apiResource("product", ProductController::class);
+        Route::get('/get-products', [ProductController::class, 'getProducts']);
         Route::apiResource("stock", StockController::class);
         Route::apiResource("voucher", VoucherController::class);
         Route::get('/overview', [VoucherController::class, 'overview']);

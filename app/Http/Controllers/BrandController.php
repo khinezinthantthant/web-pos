@@ -23,7 +23,11 @@ class BrandController extends Controller
         // return response()->json($brand);
         return BrandResource::collection($brand);
     }
-
+    public function getBrands()
+    {
+        $brand = Brand::latest("id")->get();
+        return BrandResource::collection($brand);
+    }
     /**
      * Store a newly created resource in storage.
      */

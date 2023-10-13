@@ -23,7 +23,12 @@ class ProductController extends Controller
 
         return ProductResource::collection($products);
     }
+    public function getProducts()
+    {
+        $products = Product::latest("id")->get();
+        return ProductResource::collection($products);
 
+    }
     /**
      * Store a newly created resource in storage.
      */
