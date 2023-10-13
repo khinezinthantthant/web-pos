@@ -13,6 +13,7 @@ use App\Models\Voucher;
 use App\Models\VoucherRecord;
 use Carbon\Carbon;
 use DateTime;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -27,9 +28,9 @@ class VoucherController extends Controller
     public function index()
     {
 
-        if(Auth::user()->role == "admin"){
+        if (Auth::user()->role == "admin") {
             $vouchers = Voucher::whereDate('created_at', Carbon::today())->paginate(10)->withQueryString();
-        }else{
+        } else {
             $vouchers = Auth::user()->vouchers()->whereDate('created_at', Carbon::today())->get();
         }
         // return VoucherResource::collection($vouchers);
@@ -42,69 +43,71 @@ class VoucherController extends Controller
     public function store(Request $request)
     {
         $productIds = collect($request->items)->pluck("product_id");
-        $products = Product::whereIn("id", $productIds)->get();
-        $total = 0;
 
-        foreach ($request->items as $item) {
-            $total += $item["quantity"] * Product::find($item["product_id"])->sale_price;
-        }
+        try {
+            DB::beginTransaction();
 
+            $products = Product::whereIn("id", $productIds)->get();
 
-        $tax = $total * 0.05;
-        $netTotal = $total + $tax;
+            $total = 0;
 
-        // $voucher = Voucher::create([
-        //     "customer_name" => $request->customer_name,
-        //     "phone_number" => $request->phone_number,
-        //     "voucher_number" => rand(1, 100),
-        //     "total" => $total,
-        //     "tax" => $tax,
-        //     "net_total" => $netTotal,
-        //     "user_id" => Auth::id()
-        // ]); //use database
-
-
-        $voucher = new Voucher();
-        $voucher->customer_name = $request->customer_name;
-        $voucher->phone_number = $request->phone_number;
-        $voucher->voucher_number =  rand(1, 100);
-        $voucher->total = $total;
-        $voucher->tax = $tax;
-        $voucher->net_total = $netTotal;
-        $voucher->user_id = Auth::id();
-
-        $voucher->save();
-
-        // return $voucher;
-        $records = [];
-
-        foreach ($request->items as $item) {
-
-            $currentProduct = $products->find($item["product_id"]);
-
-            if ($currentProduct->total_stock >= $item["quantity"]) {
-                $records[] = [
-                    "voucher_id" => $voucher->id,
-                    "product_id" => $item["product_id"],
-                    "price" => $products->find($item["product_id"])->sale_price,
-                    "quantity" => $item["quantity"],
-                    "cost" => $item["quantity"] * $currentProduct->sale_price,
-                    "created_at" => now(),
-                    "updated_at" => now()
-                ];
-
-
-                Product::where("id", $item["product_id"])->update([
-                    "total_stock" => $currentProduct->total_stock - $item["quantity"]
-                ]);
-
-                Stock::where("id", $item["product_id"])->update([
-                    "quantity" => $currentProduct->total_stock - $item["quantity"]
-                ]);
+            foreach ($request->items as $item) {
+                $total += $item["quantity"] * Product::find($item["product_id"])->sale_price;
             }
+
+
+            $tax = $total * 0.05;
+            $netTotal = $total + $tax;
+
+            $voucher = new Voucher();
+            $voucher->customer_name = $request->customer_name;
+            $voucher->phone_number = $request->phone_number;
+            $voucher->voucher_number =  rand(1, 100);
+            $voucher->total = $total;
+            $voucher->tax = $tax;
+            $voucher->net_total = $netTotal;
+            $voucher->user_id = Auth::id();
+
+            $voucher->save();
+
+            // return $voucher;
+            $records = [];
+
+            foreach ($request->items as $item) {
+
+                $currentProduct = $products->find($item["product_id"]);
+                // return $currentProduct;
+                if ($currentProduct->total_stock >= $item["quantity"]) {
+                    $records[] = [
+                        "voucher_id" => $voucher->id,
+                        "product_id" => $item["product_id"],
+                        "price" => $products->find($item["product_id"])->sale_price,
+                        "quantity" => $item["quantity"],
+                        "cost" => $item["quantity"] * $currentProduct->sale_price,
+                        "created_at" => now(),
+                        "updated_at" => now()
+                    ];
+
+
+                    Product::where("id", $item["product_id"])->update([
+                        "total_stock" => $currentProduct->total_stock - $item["quantity"]
+                    ]);
+
+                    Stock::where("id", $item["product_id"])->update([
+                        "quantity" => $currentProduct->total_stock - $item["quantity"]
+                    ]);
+                }
+            }
+
+            $voucherRecords = VoucherRecord::insert($records); //use database
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 500);
         }
 
-        $voucherRecords = VoucherRecord::insert($records); //use database
+
+
         // dd($voucherRecords);
         return new VoucherDetailResource($voucher);
     }
@@ -149,9 +152,9 @@ class VoucherController extends Controller
         // return $totalStaff;
 
         $yearlySales = Voucher::selectRaw('YEAR(created_at) as year,SUM(total) as total')
-        ->groupBy('year')
-        ->orderBy('year','asc')
-        ->get();
+            ->groupBy('year')
+            ->orderBy('year', 'asc')
+            ->get();
 
 
         $monthlySales = Voucher::select(
@@ -159,14 +162,14 @@ class VoucherController extends Controller
             DB::raw('YEAR(created_at) as year'),
             DB::raw('SUM(total) as total')
         )
-        ->groupBy('year', 'month')
-        ->orderBy('year', 'asc')
-        ->orderBy('month', 'asc')
-        ->get();
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
+            ->get();
 
 
-        $formatedMonthlySales = $monthlySales->map(function($item){
-            $dateObj = DateTime::createFromFormat('!m',$item->month);
+        $formatedMonthlySales = $monthlySales->map(function ($item) {
+            $dateObj = DateTime::createFromFormat('!m', $item->month);
             $monthName = $dateObj->format("F");
 
             return [
@@ -179,17 +182,17 @@ class VoucherController extends Controller
 
         $startDate = Carbon::now()->startOfWeek();
         $endDate = Carbon::now()->endOfWeek();
-        $sales = Voucher::whereBetween('created_at',[$startDate,$endDate])
-        ->selectRaw("DATE(created_at) as date, SUM(total) as total")
-        ->groupBy("date")
-        ->orderBy('date')
-        ->get();
+        $sales = Voucher::whereBetween('created_at', [$startDate, $endDate])
+            ->selectRaw("DATE(created_at) as date, SUM(total) as total")
+            ->groupBy("date")
+            ->orderBy('date')
+            ->get();
 
         $count = $sales->pluck("date")->count();
-        $date =[];
+        $date = [];
         $dayName = [];
         $weekelySales = [];
-        for($i=0;$i<$count;$i++){
+        for ($i = 0; $i < $count; $i++) {
             $date[] = Carbon::parse($sales->pluck("date")[$i]);
             $dayName[] = $date[$i]->format("l");
 
@@ -206,6 +209,5 @@ class VoucherController extends Controller
             "monthly_sales" => $formatedMonthlySales,
             "weekely_sales" => $weekelySales,
         ]);
-
     }
 }
