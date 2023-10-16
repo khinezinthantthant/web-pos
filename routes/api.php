@@ -37,6 +37,7 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("product", ProductController::class);
         Route::get('/get-products', [ProductController::class, 'getProducts']);
         Route::apiResource("stock", StockController::class);
+
         Route::apiResource("voucher", VoucherController::class);
         Route::get('/overview', [VoucherController::class, 'overview']);
         Route::apiResource("photo", PhotoController::class);
@@ -57,10 +58,13 @@ Route::prefix("v1")->group(function () {
 
         Route::controller(FinanceController::class)->group(function() {
             Route::post("/sale_close", 'saleClose');
+            Route::post("/monthly_close", 'monthlyClose');
             Route::post("/sale_open", 'saleOpen');
             Route::get("/daily_sale_records", 'daily');
             Route::get("/monthly_sale_record", 'monthly');
             Route::get("/yearly_sale_record",'yearly');
+            Route::get("/recent",'recent');
+
             Route::get("/custom_sale_records", 'customSaleRecords');
             Route::get("/year",'year');
         });

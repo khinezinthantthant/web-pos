@@ -26,7 +26,13 @@ class VoucherRecordFactory extends Factory
             'quantity' => $qty,
             'cost' => $cost,
             'price' => $product->find(rand(1, 10))->sale_price
-
         ];
+        // return [
+        //     "voucher_id" => rand(1,5),
+        //     "product_id" => rand(1,20),
+        //     "quantity" => rand(1,10),
+        //     "cost" => rand(10000,100000),
+        //     "price"=> rand(100,10000)
+        // ];
     }
 }

@@ -17,9 +17,9 @@ return new class extends Migration
             $table->double("total_cash");
             $table->double("total_tax");
             $table->double("total");
-            $table->integer("day");
-            $table->integer("month");
-            $table->integer("year");
+            // $table->integer("day");
+            // $table->integer("month");
+            // $table->integer("year");
             $table->timestamps();
         });
     }

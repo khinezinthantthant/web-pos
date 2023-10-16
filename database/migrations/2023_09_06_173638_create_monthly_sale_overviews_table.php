@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('monthly_sale_overviews', function (Blueprint $table) {
             $table->id();
-            $table->integer("month");
-            $table->integer("year");
+            // $table->integer("month");
+            // $table->integer("year");
             $table->bigInteger("total_vouchers");
             $table->double("total_cash");
             $table->double("total_tax");

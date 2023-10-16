@@ -27,7 +27,8 @@ class VoucherResource extends JsonResource
             "tax" => $this->tax,
             "total" => $this->net_total,
             "item_count" => $this->voucher_records->count(),
-            "time" => (new Carbon($this->created_at))->format('h:i A'),
+            "created_at" => $this->created_at->format("d M Y"),
+            "time" => $this->created_at->format('h:i A'),
 
         ];
 

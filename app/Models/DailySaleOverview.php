@@ -8,5 +8,13 @@ use Illuminate\Database\Eloquent\Model;
 class DailySaleOverview extends Model
 {
     use HasFactory;
-    protected $fillable = ["total","total_cash","total_tax","total_vouchers","day","month","year"];
+    protected $fillable = ["total","total_cash","total_tax","total_vouchers","voucher_number","user_id","day","month","year"];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    public function voucher_records()
+    {
+        return $this->hasMany(VoucherRecord::class);
+    }
 }

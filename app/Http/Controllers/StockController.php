@@ -9,6 +9,7 @@ use App\Http\Resources\StockResource;
 use App\Models\Product;
 use App\Models\Stock;
 use Exception;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -28,6 +29,7 @@ class StockController extends Controller
         $stocks = Stock::latest("id")->paginate(5)->withQueryString();
 
         return StockResource::collection($stocks);
+
     }
 
     /**
