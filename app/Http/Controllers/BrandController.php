@@ -37,8 +37,13 @@ class BrandController extends Controller
     }
     public function getBrands()
     {
-        $brand = Brand::latest("id")->get();
-        return BrandResource::collection($brand);
+        $brands = Brand::latest("id")->get();
+        if (empty($brands->toArray())) {
+            return response()->json([
+                "message" => "There is no products"
+            ]);
+        }
+        return BrandResource::collection($brands);
     }
     /**
      * Store a newly created resource in storage.

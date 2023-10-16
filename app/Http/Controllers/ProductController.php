@@ -42,6 +42,11 @@ class ProductController extends Controller
     public function getProducts()
     {
         $products = Product::latest("id")->get();
+        if (empty($products->toArray())) {
+            return response()->json([
+                "message" => "There is no products"
+            ]);
+        }
         return ProductResource::collection($products);
     }
     /**
