@@ -451,7 +451,7 @@ class ReportController extends Controller
 
         // Yearly Sale 
         if ($request->has('year')) {
-            $totalSale =  DailySaleOverview::whereYear('created_at', now())->get();
+            $totalSale =  MonthlySaleOverview::whereYear('created_at', now())->get();
         }
 
         // return $totalSale;

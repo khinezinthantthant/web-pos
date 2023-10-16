@@ -81,48 +81,55 @@ class FinanceController extends Controller
             "data" => $daily_sale_overview
         ]);
     }
-    // public function monthlyClose(Request $request)
-    // {
-    //     if (!(request()->has("month") && request()->has("year"))) {
-    //         return response()->json([
-    //             "message" => "month and year are required"
-    //         ]);
-    //     }
-    //     try {
-    //         DB::beginTransaction();
-    //         // 
+    public function monthlyClose(Request $request)
+    {
+        if (!($request->has("month") && $request->has("year"))) {
+            return response()->json([
+                "message" => "month and year are required"
+            ]);
+        }
+        try {
+            DB::beginTransaction();
+            // 
+            $saleClose = SaleClose::find(1);
+            if ($saleClose->sale_close) {
+                return response()->json([
+                    "message" => "Already Closed"
+                ]);
+            }
 
 
-    //         $monthly_sale_records = DailySaleOverview::whereMonth("created_at", $request->month)
-    //             ->where("created_at", $request->year)
-    //             ->get();
+            $monthly_sale_records = DailySaleOverview::whereMonth("created_at", $request->month)
+                ->whereYear("created_at", $request->year)
+                ->get();
+            // return $monthly_sale_records;
 
+            $total_cash = $monthly_sale_records->sum("total_cash");
+            $total_tax = $monthly_sale_records->sum("total_tax");
+            $total = $monthly_sale_records->sum("total");
+            $total_vouchers = $monthly_sale_records->sum("total_vouchers");
 
+            MonthlySaleOverview::create([
+                "total_cash" => $total_cash,
+                "total_tax" => $total_tax,
+                "total" => $total,
+                "total_vouchers" => $total_vouchers,
+                "created_at" => Carbon::createFromDate(request()->year,  request()->month, 1)->endOfMonth(),
+                "updated_at" => now()
+            ]);
+            $saleClose->sale_close = true;
+            $saleClose->update();
 
-    //         $total_cash = $monthly_sale_records->sum("total_cash");
-    //         $total_tax = $monthly_sale_records->sum("total_tax");
-    //         $total = $monthly_sale_records->sum("total");
-    //         $total_vouchers = $monthly_sale_records->sum("total_vouchers");
+            DB::commit();
 
-    //         DailySaleOverview::insert([
-    //             "total_cash" => $total_cash,
-    //             "total_tax" => $total_tax,
-    //             "total" => $total,
-    //             "total_vouchers" => $total_vouchers,
-    //             "created_at" => Carbon::createFromDate(request()->year,  request()->month, 1)->endOfMonth(),
-    //             "updated_at" => now()
-    //         ]);
-
-    //         DB::commit();
-
-    //         return response()->json([
-    //             "message" => "monthly record successfully saved"
-    //         ], 201);
-    //     } catch (Exception $e) {
-    //         DB::rollback();
-    //         return response()->json(['message' => $e->getMessage()], 500);
-    //     }
-    // }
+            return response()->json([
+                "message" => "monthly record saved"
+            ], 201);
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
     public function recent()
     {
         $today = Carbon::today();
@@ -138,7 +145,7 @@ class FinanceController extends Controller
             "total_voucher" => $total_vouchers,
             "total_cash" => $total_cash,
             "total_tax" => round($total_tax, 2),
-            "total" => round($total,2)
+            "total" => round($total, 2)
         ]]);
     }
 
@@ -156,7 +163,7 @@ class FinanceController extends Controller
             "total_voucher" => $total_vouchers,
             "total_cash" => $total_cash,
             "total_tax" => round($total_tax, 2),
-            "total" => round($total,2)
+            "total" => round($total, 2)
         ]]);
     }
     public function monthly(Request $request)
@@ -171,23 +178,24 @@ class FinanceController extends Controller
             ->whereYear("created_at", $request->year)
             ->get();
 
-        // return $monthly_sale_records->pluck("total");
+        return $monthly_sale_records;
 
         $total_cash = $monthly_sale_records->sum("total_cash");
         $total_tax = $monthly_sale_records->sum("total_tax");
         $total = $monthly_sale_records->sum("total");
-        $total_vouchers = $monthly_sale_records->sum("total_vouchers");
+        $total_vouchers = $monthly_sale_records->count();
         
+
         return MonthlySaleOverviewResource::collection($monthly_sale_records)->additional(["total" => [
             "total_voucher" => $total_vouchers,
             "total_cash" => $total_cash,
             "total_tax" => round($total_tax, 2),
-            "total" => round($total,2)
+            "total" => round($total, 2)
         ]]);
     }
     public function yearly(Request $request)
     {
-        $yearly_sale_records = DailySaleOverview::whereYear("created_at", $request->year)
+        $yearly_sale_records = MonthlySaleOverview::whereYear("created_at", $request->year)
             ->get();
 
         // return $yearly_sale_records;
@@ -195,12 +203,12 @@ class FinanceController extends Controller
         $total_cash = $yearly_sale_records->sum("total_cash");
         $total_tax = $yearly_sale_records->sum("total_tax");
         $total = $yearly_sale_records->sum("total");
-        $total_vouchers = $yearly_sale_records->sum("total_vouchers");
+        $total_vouchers = $yearly_sale_records->count();
         return YearlySaleOverviewResource::collection($yearly_sale_records)->additional(["total" => [
             "total_voucher" => $total_vouchers,
             "total_cash" => $total_cash,
             "total_tax" => round($total_tax, 2),
-            "total" => round($total,2)
+            "total" => round($total, 2)
         ]]);
     }
     // public function daily(Request $request)
@@ -290,7 +298,8 @@ class FinanceController extends Controller
 
     //     return TodaySaleOverviewResource::collection($custom_sale_records);
     // }
-    public function customSaleRecords(){
+    public function customSaleRecords()
+    {
         if (!request()->has("start") && !request()->has("end")) {
             return response()->json(["message" => "start date and end date are required"], 400);
         }
@@ -299,8 +308,8 @@ class FinanceController extends Controller
         $endDate = Carbon::createFromFormat("d-m-Y", request()->end);
 
         $custom_sale_records = Voucher::whereBetween("created_at", [$startDate, $endDate])->latest("id")->paginate(10)->withQueryString();
-        
-// return $custom_sale_records;
+
+        // return $custom_sale_records;
         $total_cash = $custom_sale_records->sum("total");
         $total_tax = $custom_sale_records->sum("tax");
         $total = $custom_sale_records->sum("net_total");
@@ -310,7 +319,7 @@ class FinanceController extends Controller
             "total_voucher" => $total_vouchers,
             "total_cash" => $total_cash,
             "total_tax" => $total_tax,
-            "total" => round($total,2)
+            "total" => round($total, 2)
         ]]);
     }
 
