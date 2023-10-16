@@ -21,4 +21,8 @@ class Product extends Model
     public function vouchers(){
         return $this->belongsToMany(Voucher::class,VoucherRecord::class);
     }
+
+    public function stocks(){
+        return $this->hasMany(Stock::class);
+    }
 }

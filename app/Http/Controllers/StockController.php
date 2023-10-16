@@ -152,7 +152,7 @@ class StockController extends Controller
                 "product_id" => $i,
                 "quantity" => $currentQuantity,
                 "created_at" => now(),
-                "updated_at" => now(), 
+                "updated_at" => now(),
             ];
         }
 

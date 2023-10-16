@@ -33,13 +33,14 @@ Route::prefix("v1")->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::apiResource("brand", BrandController::class);
+        Route::get('/brands', [BrandController::class,"brands"]);
         Route::apiResource("product", ProductController::class);
         Route::apiResource("stock", StockController::class);
         Route::apiResource("voucher", VoucherController::class);
         Route::apiResource("photo", PhotoController::class);
 
         Route::post('/test', [StockController::class,'test']);
- 
+
         Route::controller(UserController::class)->group(function () {
             Route::apiResource("user", UserController::class);
             Route::post('/ban-user/{id}', 'banUser');

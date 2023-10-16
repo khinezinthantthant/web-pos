@@ -24,6 +24,12 @@ class BrandController extends Controller
         return BrandResource::collection($brand);
     }
 
+    public function brands()
+    {
+        $brands = Brand::all()->pluck("name");
+        return response()->json($brands);
+    }
+
     /**
      * Store a newly created resource in storage.
      */
