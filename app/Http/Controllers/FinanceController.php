@@ -56,7 +56,7 @@ class FinanceController extends Controller
         $totalCash = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("total");
         $totalTax = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("tax");
         $total = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("net_total");
-        $totalVouchers = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->count("id");
+        $totalVouchers = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("item_count");
         // $day = Carbon::today()->format("d");
         // $month = Carbon::today()->format("m");
         // $year = Carbon::today()->format("Y");
@@ -178,12 +178,12 @@ class FinanceController extends Controller
             ->whereYear("created_at", $request->year)
             ->get();
 
-        return $monthly_sale_records;
+        // return $monthly_sale_records;
 
         $total_cash = $monthly_sale_records->sum("total_cash");
         $total_tax = $monthly_sale_records->sum("total_tax");
         $total = $monthly_sale_records->sum("total");
-        $total_vouchers = $monthly_sale_records->count();
+        $total_vouchers = $monthly_sale_records->sum("total_vouchers");
         
 
         return MonthlySaleOverviewResource::collection($monthly_sale_records)->additional(["total" => [
@@ -203,7 +203,7 @@ class FinanceController extends Controller
         $total_cash = $yearly_sale_records->sum("total_cash");
         $total_tax = $yearly_sale_records->sum("total_tax");
         $total = $yearly_sale_records->sum("total");
-        $total_vouchers = $yearly_sale_records->count();
+        $total_vouchers = $yearly_sale_records->sum("total_vouchers");
         return YearlySaleOverviewResource::collection($yearly_sale_records)->additional(["total" => [
             "total_voucher" => $total_vouchers,
             "total_cash" => $total_cash,
@@ -313,12 +313,12 @@ class FinanceController extends Controller
         $total_cash = $custom_sale_records->sum("total");
         $total_tax = $custom_sale_records->sum("tax");
         $total = $custom_sale_records->sum("net_total");
-        $total_vouchers = $custom_sale_records->count();
+        $total_vouchers = $custom_sale_records->sum("total_vouchers");
 
         return VoucherResource::collection($custom_sale_records)->additional(["total" => [
             "total_voucher" => $total_vouchers,
             "total_cash" => $total_cash,
-            "total_tax" => $total_tax,
+            "total_tax" => round($total_tax,2),
             "total" => round($total, 2)
         ]]);
     }
