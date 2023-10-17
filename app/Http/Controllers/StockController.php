@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreStockRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Requests\UpdateStockRequest;
+use App\Http\Resources\StockDetailResource;
 use App\Http\Resources\StockResource;
+use App\Models\DailySaleOverview;
+use App\Models\MonthlySaleOverview;
 use App\Models\Product;
 use App\Models\Stock;
+use Carbon\Carbon;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -23,9 +28,20 @@ class StockController extends Controller
      */
     public function index()
     {
-        $stocks = Stock::latest("id")->paginate(5)->withQueryString();
+        // $stocks = Stock::latest("id")->paginate(5)->withQueryString();
 
-        return StockResource::collection($stocks);
+        // return StockResource::collection($stocks);
+
+
+        $products = Product::when(request()->has("keyword"), function ($query) {
+            $query->where(function (Builder $builder) {
+                $keyword = request()->keyword;
+
+                $builder->where("name", "like", "%" . $keyword . "%");
+            });
+        })->latest("id")->paginate(5)->withQueryString();
+// return $products;
+        return StockDetailResource::collection($products);
     }
 
     /**
@@ -140,23 +156,34 @@ class StockController extends Controller
 
     public function test()
     {
-        for ($i = 1; $i <= 20; $i++) {
-            $currentQuantity = rand(1, 100);
+        $startOfMonth = Carbon::create(2022, 7, 1);
+        $sales = [];
 
-            // $currentProduct = Product::find($i);
-            // $currentProduct->total_stock = $currentQuantity;
-            // $currentProduct->save();
 
-            $stocks[] = [
-                "user_id" => 1,
-                "product_id" => $i,
-                "quantity" => $currentQuantity,
-                "created_at" => now(),
-                "updated_at" => now(),
+
+        while($startOfMonth->format("M Y") != Carbon::now()->format("M Y")) {
+            $endOfMonth = $startOfMonth->copy()->endOfMonth();
+            $dailyVoucher = DailySaleOverview::whereBetween('created_at', [$startOfMonth, $endOfMonth])->get();
+            $totalVoucher = $dailyVoucher->sum('total_vouchers');
+
+            // $totalActualPrice = $dailyVoucher->sum('total_actual_price');
+            $cashTotal = $dailyVoucher->sum('total_cash');
+            $taxTotal = $dailyVoucher->sum('total_tax');
+            $total = $dailyVoucher->sum('total');
+            $sales[] = [
+                "total_vouchers" => $totalVoucher,
+                // "total_actual_price" => $totalActualPrice,
+                "total_cash"  => $cashTotal,
+                "total_tax" => $taxTotal,
+                "total" => $total,
+                "created_at" => $endOfMonth,
+                "updated_at" => $endOfMonth,
+                "month" => $endOfMonth->format('m'),
+                "year" => $endOfMonth->format('Y'),
             ];
+            $startOfMonth->addMonth();
         }
-
-        Stock::insert($stocks);
+        MonthlySaleOverview::insert($sales);
     }
 
 

@@ -28,8 +28,6 @@ class VoucherSeeder extends Seeder
         //     $voucher->save();
         // }
 
-
-
         $endDate = Carbon::now();
         $startDate = Carbon::create(2022, 7, 1);
 
@@ -45,18 +43,21 @@ class VoucherSeeder extends Seeder
                     $ids[] = random_int(1, 20);
                 }
                 $products = Product::whereIn('id', $ids)->get();
+                $totalActualPrice = 0;
                 $total = 0;
 
                 $records = [];
                 foreach ($ids as $itemId) {
                     $quantity = random_int(1, 5);
                     $currentProduct = $products->find($itemId);
+                    $totalActualPrice +=$quantity * $currentProduct->actual_price;
                     $total += $quantity * $currentProduct->sale_price;
 
                     $records[] = [
                         "voucher_id" => $id,
                         "product_id" => $itemId,
-                        "price" => $currentProduct->actual_price,
+                        "actual_price" => $currentProduct->actual_price,
+                        "price" => $currentProduct->sale_price,
                         "quantity" => $quantity,
                         "cost" => $quantity * $currentProduct->actual_price,
                         "created_at" => $day,
@@ -76,6 +77,7 @@ class VoucherSeeder extends Seeder
                 $vouchers[] = [
                     "voucher_number" => $id,
                     "total" => $total,
+                    "total_actual_price" => $totalActualPrice,
                     "tax" => $tax,
                     "net_total" => $netTotal,
                     "user_id" => 1,

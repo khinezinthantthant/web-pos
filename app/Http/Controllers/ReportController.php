@@ -7,6 +7,7 @@ use App\Http\Resources\StockReportResource;
 use App\Http\Resources\StockResource;
 use App\Http\Resources\TodaySaleProductResource;
 use App\Http\Resources\WeekelySaleResource;
+use App\Http\Resources\YearlySaleResource;
 use App\Models\Brand;
 use App\Models\DailySaleOverview;
 use App\Models\MonthlySaleOverview;
@@ -107,26 +108,34 @@ class ReportController extends Controller
         $today = Carbon::today();
         $vouchers = Voucher::whereDate("created_at", $today)
             ->orderBy("net_total", "desc")
-            ->limit(3)
+            // ->limit(3)
             ->get();
         // return $vouchers;
         $total_amount = $vouchers->sum("net_total");
-        $todaySale = [];
+        // $todaySale = [];
 
-        $total_amount = $vouchers->sum("net_total");
-        $todaySale = [];
-        foreach ($vouchers as $voucher) {
-            $voucher_number = $voucher->voucher_number;
-            $total = ($voucher->net_total);
-            $percentage = round(($total / $total_amount) * 100, 1) . "%";
-            $todaySale[] = [
-                "voucher_number" => $voucher_number,
-                "total" => $total,
-                "percentage" => $percentage
+        // foreach ($vouchers as $voucher) {
+        //     $voucher_number = $voucher->voucher_number;
+        //     $total = ($voucher->net_total);
+        //     $percentage = round(($total / $total_amount) * 100, 1) . "%";
+        //     $todaySale[] = [
+        //         "voucher_number" => $voucher_number,
+        //         "total" => $total,
+        //         "percentage" => $percentage
+        //     ];
+        // }
+
+        $todaySale = $vouchers->take(3)->map(function ($voucher) use ($total_amount) {
+            return [
+                "voucher_number" => $voucher->voucher_number,
+                "net_total" => $voucher->net_total,
+                "percentage" => round($voucher->net_total / $total_amount * 100, 1) . "%"
             ];
-        }
+        });
+
+
         return response()->json([
-            "total_amount" => $total_amount,
+            "total_amount" => round($total_amount,2),
             "todaySale" => $todaySale
         ]);
     }
@@ -367,7 +376,7 @@ class ReportController extends Controller
     }
 
 
-    public function yearlySaleReport()
+    public function yearlySaleReport(Request $request)
     {
         // my code start
         // $monthlySales = Voucher::whereBetween('created_at', [
@@ -425,62 +434,98 @@ class ReportController extends Controller
 
 
         //monthly Sale
-        $monthlySales = Voucher::whereBetween('created_at', [
-            Carbon::now()->startOfYear(),
-            Carbon::now()->endOfYear(),
-        ])
-            ->select(
-                DB::raw('MONTH(created_at) as month'),
-                DB::raw('YEAR(created_at) as year'),
-                DB::raw('SUM(net_total) as total')
-            )
-            ->groupBy('month', 'year')
-            ->orderBy('month', 'asc')
-            ->get();
+        // $monthlySales = Voucher::whereBetween('created_at', [
+        //     Carbon::now()->startOfYear(),
+        //     Carbon::now()->endOfYear(),
+        // ])
+        //     ->select(
+        //         DB::raw('MONTH(created_at) as month'),
+        //         DB::raw('YEAR(created_at) as year'),
+        //         DB::raw('SUM(net_total) as total')
+        //     )
+        //     ->groupBy('month', 'year')
+        //     ->orderBy('month', 'asc')
+        //     ->get();
 
-        $formatedMonthlySales = $monthlySales->map(function ($item) {
-            $dateObj = DateTime::createFromFormat('!m', $item->month);
-            $monthName = $dateObj->format("M");
+        // $formatedMonthlySales = $monthlySales->map(function ($item) {
+        //     $dateObj = DateTime::createFromFormat('!m', $item->month);
+        //     $monthName = $dateObj->format("M");
 
-            return [
-                'month' => $monthName,
-                'year' => $item->year,
-                'total' => $item->total
-            ];
-        });
-        $monthlySaleAverage = $monthlySales->avg("total");
+        //     return [
+        //         'month' => $monthName,
+        //         'year' => $item->year,
+        //         'total' => $item->total
+        //     ];
+        // });
+        // $monthlySaleAverage = $monthlySales->avg("total");
 
-        $totalMonthlySale = $monthlySales->sum("total");
+        // $totalMonthlySale = $monthlySales->sum("total");
 
-        $monthSaleMax = $monthlySales->max("total");
-        $highestSaleDate = $formatedMonthlySales->where('total', $monthSaleMax)->pluck('month')->first();
+        // $monthSaleMax = $monthlySales->max("total");
+        // $highestSaleDate = $formatedMonthlySales->where('total', $monthSaleMax)->pluck('month')->first();
 
-        $highestPercentage = round(($monthSaleMax / $totalMonthlySale) * 100, 1) . "%";
+        // $highestPercentage = round(($monthSaleMax / $totalMonthlySale) * 100, 1) . "%";
 
-        $highestSaleMonth[] = [
-            "highest_sale" => round($monthSaleMax, 2),
-            "highest_sale_month" => $highestSaleDate,
-            "percentage" => $highestPercentage
-        ];
+        // $highestSaleMonth[] = [
+        //     "highest_sale" => round($monthSaleMax, 2),
+        //     "highest_sale_month" => $highestSaleDate,
+        //     "percentage" => $highestPercentage
+        // ];
 
-        $monthlySaleMin = $monthlySales->min("total");
-        $monthlyLowestSaleDate = $formatedMonthlySales->where('total', $monthlySaleMin)->pluck('month')->first();
-        $lowestPercentage = round(($monthlySaleMin / $totalMonthlySale) * 100, 1) . "%";
-        $lowestSaleMonth[] = [
-            "lowest_sale" => round($monthlySaleMin, 2),
-            "lowest_sale_month" => $monthlyLowestSaleDate,
-            "percentage" => $lowestPercentage
-        ];
-        $date = [];
-        $dayName = [];
+        // $monthlySaleMin = $monthlySales->min("total");
+        // $monthlyLowestSaleDate = $formatedMonthlySales->where('total', $monthlySaleMin)->pluck('month')->first();
+        // $lowestPercentage = round(($monthlySaleMin / $totalMonthlySale) * 100, 1) . "%";
+        // $lowestSaleMonth[] = [
+        //     "lowest_sale" => round($monthlySaleMin, 2),
+        //     "lowest_sale_month" => $monthlyLowestSaleDate,
+        //     "percentage" => $lowestPercentage
+        // ];
+        // $date = [];
+        // $dayName = [];
 
+        // return response()->json([
+        //     "monthly_sales" => $formatedMonthlySales,
+        //     "TotalMonthlySalesAmount" => round($totalMonthlySale, 2),
+        //     "MonthlyAverageAmount" => round($monthlySaleAverage, 2),
+        //     "MonthlyHighestSale" => $highestSaleMonth,
+        //     "MonthlyLowestSale" => $lowestSaleMonth,
+
+        // ]);
+
+
+        // Yearly Sale
+        if ($request->has('year')) {
+            $totalSale =  MonthlySaleOverview::whereYear('created_at', now())->get();
+        }
+
+        // return $totalSale;
+
+        $total = $totalSale->sum('total');
+        $maxYearlySale = $totalSale->where('total', $totalSale->max('total'))->first();
+        // return $maxYearlySale;
+        $maxPrice = $maxYearlySale->max("total");
+        $max = new SaleResource($maxYearlySale);
+        $maxPercentage = round(($maxPrice / $total) * 100, 1) . "%";
+
+
+        $averageYearlySale = $totalSale->avg('total');
+        $minYearlySale = $totalSale->where('total', $totalSale->min('total'))->first();
+        $minPrice = $minYearlySale->min("total");
+        // return $minPrice;
+        $minPercentage = round(($minPrice / $total) * 100, 1) . "%";
+        // return $minPercentage;
+        $min = new SaleResource($minYearlySale);
+        $totalSale = YearlySaleResource::collection($totalSale);
+        // return $totalSale;
         return response()->json([
-            "monthly_sales" => $formatedMonthlySales,
-            "TotalMonthlySalesAmount" => round($totalMonthlySale, 2),
-            "MonthlyAverageAmount" => round($monthlySaleAverage, 2),
-            "MonthlyHighestSale" => $highestSaleMonth,
-            "MonthlyLowestSale" => $lowestSaleMonth,
+            "yearly_sale_total" => round($total,2),
+            "yearly_highest_sale" => $max,
+            "yearly_highest_percentage" => $maxPercentage,
 
+            "yearly_lowest_sale" => $min,
+            "yearly_lowest_percentage" => $minPercentage,
+            "average" => round($averageYearlySale,2),
+            "yearly_sale" => $totalSale
         ]);
     }
 
@@ -522,61 +567,114 @@ class ReportController extends Controller
     // }
 
 
-    public function overview()
-    {
-        $totalStock = Stock::all()->sum("quantity");
-        $totalStaff = User::all()->count();
+    // public function overview()
+    // {
+    //     $totalStock = Stock::all()->sum("quantity");
+    //     $totalStaff = User::all()->count();
 
-        // monthly sale
 
-        $startOfMonth =  Carbon::create(now()->year, now()->month, 1);
-        $endOfMonth = $startOfMonth->copy()->endOfMonth();
-        $monthlySale = DailySaleOverview::whereBetween('created_at', [$startOfMonth, $endOfMonth])
-        ->orderBy("created_at","asc")
-        ->get();
+    //     // monthly sale
 
-        $monthlySale = SaleResource::collection($monthlySale);
+    //     $startOfMonth =  Carbon::create(now()->year, now()->month, 1);
+    //     $endOfMonth = $startOfMonth->copy()->endOfMonth();
+    //     $monthlySale = DailySaleOverview::whereBetween('created_at', [$startOfMonth, $endOfMonth])
+    //     ->orderBy("created_at","asc")
+    //     ->get();
 
-        //yearly sales
+    //     $monthlySale = SaleResource::collection($monthlySale);
 
-        $monthlySales = Voucher::whereBetween('created_at', [
-            Carbon::now()->startOfYear(),
-            Carbon::now()->endOfYear(),
-        ])
-            ->select(
-                DB::raw('MONTH(created_at) as month'),
-                DB::raw('YEAR(created_at) as year'),
-                DB::raw('SUM(net_total) as total')
-            )
-            ->groupBy('month', 'year')
-            ->orderBy('month', 'asc')
-            ->get();
 
-        $formatedMonthlySales = $monthlySales->map(function ($item) {
-            $dateObj = DateTime::createFromFormat('!m', $item->month);
-            $monthName = $dateObj->format("M");
+    //     //yearly sales
 
-            return [
-                'month' => $monthName,
-                'year' => $item->year,
-                'total' => round($item->total,2)
-            ];
-        });
+    //     $monthlySales = Voucher::whereBetween('created_at', [
+    //         Carbon::now()->startOfYear(),
+    //         Carbon::now()->endOfYear(),
+    //     ])
+    //         ->select(
+    //             DB::raw('MONTH(created_at) as month'),
+    //             DB::raw('YEAR(created_at) as year'),
+    //             DB::raw('SUM(net_total) as total')
+    //         )
+    //         ->groupBy('month', 'year')
+    //         ->orderBy('month', 'asc')
+    //         ->get();
 
-        // weekelySales
+
+    //     $formatedMonthlySales = $monthlySales->map(function ($item) {
+    //         $dateObj = DateTime::createFromFormat('!m', $item->month);
+    //         $monthName = $dateObj->format("M");
+
+    //         return [
+    //             'month' => $monthName,
+    //             'year' => $item->year,
+    //             'total' => round($item->total,2)
+    //         ];
+    //     });
+
+    //     // $total = $totalSale->sum('total_cash');
+    //     // $totalActualPrice = $totalSale->sum('total_actual_price');
+    //     // $totalProfit = $total - $totalActualPrice;
+
+    //     // weekelySales
+
+    //     $startOfDay =  Carbon::now()->startOfWeek();
+    //     $endOfDay = $startOfDay->copy()->endOfWeek();
+    //     $totalSale = DailySaleOverview::whereBetween('created_at', [$startOfDay, $endOfDay])->get();
+
+
+    //     $totalSale = WeekelySaleResource::collection($totalSale);
+
+    //     $total = $totalSale->sum('total_cash');
+    //     $totalActualPrice = $totalSale->sum('total_actual_price');
+    //     $totalProfit = $total - $totalActualPrice;
+
+
+    //     return response()->json([
+    //         "total_stocks" => $totalStock,
+    //         "total_staff" => $totalStaff,
+    //         "total" => $total,
+    //         // "total_profit" => $totalProfit,
+    //         // "total_income" => $total,
+    //         // "total_expense" => $totalActualPrice,
+    //         "monthly_sales" => $monthlySale,
+    //         "yearly_sales" => $formatedMonthlySales,
+    //         "weekely_sales" => $totalSale,
+    //     ]);
+    // }
+
+    public function overview(Request $request){
+        $totalStock = Product::all()->sum('total_stock');
+        $totalStaff = User::all()->count('id');
 
         $startOfDay =  Carbon::now()->startOfWeek();
         $endOfDay = $startOfDay->copy()->endOfWeek();
         $totalSale = DailySaleOverview::whereBetween('created_at', [$startOfDay, $endOfDay])->get();
 
-        $totalSale = WeekelySaleResource::collection($totalSale);
+        // yearly
+        if ($request->has('year')) {
+            $totalSale =  DailySaleOverview::whereYear('created_at', now())->get();
+        }
+
+        // monthly
+        if ($request->has('month')) {
+            $startOfMonth =  Carbon::create(now()->year, now()->month, 1);
+            $endOfMonth = $startOfMonth->copy()->endOfMonth();
+            $totalSale = DailySaleOverview::whereBetween('created_at', [$startOfMonth, $endOfMonth])->get();
+        }
+
+        $total = $totalSale->sum('total_cash');
+        $totalActualPrice = $totalSale->sum('total_actual_price');
+        $totalProfit = $total - $totalActualPrice;
+        $totalSale = SaleResource::collection($totalSale);
 
         return response()->json([
-            "total_stocks" => $totalStock,
-            "total_staff" => $totalStaff,
-            "monthly_sales" => $monthlySale,
-            "yearly_sales" => $formatedMonthlySales,
-            "weekely_sales" => $totalSale,
+            "totalStock" => $totalStock,
+            "totalStaff" => $totalStaff,
+            "total" => $total,
+            "total_profit" => $totalProfit,
+            "total_income" => $total,
+            "total_expense" => $totalActualPrice,
+            "total_sales" => $totalSale,
         ]);
     }
 }

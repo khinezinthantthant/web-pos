@@ -20,7 +20,7 @@ class MonthlySaleOverviewResource extends JsonResource
             "date" => $this->created_at->format('d M Y'),
             "cash" => $this->total_cash,
             "tax" => $this->total_tax,
-            "total" => $this->total
+            "total" => $this->total_cash+$this->total_tax
         ];
         return parent::toArray($request);
     }

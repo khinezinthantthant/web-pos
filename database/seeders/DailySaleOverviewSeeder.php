@@ -23,13 +23,13 @@ class DailySaleOverviewSeeder extends Seeder
 
         $dailySaleOverview = [];
 
-
         foreach($period as $day){
 
             $date = $day;
             $dailyVoucher = Voucher::whereDate("created_at",$date)->get();
 
             $totalVoucher = $dailyVoucher->count("id");
+            $totalActualPrice = $dailyVoucher->sum('total_actual_price');
             $total = $dailyVoucher->sum("total");
             $totalTax = $dailyVoucher->sum("tax");
             $netTotal = $dailyVoucher->sum("net_total");
@@ -41,6 +41,7 @@ class DailySaleOverviewSeeder extends Seeder
             $dailySaleOverview [] = [
                 "total_cash" => $netTotal,
                 "total_tax" => $totalTax,
+                "total_actual_price" => $totalActualPrice,
                 "total" => $total,
                 "total_vouchers" => $totalVoucher,
                 "day" => $d,

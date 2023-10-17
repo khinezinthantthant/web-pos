@@ -19,6 +19,7 @@ return new class extends Migration
             $table->double("total");
             $table->float("tax");
             $table->double("net_total");
+            $table->integer('total_actual_price')->default(0);
             $table->foreignId("user_id");
             $table->timestamps();
         });

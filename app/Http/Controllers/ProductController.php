@@ -8,6 +8,7 @@ use App\Http\Resources\ProductDetailResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\Stock;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,21 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest("id")->paginate(10)->withQueryString();
+        // $products = Product::latest("id")->paginate(10)->withQueryString();
+
+        $products = Product::when(request()->has("keyword"), function ($query) {
+            $query->where(function (Builder $builder) {
+                $keyword = request()->keyword;
+
+                $builder->where("name", "like", "%" . $keyword . "%");
+            });
+        })->when(request()->has('id'), function ($query) {
+            $sortType = request()->id ?? 'asc';
+            $query->orderBy("id", $sortType);
+        })->when(request()->has('name'), function ($query) {
+            $sortType = request()->name ?? 'asc';
+            $query->orderBy('name', $sortType);
+        })->latest("id")->paginate(10)->withQueryString();
 
         return ProductResource::collection($products);
     }

@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateBrandRequest;
 use App\Http\Resources\BrandDetailResource;
 use App\Http\Resources\BrandResource;
 use App\Models\Brand;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -19,15 +20,23 @@ class BrandController extends Controller
      */
     public function index()
     {
-        $brand = Brand::latest("id")->paginate(5)->withQueryString();
-        // return response()->json($brand);
-        return BrandResource::collection($brand);
+        $brands = Brand::when(request()->has('keyword'), function ($query) {
+            $query->where(function (Builder $builder) {
+                $keyword = request()->keyword;
+                $builder->where('name', 'LIKE', '%' . $keyword . '%');
+            });
+        })
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
+
+        return BrandResource::collection($brands);
     }
 
     public function brands()
     {
         $brands = Brand::all()->pluck("name");
-        return response()->json($brands);
+        return $brands
     }
 
     /**

@@ -25,9 +25,10 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             BrandSeeder::class,
             ProductSeeder::class,
-            StockSeeder::class, 
+            StockSeeder::class,
             VoucherSeeder::class,
             DailySaleOverviewSeeder::class,
+            MonthlySaleOverviewSeeder::class,
             SaleCloseSeeder::class
         ]);
     }
