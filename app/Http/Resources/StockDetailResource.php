@@ -17,12 +17,12 @@ class StockDetailResource extends JsonResource
         return [
             "id" => $this->id,
             "product_name" => $this->name,
-            "sale_price" => $this->sale_price,
             "brand_name" => $this->brand->name,
             "unit" => $this->unit,
+            "sale_price" => $this->sale_price,
+            "total_stock" => $this->total_stock,
             // "user_name" => $this->user->name,
             // "more" => $this->more,
-            "total_stock" => $this->total_stock,
             // "created_at" => $this->created_at->format("d m Y"),
             // "updated_at" => $this->updated_at->format("d m Y"),
         ];

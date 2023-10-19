@@ -36,7 +36,7 @@ class BrandController extends Controller
     public function brands()
     {
         $brands = Brand::all()->pluck("name");
-        return $brands
+        return $brands;
     }
 
     /**

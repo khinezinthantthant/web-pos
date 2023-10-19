@@ -39,8 +39,19 @@ class StockController extends Controller
 
                 $builder->where("name", "like", "%" . $keyword . "%");
             });
-        })->latest("id")->paginate(5)->withQueryString();
-// return $products;
+        })->when(request()->has('id'), function ($query) {
+            $sortType = request()->id ?? 'asc';
+            $query->orderBy("id", $sortType);
+        })->when(request()->has('name'), function ($query) {
+            $sortType = request()->name ?? 'asc';
+            $query->orderBy('name', $sortType);
+        })->
+        when(request()->has('total_stock'), function ($query) {
+            $sortType = request()->total_stock ?? 'asc';
+            $query->orderBy('total_stock', $sortType);
+        })->
+        latest("id")->paginate(10)->withQueryString();
+        // return $products;
         return StockDetailResource::collection($products);
     }
 

@@ -494,9 +494,7 @@ class ReportController extends Controller
 
 
         // Yearly Sale
-        if ($request->has('year')) {
-            $totalSale =  MonthlySaleOverview::whereYear('created_at', now())->get();
-        }
+        $totalSale =  MonthlySaleOverview::whereYear('created_at', now())->get();
 
         // return $totalSale;
 
@@ -652,7 +650,7 @@ class ReportController extends Controller
 
         // yearly
         if ($request->has('year')) {
-            $totalSale =  DailySaleOverview::whereYear('created_at', now())->get();
+            $totalSale =  MonthlySaleOverview::whereYear('created_at', now())->get();
         }
 
         // monthly
@@ -665,15 +663,22 @@ class ReportController extends Controller
         $total = $totalSale->sum('total_cash');
         $totalActualPrice = $totalSale->sum('total_actual_price');
         $totalProfit = $total - $totalActualPrice;
-        $totalSale = SaleResource::collection($totalSale);
+
+        if($request->has('year')){
+            $totalSale = YearlySaleResource::collection($totalSale);
+        }else{
+            $totalSale = SaleResource::collection($totalSale);
+        }
+
+
 
         return response()->json([
             "totalStock" => $totalStock,
             "totalStaff" => $totalStaff,
-            "total" => $total,
-            "total_profit" => $totalProfit,
-            "total_income" => $total,
-            "total_expense" => $totalActualPrice,
+            "total" => round($total,2),
+            "total_profit" => round($totalProfit,2),
+            "total_income" => round($total,2),
+            "total_expense" => round($totalActualPrice,2),
             "total_sales" => $totalSale,
         ]);
     }

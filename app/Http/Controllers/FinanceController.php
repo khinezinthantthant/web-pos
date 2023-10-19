@@ -187,7 +187,7 @@ class FinanceController extends Controller
         $yearly_sale_records = MonthlySaleOverview::whereYear("created_at", $request->year)
             ->get();
 
-        return $yearly_sale_records;
+        // return $yearly_sale_records;
 
         $total_cash = $yearly_sale_records->sum("total_cash");
         $total_tax = $yearly_sale_records->sum("total_tax");
