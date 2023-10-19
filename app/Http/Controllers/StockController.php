@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreStockRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Http\Requests\UpdateStockRequest;
+use App\Http\Resources\StockDetailResource;
 use App\Http\Resources\StockResource;
 use App\Models\Product;
 use App\Models\Stock;
@@ -26,11 +27,29 @@ class StockController extends Controller
      */
     public function index()
     {
-        $stocks = Stock::latest("id")->paginate(5)->withQueryString();
+        $products = Product::when(request()->has("keyword"), function ($query) {
+            $query->where(function (Builder $builder) {
+                $keyword = request()->keyword;
 
-        return StockResource::collection($stocks);
-
+                $builder->where("name", "like", "%" . $keyword . "%");
+            });
+        })->when(request()->has('id'), function ($query) {
+            $sortType = request()->id ?? 'asc';
+            $query->orderBy("id", $sortType);
+        })->when(request()->has('name'), function ($query) {
+            $sortType = request()->name ?? 'asc';
+            $query->orderBy('name', $sortType);
+        })->
+        when(request()->has('total_stock'), function ($query) {
+            $sortType = request()->total_stock ?? 'asc';
+            $query->orderBy('total_stock', $sortType);
+        })->        
+        latest("id")->paginate(10)->withQueryString();
+        // return $products;
+        return StockDetailResource::collection($products);
     }
+        
+    
 
     /**
      * Store a newly created resource in storage.

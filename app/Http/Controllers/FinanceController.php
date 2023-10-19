@@ -176,7 +176,7 @@ class FinanceController extends Controller
         // return $request;
         $monthly_sale_records = DailySaleOverview::whereMonth("created_at", $request->month)
             ->whereYear("created_at", $request->year)
-            ->get();
+            ->latest("id")->paginate(10)->withQueryString();
 
         // return $monthly_sale_records;
 
