@@ -15,6 +15,7 @@ use App\Models\DailySaleOverview;
 use App\Models\MonthlySaleOverview;
 use App\Models\Product;
 use App\Models\Stock;
+use App\Models\User;
 use App\Models\Voucher;
 use App\Models\VoucherRecord;
 use Carbon\Carbon;
@@ -96,25 +97,53 @@ class ReportController extends Controller
         // }
         // return $brands;
 
+
         $startDate = Carbon::now()->startOfWeek();
         $endDate = Carbon::now()->endOfWeek();
 
         $brands = Brand::all()->pluck('name', 'id')->toArray();
         $totalBrand = [];
         foreach ($brands as $brandId => $brandName) {
-            $saleBrand = VoucherRecord::whereBetween("created_at", [$startDate, $endDate])
+            $bestSellers = VoucherRecord::whereBetween("created_at", [$startDate, $endDate])
                 ->whereHas("product", function ($query) use ($brandId) {
                     $query->where("brand_id", $brandId);
                 })
                 ->get();
+            // return $bestSellers;
+            $totalSale = $bestSellers->sum("cost");
+            // return $totalSale;
+            $totalQuantity = $bestSellers->sum("quantity");
+            // return $totalQuantity;
+            $bestSellersWithPercentage = $bestSellers->map(function ($bestSeller) use ($totalQuantity) {
+                // return $bestSeller;
+                $percentage = round(($bestSeller->quantity / $totalQuantity) * 100, 2) . "%";
+                $bestSeller->percentage = $percentage;
+                // $bestSeller->name = $bestSeller->brands->name;
+                $bestSeller->quantity = $bestSeller->quantity;
+                unset($bestSeller->brand, $bestSeller->quantity);
+                return $bestSeller;
+            });
+            return $bestSellersWithPercentage;
 
-            $totalBrand[] = [
-                "brand_name" => $brandName,
-                "total_brand_sale" => $saleBrand->sum("quantity"),
-                "total_sale" => $saleBrand->sum("cost")
-            ];
+            // $bestSellersWithPercentage = $saleBrand->map(function ($bestSeller) use ($totalQuantity) {
+            //     $percentage = ($bestSeller->quantity / $totalQuantity) * 100;
+            //     $bestSeller->percentage = $percentage;
+            //     $bestSeller->name = $bestSeller->brand;
+            //     $bestSeller->quantity = $bestSeller->total_sold;
+            //     unset($bestSeller->brand, $bestSeller->total_sold);
+            //     return $bestSeller;
+            // });
+
+            //         $percentage = ($saleBrand["quantity"] / $totalQuantity) * 100 ." %";
+            // return $percentage;
+            // $totalBrand[] = [
+            //     "brand_name" => $brandName,
+            //     "total_brand_sale" => $saleBrand->sum("quantity"),
+            //     "total_sale" => $saleBrand->sum("cost"),
+            //     "percentage" => $percentage
+            // ];
         }
-        return $totalBrand;
+        // return $totalBrand;
     }
 
     // public function todaySaleReport()
@@ -174,7 +203,7 @@ class ReportController extends Controller
             ];
         });
         return response()->json([
-            "total_amount" => round($total_amount,2),
+            "total_amount" => round($total_amount, 2),
             "todaySale" => $todaySale
         ]);
     }
@@ -214,6 +243,7 @@ class ReportController extends Controller
             // ->withSum("brands", "quantity")
             ->limit(5)
             ->get();
+        // return $brands;
         $brandInfo = [];
 
         foreach ($brands as $brand) {
@@ -393,13 +423,13 @@ class ReportController extends Controller
         $totalSale = WeeklySaleResource::collection($totalSale);
         // return $totalSale;
         return response()->json([
-            "weekly_sale_total" => round($total,2),
+            "weekly_sale_total" => round($total, 2),
             "weekly_highest_sale" => $max,
             "weekly_highest_percentage" => $maxPercentage,
 
             "weekly_lowest_sale" => $min,
             "weekly_lowest_percentage" => $minPercentage,
-            "average" => round($averageWeeklySale,2),
+            "average" => round($averageWeeklySale, 2),
             "weekly_sale" => $totalSale
         ]);
     }
@@ -410,11 +440,11 @@ class ReportController extends Controller
             $startOfMonth =  Carbon::create(now()->year, now()->month, 1);
             $endOfMonth = $startOfMonth->copy()->endOfMonth();
             $totalSale = DailySaleOverview::whereBetween('created_at', [$startOfMonth, $endOfMonth])
-            ->orderBy("created_at","asc")
-            ->get();
+                ->orderBy("created_at", "asc")
+                ->get();
         }
         // return $totalSale;
-       
+
 
         $total = $totalSale->sum('total');
         // return $total;
@@ -434,18 +464,16 @@ class ReportController extends Controller
         $totalSale = SaleResource::collection($totalSale);
         // return $totalSale;
         return response()->json([
-            "monthly_sale_total" => round($total,2),
+            "monthly_sale_total" => round($total, 2),
             "monthly_highest_sale" => $max,
             "monthly_highest_percentage" => $maxPercentage,
 
             "monthly_lowest_sale" => $min,
             "monthly_lowest_percentage" => $minPercentage,
-            "average" => round($averageMonthlySale,2),
+            "average" => round($averageMonthlySale, 2),
             "monthly_sale" => $totalSale
         ]);
     }
-
-
     public function yearlySaleReport(Request $request)
     {
 
@@ -474,16 +502,107 @@ class ReportController extends Controller
         $totalSale = YearlySaleResource::collection($totalSale);
         // return $totalSale;
         return response()->json([
-            "yearly_sale_total" => round($total,2),
+            "yearly_sale_total" => round($total, 2),
             "yearly_highest_sale" => $max,
             "yearly_highest_percentage" => $maxPercentage,
 
             "yearly_lowest_sale" => $min,
             "yearly_lowest_percentage" => $minPercentage,
-            "average" => round($averageYearlySale,2),
+            "average" => round($averageYearlySale, 2),
             "yearly_sale" => $totalSale
         ]);
     }
+    public function overview(Request $request)
+    {
+        $totalStock = Product::all()->sum('total_stock');
+        $totalStaff = User::all()->count('id');
 
-   
+        $startOfDay =  Carbon::now()->startOfWeek();
+        $endOfDay = $startOfDay->copy()->endOfWeek();
+        $totalSale = DailySaleOverview::whereBetween('created_at', [$startOfDay, $endOfDay])->get();
+
+        // yearly
+        if ($request->has('year')) {
+            $totalSale =  MonthlySaleOverview::whereYear('created_at', now())->get();
+        }
+
+        // monthly
+        if ($request->has('month')) {
+            $startOfMonth =  Carbon::create(now()->year, now()->month, 1);
+            $endOfMonth = $startOfMonth->copy()->endOfMonth();
+            $totalSale = DailySaleOverview::whereBetween('created_at', [$startOfMonth, $endOfMonth])->get();
+        }
+
+        $total = $totalSale->sum('total_cash');
+        $totalActualPrice = $totalSale->sum('total_actual_price');
+        $totalProfit = $total - $totalActualPrice;
+        $totalSale = SaleResource::collection($totalSale);
+
+        return response()->json([
+            "totalStock" => $totalStock,
+            "totalStaff" => $totalStaff,
+            "total" => $total,
+            "total_profit" => $totalProfit,
+            "total_income" => $total,
+            "total_expense" => $totalActualPrice,
+            "total_sales" => $totalSale,
+        ]);
+    }
+    // public function testWeeklyBestSellerBrand()
+    // {
+    //     $weekStartDate = now()->startOfWeek();
+    //     $weekEndDate = now()->endOfWeek();
+
+    //     $bestSellers = VoucherRecord::whereBetween('created_at', [$weekStartDate, $weekEndDate])
+    //         ->select('product_id', DB::raw('SUM(quantity) as total'))
+    //         ->groupBy('product_id')
+    //         ->orderByDesc('total')
+    //         ->get();
+    //     // return $bestSellers;
+    //     // $totalSales = $bestSellers->sum('total');
+    //     // return $totalSales;
+    //     $totalQuantity = $bestSellers->sum('total');
+
+    //     $bestSellersWithPercentage = $bestSellers->map(function ($bestSeller) use ($totalQuantity) {
+    //         $percentage = round(($bestSeller->total / $totalQuantity) * 100, 2) . "%";
+    //         $bestSeller->percentage = $percentage;
+    //         $bestSeller->name = $bestSeller->name;
+    //         $bestSeller->quantity = $bestSeller->total;
+    //         unset($bestSeller->brand, $bestSeller->total);
+    //         return $bestSeller;
+    //     });
+
+    //     return response()->json([
+    //         "data" => $bestSellersWithPercentage,
+    //         "totalQuantity" => $totalQuantity
+    //     ]);
+    // }
+    public function testWeeklyBestSellerBrand(){
+        $startDate = Carbon::now()->startOfWeek();
+        $endDate = $startDate->copy()->endOfWeek();
+        
+        $brands = Brand::get()->pluck('name', 'id')->toArray();
+        $totalBrand = [];
+        foreach ($brands as $brandId => $brandName) {
+            // Get best seller brand
+            $saleBrands = VoucherRecord::whereBetween('created_at', [$startDate, $endDate])
+                ->whereHas('product', function ($query) use ($brandId) {
+                    $query->where('brand_id', $brandId);
+                })
+                ->get();
+// return $saleBrands;
+foreach($saleBrands as $saleBrand){
+    $totalQuantity = $saleBrand->sum("quantity");
+    $percentage = round(($saleBrand->quantity / $totalQuantity) * 100 ,2)."%";
+}
+
+            $totalBrand[] = [
+                "brand_name" => $brandName,
+                // "total_brand_sale" => $saleBrand->sum('quantity'),
+                // "total_sale" => $saleBrand->sum('cost'),
+                "percentage" => $percentage
+            ];
+        }
+        return $totalBrand;
+    }
 }

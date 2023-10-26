@@ -20,30 +20,21 @@ class DailySaleOverviewSeeder extends Seeder
         $startDate = Carbon::create(2022, 7, 1);
 
         $period = CarbonPeriod::create($startDate, $endDate);
-        $DailyTotalSale = [];
-        foreach ($period as $day) {
-            $date = $day;
-            $dailyVoucher = Voucher::WhereDate('created_at', $date)->get();
-            // $totalVoucher = $dailyVoucher->count('id');
-            // $totalActualPrice = $dailyVoucher->sum('total');
-            $voucherNumber = $dailyVoucher->voucher_number;
-            $total = $dailyVoucher->sum('total');
-            $taxTotal = $dailyVoucher->sum('tax');
-            $netTotal = $dailyVoucher->sum('net_total');
-            $userId = rand(1,2);
-            $DailyTotalSale[] = [
-                // "total_voucher" => $totalVoucher,
-                // "total_actual_price" => $totalActualPrice,
-                "voucher_number" => $voucherNumber,
-                "total" => $total,
-                "total_tax" => $taxTotal,
-                "user_id" => $userId,
-                "net_total" => $netTotal,
-                "created_at" => $day,
-                "updated_at" => $day
+        foreach ($period as $date) {
+            $total = random_int(200000, 666666);
+            $rand = random_int(10000, 15000);
+            $tax = random_int(3000, 6000);
+            $netTotal = $total + $tax;
+            $dailySales[] = [
+                "total_vouchers" => $rand,
+                "total_cash" => $total,
+                "total_tax" => $tax,
+                "total" => $netTotal,
+                "created_at" => $date,
+                "updated_at" => $date,
             ];
         }
-        DailySaleOverview::insert($DailyTotalSale);
+DailySaleOverview::insert($dailySales);
     }
 }
         // $carbon = (new Carbon())->subMonths(3);

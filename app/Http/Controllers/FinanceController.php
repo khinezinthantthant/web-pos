@@ -135,7 +135,9 @@ class FinanceController extends Controller
         $today = Carbon::today();
         $todayVoucher = Voucher::whereDate("created_at", $today)->latest("id")->paginate(10)->withQueryString();
         // return $todayVoucher;
-
+        // if($todayVoucher){
+        // return response()->json(["message" => "No Recent Voucher"]);
+        // }else{
         $total_cash = $todayVoucher->sum("total");
         $total_tax = $todayVoucher->sum("tax");
         $total_vouchers = $todayVoucher->count();
@@ -147,6 +149,7 @@ class FinanceController extends Controller
             "total_tax" => round($total_tax, 2),
             "total" => round($total, 2)
         ]]);
+        // }
     }
 
     public function daily(Request $request)
@@ -161,9 +164,9 @@ class FinanceController extends Controller
 
         return VoucherResource::collection($daily_sale_records)->additional(["total" => [
             "total_voucher" => $total_vouchers,
-            "total_cash" => $total_cash,
+            "total_cash" => round($total_cash),
             "total_tax" => round($total_tax, 2),
-            "total" => round($total, 2)
+            "total" => $total
         ]]);
     }
     public function monthly(Request $request)
@@ -300,7 +303,7 @@ class FinanceController extends Controller
     // }
     public function customSaleRecords()
     {
-        if (!request()->has("start") && !request()->has("end")) {
+        if (!request()->has("start_date") && !request()->has("end_date")) {
             return response()->json(["message" => "start date and end date are required"], 400);
         }
 
@@ -317,9 +320,9 @@ class FinanceController extends Controller
 
         return VoucherResource::collection($custom_sale_records)->additional(["total" => [
             "total_voucher" => $total_vouchers,
-            "total_cash" => $total_cash,
+            "total_cash" => round($total_cash,2),
             "total_tax" => round($total_tax,2),
-            "total" => round($total, 2)
+            "total" => $total
         ]]);
     }
 
