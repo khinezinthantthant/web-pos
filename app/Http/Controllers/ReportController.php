@@ -76,30 +76,95 @@ class ReportController extends Controller
         ]);
     }
 
-    public function weekelyBestSellerBrands()
+    // public function weekelyBestSellerBrands()
+    // {
+    //     $startDate = Carbon::now()->startOfWeek();
+    //     $endDate = Carbon::now()->endOfWeek();
+
+    //     $brands = Brand::all()->pluck('name', 'id')->toArray();
+    //     $totalBrand = [];
+    //     foreach ($brands as $brandId => $brandName) {
+    //         $saleBrand = VoucherRecord::whereBetween("created_at", [$startDate, $endDate])
+    //             ->whereHas("product", function ($query) use ($brandId) {
+    //                 $query->where("brand_id", $brandId);
+    //             })
+    //             ->get();
+
+    //         // return $saleBrand;
+
+    //         $totalBrand[] = [
+    //             "brand_name" => $brandName,
+    //             "total_brand_sale" => $saleBrand->sum("quantity"),
+    //             "total_sale" => $saleBrand->sum("cost")
+    //         ];
+    //     }
+    //     return $totalBrand;
+
+    // }
+
+    public function weekelyBestSellerBrands(Request $request)
     {
-        $startDate = Carbon::now()->startOfWeek();
-        $endDate = Carbon::now()->endOfWeek();
-
-        $brands = Brand::all()->pluck('name', 'id')->toArray();
-        $totalBrand = [];
-        foreach ($brands as $brandId => $brandName) {
-            $saleBrand = VoucherRecord::whereBetween("created_at", [$startDate, $endDate])
-                ->whereHas("product", function ($query) use ($brandId) {
-                    $query->where("brand_id", $brandId);
-                })
-                ->get();
-
-            // return $saleBrand;
-
-            $totalBrand[] = [
-                "brand_name" => $brandName,
-                "total_brand_sale" => $saleBrand->sum("quantity"),
-                "total_sale" => $saleBrand->sum("cost")
-            ];
+        $voucher_builder = Voucher::query();
+        if ($request->has('today')) {
+            $voucher_builder->today();
+        } else if ($request->has('thisWeek')) {
+            $voucher_builder->thisWeek();
+        } else if ($request->has('thisMonth')) {
+            $voucher_builder->thisMonth();
         }
-        return $totalBrand;
 
+        $best_sale_products = $this->productsWithSaleCount($voucher_builder)
+            ->with('brand')->get();
+
+        $brand_sale_counts = collect();
+        foreach($best_sale_products as $product) {
+            if (is_null($product->brand->sale_count)) {
+                $product->brand->sale_count = (int) $product->sale_count;
+                $brand_sale_counts->push($product->brand);
+            } else {
+                $product->brand->sale_count += $product->sale_count;
+            }
+        }
+        // return $brand_sale_counts->sortByDesc('sale_count')->values();
+        return $brand_sale_counts;
+    }
+
+    // public function weekelyBestSellerBrands()
+    // {
+    //     $startOfWeek = now()->startOfWeek();
+    //     $endOfWeek = now()->endOfWeek();
+
+    //     $bestSellers = Sale::selectRaw('brand, SUM(quantity) as total_sold')
+    //         ->whereBetween('sale_date', [$startOfWeek, $endOfWeek])
+    //         ->groupBy('brand')
+    //         ->orderBy('total_sold', 'desc')
+    //         ->limit(10)
+    //         ->get();
+
+    //     $totalQuantity = $bestSellers->sum('total_sold');
+
+    //     $bestSellersWithPercentage = $bestSellers->map(function ($bestSeller) use ($totalQuantity) {
+    //         $percentage = ($bestSeller->total_sold / $totalQuantity) * 100;
+    //         $bestSeller->percentage = round($percentage, 2);
+    //         $bestSeller->name = $bestSeller->brand;
+    //         $bestSeller->quantity = $bestSeller->total_sold;
+    //         unset($bestSeller->brand, $bestSeller->total_sold);
+    //         return $bestSeller;
+    //     });
+
+    //     return response()->json($bestSellersWithPercentage);
+    // }
+
+    private function productsWithSaleCount($voucher_builder): Builder
+    {
+        $subQuery = $voucher_builder->join('voucher_records', 'voucher_records.voucher_id', '=', 'vouchers.id')
+            ->selectRaw('voucher_records.product_id as product_id, sum(voucher_records.quantity) as sale_count')
+            ->groupBy('product_id');
+            // ->orderBy('sale_count', 'desc');
+        $products_builder = Product::joinSub($subQuery, 'product_sale_count', 'product_sale_count.product_id', '=', 'products.id')
+        ->orderBy('sale_count', 'desc');
+        // ->get();
+        return $products_builder;
     }
 
 
@@ -669,8 +734,6 @@ class ReportController extends Controller
         }else{
             $totalSale = SaleResource::collection($totalSale);
         }
-
-
 
         return response()->json([
             "totalStock" => $totalStock,
