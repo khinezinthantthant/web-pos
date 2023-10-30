@@ -518,8 +518,8 @@ class ReportController extends Controller
     public function weeklyBestSellerBrands()
     {
         // Calculate the start and end of the week (assuming Sunday to Saturday).
-        $startOfWeek = now()->startOfWeek();
-        $endOfWeek = now()->endOfWeek();
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $endOfWeek = Carbon::now()->EndOfWeek();
 
         // Query to get the best-seller brands for the week.
         $bestSellers = VoucherRecord::whereBetween("voucher_records.created_at", [$startOfWeek, $endOfWeek])
@@ -548,7 +548,7 @@ class ReportController extends Controller
 
         // Return the best sellers as JSON response.
         return response()->json([
-            "best_sellers" => $bestSellers,
+            "best_sellers" => $bestSellersWithPercentage,
             "totalCost" => $totalCost
         ]);
     }
