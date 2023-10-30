@@ -40,10 +40,8 @@ class FinanceController extends Controller
             "message" => "Opened Sale"
         ]);
     }
-    public function saleClose(Request $request)
+    public function saleClose()
     {
-
-
         $saleClose = SaleClose::find(1);
         // return $saleClose;
         if ($saleClose->sale_close) {
@@ -51,12 +49,18 @@ class FinanceController extends Controller
                 "message" => "Already Closed"
             ]);
         }
-
-
-        $totalCash = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("total");
-        $totalTax = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("tax");
-        $total = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("net_total");
-        $totalVouchers = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("item_count");
+        $today = Carbon::today();
+        $vouchers = Voucher::whereDate("created_at", '=', $today)->get();
+        // return $vouchers;
+        $totalCash = $vouchers->sum("total");
+        $totalTax = $vouchers->sum("tax");
+        $total = $vouchers->sum("net_total");
+        $totalVouchers = $vouchers->count();
+        // return $totalVouchers;
+        // $totalCash = Voucher::whereDate('created_at', '=', $today)->sum("total");
+        // $totalTax = Voucher::whereDate('created_at', '=', $today)->sum("tax");
+        // $total = Voucher::whereDate('created_at', '=', $today)->sum("net_total");
+        // $totalVouchers = Voucher::whereDate('created_at', '=', $today)->sum("item_count");
         // $day = Carbon::today()->format("d");
         // $month = Carbon::today()->format("m");
         // $year = Carbon::today()->format("Y");

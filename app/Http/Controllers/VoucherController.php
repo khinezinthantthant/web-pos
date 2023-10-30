@@ -64,7 +64,7 @@ class VoucherController extends Controller
             $voucher->phone_number = $request->phone_number;
             $voucher->voucher_number =  rand(1, 100);
             $voucher->total = $total;
-            $voucher->tax = $tax;
+            $voucher->tax = round($tax,2);
             $voucher->net_total = $netTotal;
             $voucher->user_id = Auth::id();
 
@@ -93,14 +93,19 @@ class VoucherController extends Controller
                         "total_stock" => $currentProduct->total_stock - $item["quantity"]
                     ]);
 
-                    Stock::where("id", $item["product_id"])->update([
-                        "quantity" => $currentProduct->total_stock - $item["quantity"]
-                    ]);
+                    // Stock::where("id", $item["product_id"])->update([
+                    //     "quantity" => $currentProduct->total_stock - $item["quantity"]
+                    // ]);
                 }
             }
 
             $voucherRecords = VoucherRecord::insert($records); //use database
+            // return $voucherRecords;
             DB::commit();
+            return response()->json([
+                'message' => 'checkout successful',
+                "data" => new VoucherDetailResource($voucher)
+            ]);
         } catch (Exception $e) {
             DB::rollback();
             return response()->json(['message' => $e->getMessage()], 500);

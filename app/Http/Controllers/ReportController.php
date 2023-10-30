@@ -80,70 +80,37 @@ class ReportController extends Controller
 
     public function weekelyBestSellerBrands()
     {
-        // $startDate = Carbon::now()->startOfWeek();
-        // $endDate = Carbon::now()->endOfWeek();
-
-        // $products = Product::select('products.*', DB::raw('SUM(stocks.quantity) as total_entry_stock'))
-        //     ->leftJoin('stocks', 'products.id', '=', 'stocks.product_id')
-        //     ->whereBetween('stocks.created_at', [$startDate, $endDate])
-        //     ->groupBy('products.id')
-        //     ->take(5)
-        //     ->get();
-
-        // $brands = [];
-
-        // foreach ($products as $topProduct) {
-        //     $brands = $topProduct->brand->name;
-        // }
-        // return $brands;
-
-
         $startDate = Carbon::now()->startOfWeek();
-        $endDate = Carbon::now()->endOfWeek();
-
-        $brands = Brand::all()->pluck('name', 'id')->toArray();
+        $endDate = $startDate->copy()->endOfWeek();
+        $brands = Brand::get()->pluck('name', 'id')->toArray();
         $totalBrand = [];
         foreach ($brands as $brandId => $brandName) {
-            $bestSellers = VoucherRecord::whereBetween("created_at", [$startDate, $endDate])
-                ->whereHas("product", function ($query) use ($brandId) {
-                    $query->where("brand_id", $brandId);
+            // Get best seller brand
+            $saleBrands = VoucherRecord::whereBetween('created_at', [$startDate, $endDate])
+                ->whereHas('product', function ($query) use ($brandId) {
+                    $query->where('brand_id', $brandId);
                 })
                 ->get();
-            // return $bestSellers;
-            $totalSale = $bestSellers->sum("cost");
-            // return $totalSale;
-            $totalQuantity = $bestSellers->sum("quantity");
-            // return $totalQuantity;
-            $bestSellersWithPercentage = $bestSellers->map(function ($bestSeller) use ($totalQuantity) {
-                // return $bestSeller;
-                $percentage = round(($bestSeller->quantity / $totalQuantity) * 100, 2) . "%";
-                $bestSeller->percentage = $percentage;
-                // $bestSeller->name = $bestSeller->brands->name;
-                $bestSeller->quantity = $bestSeller->quantity;
-                unset($bestSeller->brand, $bestSeller->quantity);
-                return $bestSeller;
-            });
-            return $bestSellersWithPercentage;
+            $totalBrand[] = [
+                "brand_name" => $brandName,
+                "total_brand_sale" => $saleBrands->quantity,
+                "total_sale" => $saleBrands->sum('cost')
+            ];
+            return $totalBrand;
+            $totalBrand = [];
+            foreach ($saleBrands as $saleBrand) {
+                $totalCost = $saleBrand->sum("cost");
+                $totalQuantity = $saleBrand->sum("quantity");
+                $name = $saleBrand->brandName;
+            }
 
-            // $bestSellersWithPercentage = $saleBrand->map(function ($bestSeller) use ($totalQuantity) {
-            //     $percentage = ($bestSeller->quantity / $totalQuantity) * 100;
-            //     $bestSeller->percentage = $percentage;
-            //     $bestSeller->name = $bestSeller->brand;
-            //     $bestSeller->quantity = $bestSeller->total_sold;
-            //     unset($bestSeller->brand, $bestSeller->total_sold);
-            //     return $bestSeller;
-            // });
-
-            //         $percentage = ($saleBrand["quantity"] / $totalQuantity) * 100 ." %";
-            // return $percentage;
-            // $totalBrand[] = [
-            //     "brand_name" => $brandName,
-            //     "total_brand_sale" => $saleBrand->sum("quantity"),
-            //     "total_sale" => $saleBrand->sum("cost"),
-            //     "percentage" => $percentage
-            // ];
+            $totalBrand[] = [
+                "brand_name" => $name,
+                "total_quantity" => $totalQuantity,
+                "total_cost" => $totalCost
+            ];
         }
-        // return $totalBrand;
+        return $totalBrand;
     }
 
     // public function todaySaleReport()
@@ -548,61 +515,41 @@ class ReportController extends Controller
             "total_sales" => $totalSale,
         ]);
     }
-    // public function testWeeklyBestSellerBrand()
-    // {
-    //     $weekStartDate = now()->startOfWeek();
-    //     $weekEndDate = now()->endOfWeek();
+    public function weeklyBestSellerBrands()
+    {
+        // Calculate the start and end of the week (assuming Sunday to Saturday).
+        $startOfWeek = now()->startOfWeek();
+        $endOfWeek = now()->endOfWeek();
 
-    //     $bestSellers = VoucherRecord::whereBetween('created_at', [$weekStartDate, $weekEndDate])
-    //         ->select('product_id', DB::raw('SUM(quantity) as total'))
-    //         ->groupBy('product_id')
-    //         ->orderByDesc('total')
-    //         ->get();
-    //     // return $bestSellers;
-    //     // $totalSales = $bestSellers->sum('total');
-    //     // return $totalSales;
-    //     $totalQuantity = $bestSellers->sum('total');
+        // Query to get the best-seller brands for the week.
+        $bestSellers = VoucherRecord::whereBetween("voucher_records.created_at", [$startOfWeek, $endOfWeek])
+            ->join("products", "voucher_records.product_id", "=", "products.id")
+            ->join("brands", "products.brand_id", "=", "brands.id")
+            ->select("brands.name", DB::raw("SUM(voucher_records.quantity) as quantity"))
+            ->groupBy("brands.name")
+            ->orderByDesc("quantity")
+            ->get();
+        // return $bestSellers;
+        $totalQuantity = $bestSellers->sum("quantity");
+        // return $totalQuantity;
+        // Calculate the total sales for the week.
+        $totalCost = VoucherRecord::whereBetween("created_at", [$startOfWeek, $endOfWeek])
+            ->sum("cost");
+        // return $totalCost;
+        $bestSellersWithPercentage = $bestSellers->map(function ($bestSeller) use ($totalQuantity) {
+            $percentage = round(($bestSeller->quantity / $totalQuantity) * 100, 1) . "%";
+            $bestSeller->percentage = $percentage;
+            $bestSeller->name = $bestSeller->name;
+            $bestSeller->quantity = $bestSeller->quantity;
+            // unset($bestSeller->brand, $bestSeller->total);
+            return $bestSeller;
+        });
+        // return $bestSellersWithPercentage;
 
-    //     $bestSellersWithPercentage = $bestSellers->map(function ($bestSeller) use ($totalQuantity) {
-    //         $percentage = round(($bestSeller->total / $totalQuantity) * 100, 2) . "%";
-    //         $bestSeller->percentage = $percentage;
-    //         $bestSeller->name = $bestSeller->name;
-    //         $bestSeller->quantity = $bestSeller->total;
-    //         unset($bestSeller->brand, $bestSeller->total);
-    //         return $bestSeller;
-    //     });
-
-    //     return response()->json([
-    //         "data" => $bestSellersWithPercentage,
-    //         "totalQuantity" => $totalQuantity
-    //     ]);
-    // }
-    public function testWeeklyBestSellerBrand(){
-        $startDate = Carbon::now()->startOfWeek();
-        $endDate = $startDate->copy()->endOfWeek();
-        
-        $brands = Brand::get()->pluck('name', 'id')->toArray();
-        $totalBrand = [];
-        foreach ($brands as $brandId => $brandName) {
-            // Get best seller brand
-            $saleBrands = VoucherRecord::whereBetween('created_at', [$startDate, $endDate])
-                ->whereHas('product', function ($query) use ($brandId) {
-                    $query->where('brand_id', $brandId);
-                })
-                ->get();
-// return $saleBrands;
-foreach($saleBrands as $saleBrand){
-    $totalQuantity = $saleBrand->sum("quantity");
-    $percentage = round(($saleBrand->quantity / $totalQuantity) * 100 ,2)."%";
-}
-
-            $totalBrand[] = [
-                "brand_name" => $brandName,
-                // "total_brand_sale" => $saleBrand->sum('quantity'),
-                // "total_sale" => $saleBrand->sum('cost'),
-                "percentage" => $percentage
-            ];
-        }
-        return $totalBrand;
+        // Return the best sellers as JSON response.
+        return response()->json([
+            "best_sellers" => $bestSellers,
+            "totalCost" => $totalCost
+        ]);
     }
 }

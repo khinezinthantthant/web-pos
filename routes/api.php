@@ -80,8 +80,8 @@ Route::prefix("v1")->group(function () {
             Route::get("/weekely-sale-report", 'weeklySaleReport');
             Route::get("/monthly-sale-report", 'monthlySaleReport');
             Route::get("/yearly-sale-report", 'yearlySaleReport');
-            Route::get("/weekely_best_seller_brands", 'weekelyBestSellerBrands');
-            Route::get("/test_best_seller_brands", 'testWeeklyBestSellerBrand');
+            Route::get("/weekly_best_seller_brands", 'weeklyBestSellerBrands');
+            // Route::get("/test_best_seller_brands", 'testWeeklyBestSellerBrand');
         });
 
         // Route::post("register", [AuthController::class, 'register']);

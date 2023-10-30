@@ -17,14 +17,15 @@ class ProductFactory extends Factory
     public function definition(): array
     {
 
-        $actual_price = rand(50,1000);
-        $sale_price = $actual_price + 50;
+        $actual_price = rand(200,2000);
+        $sale_price = $actual_price + 150;
 
         return [
             "name" => fake()->word(),
-            "user_id" => rand(1,20),
+            "user_id" => rand(1,2),
             "brand_id"=>rand(1,10),
             "actual_price"=> $actual_price,
+            "total_stock" => 0,
             "sale_price"=>$sale_price,
             "unit"=>fake()->randomElement(['single', 'dozen']),
             "more_information"=>fake()->text(),

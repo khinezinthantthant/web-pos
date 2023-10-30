@@ -17,18 +17,18 @@ class StockSeeder extends Seeder
         $stocks = [];
         $product_stock = [];
         for($i=1;$i<=20;$i++){
-            $currentQuantity = rand(1,100);
+            $quantity = rand(1000,1200);
             $stocks[] = [
                 "user_id" => 1,
                 "product_id" => $i,
-                "quantity" => $currentQuantity,
+                "quantity" => $quantity,
                 "more" => fake()->sentence(),
                 "created_at" => now(),
                 "updated_at" => now(),
             ];
 
             $currentProduct = Product::find($i);
-            $currentProduct->total_stock += $currentQuantity;
+            $currentProduct->total_stock +=$quantity;
             $currentProduct->update();
         }
 
