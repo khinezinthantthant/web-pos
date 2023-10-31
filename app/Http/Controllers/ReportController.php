@@ -78,40 +78,40 @@ class ReportController extends Controller
         ]);
     }
 
-    public function weekelyBestSellerBrands()
-    {
-        $startDate = Carbon::now()->startOfWeek();
-        $endDate = $startDate->copy()->endOfWeek();
-        $brands = Brand::get()->pluck('name', 'id')->toArray();
-        $totalBrand = [];
-        foreach ($brands as $brandId => $brandName) {
-            // Get best seller brand
-            $saleBrands = VoucherRecord::whereBetween('created_at', [$startDate, $endDate])
-                ->whereHas('product', function ($query) use ($brandId) {
-                    $query->where('brand_id', $brandId);
-                })
-                ->get();
-            $totalBrand[] = [
-                "brand_name" => $brandName,
-                "total_brand_sale" => $saleBrands->quantity,
-                "total_sale" => $saleBrands->sum('cost')
-            ];
-            return $totalBrand;
-            $totalBrand = [];
-            foreach ($saleBrands as $saleBrand) {
-                $totalCost = $saleBrand->sum("cost");
-                $totalQuantity = $saleBrand->sum("quantity");
-                $name = $saleBrand->brandName;
-            }
+    // public function weekelyBestSellerBrands()
+    // {
+    //     $startDate = Carbon::now()->startOfWeek();
+    //     $endDate = $startDate->copy()->endOfWeek();
+    //     $brands = Brand::get()->pluck('name', 'id')->toArray();
+    //     $totalBrand = [];
+    //     foreach ($brands as $brandId => $brandName) {
+    //         // Get best seller brand
+    //         $saleBrands = VoucherRecord::whereBetween('created_at', [$startDate, $endDate])
+    //             ->whereHas('product', function ($query) use ($brandId) {
+    //                 $query->where('brand_id', $brandId);
+    //             })
+    //             ->get();
+    //         $totalBrand[] = [
+    //             "brand_name" => $brandName,
+    //             "total_brand_sale" => $saleBrands->quantity,
+    //             "total_sale" => $saleBrands->sum('cost')
+    //         ];
+    //         return $totalBrand;
+    //         $totalBrand = [];
+    //         foreach ($saleBrands as $saleBrand) {
+    //             $totalCost = $saleBrand->sum("cost");
+    //             $totalQuantity = $saleBrand->sum("quantity");
+    //             $name = $saleBrand->brandName;
+    //         }
 
-            $totalBrand[] = [
-                "brand_name" => $name,
-                "total_quantity" => $totalQuantity,
-                "total_cost" => $totalCost
-            ];
-        }
-        return $totalBrand;
-    }
+    //         $totalBrand[] = [
+    //             "brand_name" => $name,
+    //             "total_quantity" => $totalQuantity,
+    //             "total_cost" => $totalCost
+    //         ];
+    //     }
+    //     return $totalBrand;
+    // }
 
     // public function todaySaleReport()
     // {
@@ -375,14 +375,15 @@ class ReportController extends Controller
         $total = $totalSale->sum('total');
         $maxYearlySale = $totalSale->where('total', $totalSale->max('total'))->first();
         // return $maxYearlySale;
-        $maxPrice = $maxYearlySale->max("total");
+        $maxPrice = $maxYearlySale->total;
+        // return $maxPrice;
         $max = new SaleResource($maxYearlySale);
         $maxPercentage = round(($maxPrice / $total) * 100, 1) . "%";
 
 
         $averageWeeklySale = $totalSale->avg('total');
         $minWeeklySale = $totalSale->where('total', $totalSale->min('total'))->first();
-        $minPrice = $minWeeklySale->min("total");
+        $minPrice = $minWeeklySale->total;
         // return $minPrice;
         $minPercentage = round(($minPrice / $total) * 100, 1) . "%";
         // return $minPercentage;
@@ -417,13 +418,14 @@ class ReportController extends Controller
         // return $total;
         $maxMonthlySale = $totalSale->where('total', $totalSale->max('total'))->first();
         // return $maxMonthlySale;
-        $maxPrice = $maxMonthlySale->max("total");
+        $maxPrice = $maxMonthlySale->total;
+        // return $maxPrice;
         $max = new SaleResource($maxMonthlySale);
         $maxPercentage = round(($maxPrice / $total) * 100, 1) . "%";
 
         $averageMonthlySale = $totalSale->avg('total');
         $minMonthlySale = $totalSale->where('total', $totalSale->min('total'))->first();
-        $minPrice = $minMonthlySale->min("total");
+        $minPrice = $minMonthlySale->total;
         // return $minPrice;
         $minPercentage = round(($minPrice / $total) * 100, 1) . "%";
         // return $minPercentage;
@@ -443,10 +445,13 @@ class ReportController extends Controller
     }
     public function yearlySaleReport(Request $request)
     {
+        $currentDate = Carbon::now();
 
         // Yearly Sale 
         if ($request->has('year')) {
-            $totalSale =  MonthlySaleOverview::whereYear('created_at', now())->get();
+            $startDate = $currentDate->copy()->startOfYear();
+            $endDate =  $currentDate->copy()->endOfYear();
+            $totalSale =  MonthlySaleOverview::whereYear('created_at', [$startDate, $endDate])->get();
         }
 
         // return $totalSale;
@@ -454,14 +459,14 @@ class ReportController extends Controller
         $total = $totalSale->sum('total');
         $maxYearlySale = $totalSale->where('total', $totalSale->max('total'))->first();
         // return $maxYearlySale;
-        $maxPrice = $maxYearlySale->max("total");
+        $maxPrice = $maxYearlySale->total;
         $max = new SaleResource($maxYearlySale);
         $maxPercentage = round(($maxPrice / $total) * 100, 1) . "%";
 
 
         $averageYearlySale = $totalSale->avg('total');
         $minYearlySale = $totalSale->where('total', $totalSale->min('total'))->first();
-        $minPrice = $minYearlySale->min("total");
+        $minPrice = $minYearlySale->total;
         // return $minPrice;
         $minPercentage = round(($minPrice / $total) * 100, 1) . "%";
         // return $minPercentage;
