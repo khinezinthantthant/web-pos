@@ -39,8 +39,8 @@ Route::prefix("v1")->group(function () {
         Route::apiResource("stock", StockController::class);
 
         Route::apiResource("voucher", VoucherController::class);
-        Route::get('/overview
-        ', [VoucherController::class, 'overview']);
+        // Route::get('/overview
+        // ', [VoucherController::class, 'overview']);
         Route::apiResource("photo", PhotoController::class);
 
 
@@ -81,6 +81,7 @@ Route::prefix("v1")->group(function () {
             Route::get("/monthly-sale-report", 'monthlySaleReport');
             Route::get("/yearly-sale-report", 'yearlySaleReport');
             Route::get("/weekly_best_seller_brands", 'weeklyBestSellerBrands');
+            Route::get('/overview', 'overview');
             // Route::get("/test_best_seller_brands", 'testWeeklyBestSellerBrand');
         });
 

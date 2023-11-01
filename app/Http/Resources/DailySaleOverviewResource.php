@@ -23,7 +23,7 @@ class DailySaleOverviewResource extends JsonResource
 
         return [
             "total" => $total,
-            "totalTax" => $totalTax,
+            "totalTax" => round($totalTax,2),
             "totalCash" => $totalCash,
             "totalVouchers" => $totalVouchers,
             "voucher" => VoucherResource::collection($this)

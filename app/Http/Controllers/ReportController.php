@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\MinSaleResource;
+use App\Http\Resources\OverviewSaleResource;
 use App\Http\Resources\ReportSaleResource;
 use App\Http\Resources\SaleResource;
 use App\Http\Resources\StockReportResource;
@@ -449,9 +450,9 @@ class ReportController extends Controller
 
         // Yearly Sale 
         if ($request->has('year')) {
-            $startDate = $currentDate->copy()->startOfYear();
-            $endDate =  $currentDate->copy()->endOfYear();
-            $totalSale =  MonthlySaleOverview::whereYear('created_at', [$startDate, $endDate])->get();
+            // $startDate = $currentDate->copy()->startOfYear();
+            // $endDate =  $currentDate->copy()->endOfYear();
+            $totalSale =  MonthlySaleOverview::whereYear('created_at', now())->get();
         }
 
         // return $totalSale;
@@ -508,7 +509,7 @@ class ReportController extends Controller
         $total = $totalSale->sum('total_cash');
         $totalActualPrice = $totalSale->sum('total_actual_price');
         $totalProfit = $total - $totalActualPrice;
-        $totalSale = SaleResource::collection($totalSale);
+        $totalSale = OverviewSaleResource::collection($totalSale);
 
         return response()->json([
             "totalStock" => $totalStock,
@@ -550,11 +551,11 @@ class ReportController extends Controller
             return $bestSeller;
         });
         // return $bestSellersWithPercentage;
-
         // Return the best sellers as JSON response.
         return response()->json([
             "best_sellers" => $bestSellersWithPercentage,
             "totalCost" => $totalCost
         ]);
     }
+    
 }

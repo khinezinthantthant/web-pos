@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer("quantity");
             $table->double("price");
             $table->double("cost");
+            $table->double('actual_price');
             $table->timestamps();
         });
     }

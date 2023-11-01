@@ -18,6 +18,7 @@ return new class extends Migration
             $table->bigInteger("total_vouchers");
             $table->double("total_cash");
             $table->double("total_tax");
+            $table->string('total_actual_price');
             $table->double("total");
             $table->timestamps();
         });

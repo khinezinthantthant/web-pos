@@ -118,7 +118,7 @@ class VoucherSeeder extends Seeder
                     $records[] = [
                         "voucher_id" => $id,
                         "product_id" => $itemId,
-                        // "actual_price" => $currentProduct->actual_price,
+                        "actual_price" => $currentProduct->actual_price,
                         "price" => $currentProduct->sale_price,
                         "quantity" => $quantity,
                         "cost" => $quantity * $currentProduct->sale_price,
@@ -138,7 +138,7 @@ class VoucherSeeder extends Seeder
                     'phone_number' => fake()->phoneNumber(),
                     'voucher_number' => rand(1000,9999),
                     // "voucher_number" => $id,
-                    // "total_actual_price" => $totalActualPrice,
+                    "total_actual_price" => $totalActualPrice,
                     "total" => $total,
                     "tax" => $tax,
                     "net_total" => $netTotal,

@@ -20,6 +20,7 @@ class VoucherDetailResource extends JsonResource
             "total" => $this->total,
             "tax" => $this->tax,
             "net_total" => $this->net_total,
+            // "actual_price" => $this->total_actual_price
         ];
 
         // return parent::toArray($request);
