@@ -26,7 +26,7 @@ class ProductFactory extends Factory
             "brand_id" => rand(1, 10),
             "actual_price" => $actual_price,
             "sale_price" => $sale_price,
-            // "total_stock" => 0,
+            "total_stock" => 0,
             "unit" => fake()->randomElement(['single', 'dozen']),
             "more_information" => fake()->text(),
         ];

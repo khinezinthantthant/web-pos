@@ -16,6 +16,7 @@ use App\Models\Voucher;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 
 class FinanceController extends Controller
 {
@@ -36,18 +37,18 @@ class FinanceController extends Controller
         $totalTax = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("tax");
         $total = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->sum("net_total");
         $totalVouchers = Voucher::whereDate('created_at', '=', Carbon::today()->toDateString())->count("id");
-        $day = Carbon::today()->format("d");
-        $month = Carbon::today()->format("m");
-        $year = Carbon::today()->format("Y");
+        // $day = Carbon::today()->format("d");
+        // $month = Carbon::today()->format("m");
+        // $year = Carbon::today()->format("Y");
 
         $daily_sale_overview = DailySaleOverview::create([
             "total" => $total,
             "total_cash" => $totalCash,
             "total_tax" => $totalTax,
             "total_vouchers" => $totalVouchers,
-            "day" => $day,
-            "month" => $month,
-            "year" => $year
+            // "day" => $day,
+            // "month" => $month,
+            // "year" => $year
         ]);
 
         return $daily_sale_overview;
@@ -237,7 +238,11 @@ class FinanceController extends Controller
     }
 
     public function year(){
-        return collect(DailySaleOverview::groupBy("year")->get("year"))->pluck("year");
-
+        // return collect(DailySaleOverview::groupBy("year")->get("year"))->pluck("year");
+        $created_at = DB::table('monthly_sale_overviews')
+                    ->selectRaw('YEAR(created_at) as year')
+                    ->distinct()
+                    ->get();
+        return $created_at->pluck("year");
     }
 }

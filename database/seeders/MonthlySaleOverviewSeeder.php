@@ -17,16 +17,14 @@ class MonthlySaleOverviewSeeder extends Seeder
     {
         $startOfMonth = Carbon::create(2022, 7, 1);
         $sales = [];
-
         while($startOfMonth->format("M Y") != Carbon::now()->format("M Y")) {
             $endOfMonth = $startOfMonth->copy()->endOfMonth();
             $dailyVoucher = DailySaleOverview::whereBetween('created_at', [$startOfMonth, $endOfMonth])->get();
             $totalVoucher = $dailyVoucher->sum('total_vouchers');
-
             $totalActualPrice = $dailyVoucher->sum('total_actual_price');
             $cashTotal = $dailyVoucher->sum('total_cash');
             $taxTotal = $dailyVoucher->sum('total_tax');
-            $total = $dailyVoucher->sum('total');
+            $total = $cashTotal + $taxTotal;
             $sales[] = [
                 "total_vouchers" => $totalVoucher,
                 "total_actual_price" => $totalActualPrice,
@@ -35,8 +33,8 @@ class MonthlySaleOverviewSeeder extends Seeder
                 "total" => $total,
                 "created_at" => $endOfMonth,
                 "updated_at" => $endOfMonth,
-                "month" => $endOfMonth->format('m'),
-                "year" => $endOfMonth->format('Y'),
+                // "month" => $endOfMonth->format('m'),
+                // "year" => $endOfMonth->format('Y'),
             ];
             $startOfMonth->addMonth();
         }

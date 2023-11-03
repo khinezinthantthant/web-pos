@@ -18,9 +18,9 @@ return new class extends Migration
             $table->double("total_tax");
             $table->string('total_actual_price');
             $table->double("total");
-            $table->integer("day");
-            $table->integer("month");
-            $table->integer("year");
+            // $table->integer("day");
+            // $table->integer("month");
+            // $table->integer("year");
             $table->timestamps();
         });
     }

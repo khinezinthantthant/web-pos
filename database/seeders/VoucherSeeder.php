@@ -18,16 +18,6 @@ class VoucherSeeder extends Seeder
      */
     public function run(): void
     {
-        // for ($i = 0; $i < 50; $i++) {
-        //     $voucher = Voucher::factory()->create();
-        //     VoucherRecord::factory(rand(1, 5))->create([
-        //         'voucher_id' => $voucher->id
-        //     ]);
-        //     $total_cost = $voucher->voucher_records()->sum('cost');
-        //     $voucher->net_total = $total_cost;
-        //     $voucher->save();
-        // }
-
         $endDate = Carbon::now();
         $startDate = Carbon::create(2022, 7, 1);
 
@@ -59,13 +49,14 @@ class VoucherSeeder extends Seeder
                         "actual_price" => $currentProduct->actual_price,
                         "price" => $currentProduct->sale_price,
                         "quantity" => $quantity,
-                        "cost" => $quantity * $currentProduct->actual_price,
+                        "cost" => $quantity * $currentProduct->sale_price,
                         "created_at" => $day,
                         "updated_at" => $day
                     ];
                     Product::where("id", $itemId)->update([
                         "total_stock" => $currentProduct->total_stock - $quantity
                     ]);
+
                     Stock::where("id", $itemId)->update([
                         "quantity" => $currentProduct->total_stock - $quantity
                     ]);
@@ -75,9 +66,12 @@ class VoucherSeeder extends Seeder
                 $tax = $total * 0.05;
                 $netTotal = $total + $tax;
                 $vouchers[] = [
+                    'customer_name' => fake()->name(),
+                    'phone_number' => fake()->phoneNumber(),
+                    // 'voucher_number' => rand(1000,9999),
                     "voucher_number" => $id,
-                    "total" => $total,
                     "total_actual_price" => $totalActualPrice,
+                    "total" => $total,
                     "tax" => $tax,
                     "net_total" => $netTotal,
                     "user_id" => 1,
@@ -88,5 +82,7 @@ class VoucherSeeder extends Seeder
             }
             Voucher::insert($vouchers);
         }
+
+
     }
 }

@@ -16,58 +16,30 @@ class DailySaleOverviewSeeder extends Seeder
      */
     public function run(): void
     {
-        // $startDate = (new Carbon())->subYear(2)->subMonths(3);
         $endDate = Carbon::now();
         $startDate = Carbon::create(2022, 7, 1);
+
         $period = CarbonPeriod::create($startDate, $endDate);
-
-        $dailySaleOverview = [];
-
-        foreach($period as $day){
-
+        $DailyTotalSale = [];
+        foreach ($period as $day) {
             $date = $day;
-            $dailyVoucher = Voucher::whereDate("created_at",$date)->get();
-
-            $totalVoucher = $dailyVoucher->count("id");
+            $dailyVoucher = Voucher::WhereDate('created_at', $date)->get();
+            $totalVoucher = $dailyVoucher->count('id');
             $totalActualPrice = $dailyVoucher->sum('total_actual_price');
-            $total = $dailyVoucher->sum("total");
-            $totalTax = $dailyVoucher->sum("tax");
-            $netTotal = $dailyVoucher->sum("net_total");
-
-            $d = Carbon::parse($date)->format('d');
-            $m = Carbon::parse($date)->format('m');
-            $y = Carbon::parse($date)->format('Y');
-
-            $dailySaleOverview [] = [
-                "total_cash" => $netTotal,
-                "total_tax" => $totalTax,
-                "total_actual_price" => $totalActualPrice,
-                "total" => $total,
+            $totalCash = $dailyVoucher->sum('total');
+            $taxTotal = $dailyVoucher->sum('tax');
+            $netTotal = $totalCash + $taxTotal;
+            $DailyTotalSale[] = [
                 "total_vouchers" => $totalVoucher,
-                "day" => $d,
-                "month" => $m,
-                "year" => $y,
-                "created_at" => $date,
-                "updated_at" => $date
+                "total_actual_price" => $totalActualPrice,
+                "total_cash" => $totalCash,
+                "total_tax" => $taxTotal,
+                "total" => $netTotal,
+                "created_at" => $day,
+                "updated_at" => $day
             ];
-
         }
-
-        DailySaleOverview::insert($dailySaleOverview);
-
-        // $carbon = (new Carbon())->subMonths(3);
-        // while(!$carbon->isCurrentDay()) {
-        //     $dailySaleOverview = DailySaleOverview::create([
-        //             "total_vouchers" => Voucher::whereDate("created_at", $carbon->toDate())->count('id'),
-        //             "total_cash" => Voucher::whereDate("created_at", $carbon->toDate())->sum('total'),
-        //             "total_tax" => Voucher::whereDate("created_at", $carbon->toDate())->sum('tax'),
-        //             "total" => Voucher::whereDate("created_at", $carbon->toDate())->sum('net_total'),
-        //             "day" => $carbon->format('d'),
-        //             "month" => $carbon->format('m'),
-        //             "year" => $carbon->format('Y'),
-        //     ]);
-        //     $carbon->addDay();
-        // }
+        DailySaleOverview::insert($DailyTotalSale);
 
     }
 }

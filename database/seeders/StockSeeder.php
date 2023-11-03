@@ -10,18 +10,13 @@ use Illuminate\Database\Seeder;
 class StockSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Ru n the database seeds.
      */
     public function run(): void
     {
+        // old code
         $stocks = [];
         for ($i = 1; $i <= 20; $i++) {
-            // $currentQuantity = rand(1, 100);
-
-            $currentProduct = Product::find($i);
-            // $currentProduct->total_stock = $currentQuantity;
-            $currentProduct->total_stock = 1000;
-            $currentProduct->save();
 
             $stocks[] = [
                 "user_id" => 1,
@@ -29,11 +24,38 @@ class StockSeeder extends Seeder
                 // "quantity" => $currentQuantity,
                 "quantity" => 1000,
                 "created_at" => now(),
-                "updated_at" => now(), 
+                "updated_at" => now(),
             ];
+
+            $currentProduct = Product::find($i);
+            $currentProduct->total_stock = 1000;
+            $currentProduct->update();
         }
 
         Stock::insert($stocks);
+
+
+        // changed code
+        // $stocks = [];
+        // $product_stock = [];
+        // for($i=1;$i<=20;$i++){
+        //     $quantity = rand(1000,1200);
+        //     $stocks[] = [
+        //         "user_id" => 1,
+        //         "product_id" => $i,
+        //         "quantity" => $quantity,
+        //         "more" => fake()->sentence(),
+        //         "created_at" => now(),
+        //         "updated_at" => now(),
+        //     ];
+
+        //     $currentProduct = Product::find($i);
+        //     $currentProduct->total_stock +=$quantity;
+        //     $currentProduct->update();
+        // }
+
+        // Stock::insert($stocks);
+
 
     }
 }

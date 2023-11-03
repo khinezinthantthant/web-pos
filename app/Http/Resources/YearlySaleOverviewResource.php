@@ -29,7 +29,7 @@ class YearlySaleOverviewResource extends JsonResource
             "vouchers" => $this->total_vouchers,
             "total_cash" => $this->total_cash,
             "total_tax" => $this->total_tax,
-            "total" => round($this->total_cash + $this->total_tax,2),
+            "total" => round(($this->total_cash + $this->total_tax),2),
         ];
         return parent::toArray($request);
     }

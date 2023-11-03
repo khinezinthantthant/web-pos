@@ -19,6 +19,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Stmt\Return_;
+use Termwind\Components\Raw;
 
 class VoucherController extends Controller
 {
@@ -44,30 +45,109 @@ class VoucherController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        $productIds = collect($request->items)->pluck("product_id");
 
-        try{
+    //  old code
+    // public function store(Request $request)
+    // {
+    //     $productIds = collect($request->items)->pluck("product_id");
+
+    //     try {
+    //         DB::beginTransaction();
+
+    //         $products = Product::whereIn("id", $productIds)->get();
+    //         $total = 0;
+
+    //         foreach ($request->items as $item) {
+    //             $total += $item["quantity"] * Product::find($item["product_id"])->sale_price;
+    //         }
+
+    //         $tax = $total * 0.05;
+    //         $netTotal = $total + $tax;
+
+    //         $id = Voucher::all()->last()->id;
+
+    //         $voucher = new Voucher();
+    //         $voucher->customer_name = $request->customer_name;
+    //         $voucher->phone_number = $request->phone_number;
+    //         $voucher->voucher_number = $id + 1;
+    //         $voucher->total = $total;
+    //         $voucher->tax = $tax;
+    //         $voucher->net_total = $netTotal;
+    //         $voucher->user_id = Auth::id();
+
+    //         $voucher->save();
+
+    //         $records = [];
+    //         $product = [];
+
+    //         foreach ($request->items as $item) {
+
+    //             $currentProduct = $products->find($item["product_id"]);
+
+    //             $product[] = [
+    //                 "product_id" => $currentProduct->id,
+    //                 "quantity" => $currentProduct->total_stock
+    //             ];
+
+    //             $records[] = [
+    //                 "voucher_id" => $voucher->id,
+    //                 "product_id" => $item["product_id"],
+    //                 "price" => $products->find($item["product_id"])->sale_price,
+    //                 "quantity" => $item["quantity"],
+    //                 "actual_price" => 0,
+    //                 "cost" => $item["quantity"] * $currentProduct->sale_price,
+    //                 "created_at" => now(),
+    //                 "updated_at" => now()
+    //             ];
+
+
+    //             Product::where("id", $item["product_id"])->update([
+    //                 "total_stock" => $currentProduct->total_stock - $item["quantity"]
+    //             ]);
+
+    //             Stock::where("id", $item["product_id"])->update([
+    //                 "quantity" => $currentProduct->total_stock - $item["quantity"]
+    //             ]);
+    //         }
+
+    //         $voucherRecords = VoucherRecord::insert($records); //use database
+    //         // dd($voucherRecords);
+
+    //         DB::commit();
+    //         return new VoucherDetailResource($voucher);
+    //     } catch (\Exception $e) {
+    //         DB::rollback();
+    //         return response()->json(['message' => $e->getMessage()], 500);
+    //     }
+    // }
+
+
+    public function store(Request $request){
+        try {
             DB::beginTransaction();
 
-            $products = Product::whereIn("id", $productIds)->get();
+            $productIds = collect($request->items)->pluck("product_id");
+            $products = Product::whereIn("id", $productIds)->get(); // use database
+            $totalActualPrice = 0;
             $total = 0;
 
             foreach ($request->items as $item) {
-                $total += $item["quantity"] * Product::find($item["product_id"])->sale_price;
+                $currentProduct = $products->find($item["product_id"]);
+
+                $totalActualPrice += $item["quantity"] * $currentProduct->actual_price;
+                $total += $item["quantity"] * $currentProduct->sale_price;
             }
-
-
             $tax = $total * 0.05;
             $netTotal = $total + $tax;
 
-            $id = Voucher::all()->last()->id;
+            // $id = Voucher::all()->last()->id;
 
+            $voucherNumber = rand(1000,9999);
             $voucher = new Voucher();
             $voucher->customer_name = $request->customer_name;
             $voucher->phone_number = $request->phone_number;
-            $voucher->voucher_number = $id + 1;
+            $voucher->voucher_number = $voucherNumber;
+            $voucher->total_actual_price = $totalActualPrice;
             $voucher->total = $total;
             $voucher->tax = $tax;
             $voucher->net_total = $netTotal;
@@ -76,47 +156,40 @@ class VoucherController extends Controller
             $voucher->save();
 
             $records = [];
-            $product = [];
 
             foreach ($request->items as $item) {
 
                 $currentProduct = $products->find($item["product_id"]);
-
-                $product[] = [
-                    "product_id" => $currentProduct->id,
-                    "quantity" => $currentProduct->total_stock
+                $records[] = [
+                    "voucher_id" => $voucher->id,
+                    "product_id" => $item["product_id"],
+                    "actual_price" => $currentProduct->actual_price,
+                    "price" => $currentProduct->sale_price,
+                    "quantity" => $item["quantity"],
+                    "cost" => $item["quantity"] * $currentProduct->sale_price,
+                    "created_at" => now(),
+                    "updated_at" => now()
                 ];
-
-                    $records[] = [
-                        "voucher_id" => $voucher->id,
-                        "product_id" => $item["product_id"],
-                        "price" => $products->find($item["product_id"])->sale_price,
-                        "quantity" => $item["quantity"],
-                        "actual_price" => 0,
-                        "cost" => $item["quantity"] * $currentProduct->sale_price,
-                        "created_at" => now(),
-                        "updated_at" => now()
-                    ];
-
-
-                    Product::where("id", $item["product_id"])->update([
-                        "total_stock" => $currentProduct->total_stock - $item["quantity"]
-                    ]);
-
-                    Stock::where("id", $item["product_id"])->update([
-                        "quantity" => $currentProduct->total_stock - $item["quantity"]
-                    ]);
+                Product::where("id", $item["product_id"])->update([
+                    "total_stock" => $currentProduct->total_stock - $item["quantity"]
+                ]);
+                Stock::where("id", $item["product_id"])->update([
+                    "quantity" => $currentProduct->total_stock - $item["quantity"]
+                ]);
             }
 
-            $voucherRecords = VoucherRecord::insert($records); //use database
+            $voucherRecords = VoucherRecord::insert($records); // use database
             // dd($voucherRecords);
+            // return $request;
 
             DB::commit();
-            return new VoucherDetailResource($voucher);
-
-        }catch (Exception $e) {
+            return response()->json([
+                "message" => "checkout successful",
+                "data" => new VoucherDetailResource($voucher)
+            ]);
+        } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['message' => $e->getMessage()], 500);
+            return response()->json(["message" => $e->getMessage()], 500);
         }
 
     }
